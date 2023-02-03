@@ -3,7 +3,7 @@ import 'dotenv/config';
 export default () => ({
   expo: {
     name: "Greenclick",
-    slug: "Greenclick",
+    slug: "greenclick",
     extra: {
       GOOGLE_KEY: process.env.GOOGLE_KEY
     },
