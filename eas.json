@@ -8,13 +8,15 @@
       "distribution": "internal",
       "ios": {
         "resourceClass": "m1-medium"
-      }
+      },
+      "extends": "production"
     },
     "staging": {
       "distribution": "internal",
       "ios": {
         "resourceClass": "m1-medium"
-      }
+      },
+      "extends": "production"
     },
     "production": {
       "ios": {

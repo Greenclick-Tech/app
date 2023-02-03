@@ -91,6 +91,10 @@ const ExtraInfo = ({ navigation, route }) => {
     setShow(false)
   }
 
+  useEffect(()=> {
+    console.log(GoogleKey)
+  }, [GoogleKey])
+
   return (
     <SafeAreaView
       style={{
