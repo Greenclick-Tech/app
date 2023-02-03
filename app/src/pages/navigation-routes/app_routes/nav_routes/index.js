@@ -5,8 +5,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import HomePage from '../../../screens/appScreens/home-page';
 import MapPage from '../../../screens/appScreens/main-map';
 import ActivityPage from '../../../screens/appScreens/activity-page';
-import Events from '../../app/pages/pages-app/events';
-import CarLoad from '../carLoad';
+//import Events from '../../app/pages/pages-app/events';
+import CarLoad from '../../../../components/car-load';
 import { Context } from '../../../../helpers/context/context';
 
 const Nav = createBottomTabNavigator();

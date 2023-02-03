@@ -39,7 +39,10 @@ import endpoints from "../../../../constants/endpoints";
 import RequestHandler from "../../../../helpers/api/rest_handler";
 import CarLoad from "../../../../components/car-load";
 import useDebounce from "../../../../helpers/hooks/useDebounce";
-const GOOGLE_KEY = Config.env.GOOGLE_KEY;
+import Constants from 'expo-constants';
+
+const GoogleKey = Constants.expoConfig.extra.GOOGLE_KEY
+
 
 const MapContainer = styled.View`
   flex: 1;
@@ -956,7 +959,7 @@ const MapPage = ({ route, navigation, props }) => {
         const delaySearch = setTimeout(() => {
             axios
                 .get(
-                    `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchPlaces}&&location=${location.coords.latitude}%2C${location.coords.longitude}&&radius=1000&key=${GOOGLE_KEY}`
+                    `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchPlaces}&&location=${location.coords.latitude}%2C${location.coords.longitude}&&radius=1000&key=${GoogleKey}`
                 )
                 .then((res) => {
                     setPlaces(res.data.predictions);
@@ -1747,7 +1750,7 @@ const MapPage = ({ route, navigation, props }) => {
                                                                         Keyboard.dismiss();
                                                                         await axios
                                                                             .get(
-                                                                                `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=${GOOGLE_KEY}`
+                                                                                `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=${GoogleKey}`
                                                                             )
                                                                             .then((res) => {
                                                                                 handleSheetChanges(0);

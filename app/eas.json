@@ -1,0 +1,37 @@
+{
+  "cli": {
+    "version": ">= 3.5.1"
+  },
+  "build": {
+    "development": {
+      "env": {
+        "GOOGLE_KEY": "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w"
+      },
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "resourceClass": "m1-medium"
+      }
+    },
+    "staging": {
+      "distribution": "internal",
+      "env": {
+        "GOOGLE_KEY": "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w"
+      },
+      "ios": {
+        "resourceClass": "m1-medium"
+      }
+    },
+    "production": {
+      "env": {
+        "GOOGLE_KEY": "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w"
+      },
+      "ios": {
+        "resourceClass": "m1-medium"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

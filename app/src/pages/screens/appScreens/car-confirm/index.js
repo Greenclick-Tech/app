@@ -13,10 +13,8 @@ import moment from "moment";
 import CustomButton from "../../../../components/custom-button";
 import Swiper from "react-native-swiper";
 import {
-  CardField,
   useStripe,
 } from "@stripe/stripe-react-native";
-import Checkbox from "expo-checkbox";
 import RequestHandler from "../../../../helpers/api/rest_handler";
 import endpoints from "../../../../constants/endpoints";
 import { useQueries } from "@tanstack/react-query";
@@ -442,7 +440,7 @@ const CarConfirm = ({ route, navigation }) => {
       <View style={{ flex: 1 }}>
         {results[2].data.client_secret ? (
           <View style={{ flex: 1 }}>
-            <ModalView
+            {/* <ModalView
               visible={isPaymentVisible}
               transparent={true}
               animationType="slide"
@@ -451,11 +449,7 @@ const CarConfirm = ({ route, navigation }) => {
             >
               <ModalContent activeOpacity={1} onPress={hidePaymentPicker}>
                 <ModalMargin activeOpacity={1}>
-                  {/* <Button title="lol"></Button>
-              <View style={{ alignItems: "center" }}>
-                <TextOr>Or</TextOr>
-                <SeperatorFull></SeperatorFull>
-              </View> */}
+                  
                   <PaddingContent>
                     <MiniSubtitle>Payment Information</MiniSubtitle>
                     <CardField
@@ -505,7 +499,7 @@ const CarConfirm = ({ route, navigation }) => {
                   </PaddingContent>
                 </ModalMargin>
               </ModalContent>
-            </ModalView>
+            </ModalView> */}
             {results[1].data.vehicle && results[0].data.hotel ? (
               <SafeAreaView style={{ flex: 1 }}>
                 <ScrollView>

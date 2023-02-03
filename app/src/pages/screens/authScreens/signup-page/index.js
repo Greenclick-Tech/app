@@ -4,9 +4,10 @@ import styled from "styled-components";
 import CustomButton from "../../../../components/custom-button";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from "moment";
+import Constants from 'expo-constants';
 
 const Subtitle = styled.Text`
   color: #3b414b;
@@ -75,7 +76,8 @@ const ExtraInfo = ({ navigation, route }) => {
   const [date_of_birth, setDateOfBirth] = useState(new Date());
   const today = new Date();
   const [show, setShow] = useState(false);
-
+  const GoogleKey = Constants.expoConfig.extra.GOOGLE_KEY
+  
   const showDatepicker = () => {
     setShow(true)
   };
@@ -210,7 +212,7 @@ const ExtraInfo = ({ navigation, route }) => {
               },
             }}
             query={{
-              key: "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w",
+              key: GoogleKey,
               language: "en",
             }}
           />

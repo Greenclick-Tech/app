@@ -3,7 +3,7 @@ import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { Context } from "../../helpers/context/context";
 import AuthRoutes from "./auth_routes/main_routes";
 import AppRoutes from "./app_routes/main_routes";
-import LoadingScreen from "../components/loading";
+import LoadingScreen from "../../components/loading";
 import * as Location from "expo-location";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";

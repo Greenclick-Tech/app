@@ -3,7 +3,7 @@ import { StyleSheet, Text, KeyboardAvoidingView, Alert } from "react-native";
 import styled from 'styled-components';
 import { Context } from '../../../../helpers/context/context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import RequestHandler from '../../../rest_handler';
+import RequestHandler from '../../../../helpers/api/rest_handler';
 import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell } from 'react-native-confirmation-code-field';
 import CustomButton from '../../../../components/custom-button';
 import endpoints from '../../../../constants/endpoints';

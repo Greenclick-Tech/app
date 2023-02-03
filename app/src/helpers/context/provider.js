@@ -1,6 +1,6 @@
 import React from "react";
 import ContextProvider from "./context";
-import Routes from "./routes";
+import Routes from "../../pages/navigation-routes/routes"
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const queryClient = new QueryClient();

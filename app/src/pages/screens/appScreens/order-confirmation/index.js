@@ -16,7 +16,7 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import CustomButton from "../../../../components/custom-button";
 import MapView, { Circle, Marker } from "react-native-maps";
 import Swiper from "react-native-swiper";
-import RequestHandler from "../../../rest_handler";
+import RequestHandler from "../../../../helpers/api/rest_handler";
 import endpoints from "../../../../constants/endpoints";
 import { useQueries } from "@tanstack/react-query";
 import moment from "moment";

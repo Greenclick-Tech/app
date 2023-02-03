@@ -1,23 +1,26 @@
 import React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createStackNavigator } from "@react-navigation/native-stack";
 import { Button } from "react-native";
-//
-import SettingsMain from "../../../screens/appScreens/settings";
-import PageAccount from "./pages/pages-app/settings/nested-settings/account";
-import PageAppearance from "./pages/pages-app/settings/nested-settings/Appearance";
-import PageHelp from "./pages/pages-app/settings/nested-settings/help";
-import PageNotifications from "./pages/pages-app/settings/nested-settings/notifications";
-import PagePrivacy from "./pages/pages-app/settings/nested-settings/privacy";
 import CarDetails from "../../../screens/appScreens/car-details";
 import CarConfirm from "../../../screens/appScreens/car-confirm";
-import Activity from "./pages/pages-app/activity";
-import PaymentMethods from "./pages/pages-app/payment-methods";
-import PaymentSheet from "./pages/pages-app/paymentsheet";
 import OrderConfirmation from "../../../screens/appScreens/order-confirmation";
-import Events from "./pages/pages-app/events";
 import KeyRetrival from "../../../screens/appScreens/keyretrival";
-import KeyReturn from "./pages/pages-app/keyreturn";
+import KeyReturn from '../../../screens/appScreens/keyreturn'
 import BottomNavigationRoutes from "../nav_routes";
+//
+// import SettingsMain from "../../../screens/appScreens/settings";
+// import PageAccount from "./pages/pages-app/settings/nested-settings/account";
+// import PageAppearance from "./pages/pages-app/settings/nested-settings/Appearance";
+// import PageHelp from "./pages/pages-app/settings/nested-settings/help";
+// import PageNotifications from "./pages/pages-app/settings/nested-settings/notifications";
+// import PagePrivacy from "./pages/pages-app/settings/nested-settings/privacy";
+
+// import Activity from "./pages/pages-app/activity";
+// import PaymentMethods from "./pages/pages-app/payment-methods";
+// import PaymentSheet from "./pages/pages-app/paymentsheet";
+
+// import Events from "./pages/pages-app/events";
+
 
 const Stack = createStackNavigator();
 
