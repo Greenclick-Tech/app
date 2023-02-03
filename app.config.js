@@ -5,7 +5,7 @@ export default () => ({
     name: "greenclick",
     slug: "greenclick",
     extra: {
-      GOOGLE_KEY: process.env.GOOGLE_KEY,
+      GOOGLE_KEY: process.env.GOOGLE_KEY
     },
     version: "1.0.0",
     orientation: "portrait",
