@@ -1,9 +1,6 @@
 //defining entry point for application
 import { registerRootComponent } from 'expo';
-import { View, Text } from 'react-native';
+import Provider from '../../helpers/context/provider';
 
-function App() {
-  return <View><Text>Hello World!</Text></View>;
-}
-
-registerRootComponent(App);
+//Entry point leads to application routes surrounded by context from multiple different sources for best state management.
+registerRootComponent(Provider);
