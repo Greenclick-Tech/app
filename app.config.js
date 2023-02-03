@@ -26,7 +26,7 @@ export default () => ({
     ios: {
       supportsTablet: false,
       bundleIdentifier: "org.name.greenclick",
-      buildNumber: "6",
+      buildNumber: "7",
       infoPlist: {
         NSLocationWhenInUseUsageDescription: "This app uses your location to retrieve nearby hotels & unlock the greenclick lock box when you are in clock proximity.",
         NSLocationAlwaysUsageDescription: "This app requires your location to verify if you are in close proximity of the greenclick lock box.",
