@@ -260,10 +260,8 @@ const CarConfirm = ({ route, navigation }) => {
   const openPaymentSheet = async () => {
     const { error } = await presentPaymentSheet();
     if (error) {
-      console.log(`Error code: ${error.code}`, error.message);
       Alert.alert("Alert", error.message);
     } else {
-      console.log(`Success, Your order is confirmed!`);
       Alert.alert(
         `Success! Order Confirmed`,
         `Your order was successfully confirmed.`
@@ -305,7 +303,6 @@ const CarConfirm = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
-      console.log(res);
     } else {
       return res;
     }
@@ -327,9 +324,7 @@ const CarConfirm = ({ route, navigation }) => {
       // probably a 404, hotel prob doesnt exist or somthing
       //
       setErrorIntent(res.error.message);
-      console.log(res)
     } else {
-      console.log(res)
       return res;
     }
   }

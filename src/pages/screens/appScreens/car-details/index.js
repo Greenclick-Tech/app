@@ -379,7 +379,6 @@ const onSelectTimeSlot = (markup, start, end) => {
       // probably a 404, vehicle prob doesnt exist or somthing
       //
     } else {
-      console.log(res);
       return res;
     }
   }
@@ -452,7 +451,6 @@ const onSelectTimeSlot = (markup, start, end) => {
         moment(currentMonth).endOf("month")
       ),
     enabled: vehicle,
-    onSuccess: (data) => console.log(data),
   });
 
   const activeBooking = useQuery({
@@ -485,7 +483,6 @@ const onSelectTimeSlot = (markup, start, end) => {
   }, [currentMonth, vehicle, bookingQuery.data]);
 
   useEffect(() => {
-    console.log("startDate", route.params.startDate);
     if (route.params.startDate && route.params.endDate) {
       if (route.params.type == "vehicle") {
         setVehicleTempStartDate(moment(route.params.startDate));
@@ -581,7 +578,6 @@ const onSelectTimeSlot = (markup, start, end) => {
   };
 
   useEffect(()=> {
-    console.log("Start: ", masterStart, "End: ", masterEnd)
   }, [masterStart])
 
   let main = null;

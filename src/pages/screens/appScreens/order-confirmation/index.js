@@ -300,7 +300,6 @@ const OrderConfirmation = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
-      console.log(res);
     } else {
       return res;
     }
@@ -322,7 +321,6 @@ const OrderConfirmation = ({ route, navigation }) => {
       // or u could receive 403, so show the error message to user
       //
 
-      console.log(res);
     } else {
       // res.latch_id = Number
       // tell the user t expect their keys in "Latch #X"
@@ -345,7 +343,6 @@ const OrderConfirmation = ({ route, navigation }) => {
       {
         queryKey: ["booking", route.params.bookingId],
         queryFn: () => getBooking( route.params.bookingId),
-        onSuccess: (data) => console.log(data),
       },
       // {
       //   queryKey: ["nearbyBox"],
@@ -371,12 +368,6 @@ const OrderConfirmation = ({ route, navigation }) => {
   //     }
   //   }
   // }, [results[3].data])
-
-  useEffect(()=> {
-    if(results[2].isSuccess) {
-      console.log(results[2].data)
-    }
-  }, [results[2]])
 
   let main = null;
   if (results[2].isLoading) {

@@ -48,19 +48,7 @@ const Routes = ({ }) => {
 
     //Retrieving the users location to populate context location state.
     //{ location: { coordinates: {} } }
-    const getLocation = async () => {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-            setErrorMsgLocation(
-                "Permission to access location was denied. Your location is required for greenclick to operate. You can enable your location in Settings > Greenclick"
-            );
-            return;
-        }
-        //obtaining the users location
-        let location = await Location.getCurrentPositionAsync({});
-        setLocation(location);
-        setLocationStatus(status);
-    };
+    
 
     //Retriving notifications push token to populate context
     //If user denies push token or an emulator is being used, push token will not generate.
@@ -96,11 +84,7 @@ const Routes = ({ }) => {
     }
 
     //Function for async retrival of location
-    const locationFunc = async () => {
-        if (!location) {
-            await getLocation();
-        }
-    };
+    
 
     //Function for asnyc retrival of notification pushToken
     const notificationFunc = async () => {
@@ -124,19 +108,17 @@ const Routes = ({ }) => {
 
     //Trigger functions on component mount
     useEffect(() => {
-        returnUser();
-
-        if (user) {
-            if (!location) {
-                locationFunc();
-            }
-        } else {
-            console.log(pushToken)
-            if (!pushToken) {
-                notificationFunc();
-            }
+        if (!pushToken) {
+            notificationFunc();
         }
-    }, [user]);
+
+      }, [user]);
+
+    useEffect(() => {
+
+        returnUser();
+    
+      }, []);
 
     //Return pages wrapped in navigation corrisponding to users
     return (

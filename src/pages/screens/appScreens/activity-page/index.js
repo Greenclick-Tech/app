@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useLayoutEffect } from "react";
 import { ScrollView, View, ActivityIndicator } from "react-native";
 import styled from "styled-components";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -7,6 +7,8 @@ import RequestHandler from "../../../../helpers/api/rest_handler";
 import endpoints from "../../../../constants/endpoints";
 import moment from "moment";
 import CustomButton from "../../../../components/custom-button";
+import { Context } from "../../../../helpers/context/context";
+import * as Location from "expo-location";
 
 const Subtitle = styled.Text`
   color: ${(props) => (props.color ? "#ffffff" : "#494d52")};
@@ -142,7 +144,7 @@ const ItemComponent = ({bookings, navigation}) => {
           return a.active ? -1 : 1;
         })?.map((item, index) => {
           return item.active ? (
-            <ActiveBookingContainer  style={{
+            <ActiveBookingContainer key={item.id}  style={{
               marginTop: 10,
               marginBottom: 10
             }}>
@@ -350,6 +352,24 @@ const ItemComponent = ({bookings, navigation}) => {
 }
 
 const ActivityPage = ({ navigation }) => {
+  const { location, setLocation, locationStatus, setLocationStatus } = useContext(Context);
+  const [locationLoad, setLocationLoad] = useState(true);
+
+  const getLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+        return;
+    }
+    //obtaining the users location
+    let location = await Location.getCurrentPositionAsync({});
+    setLocation(location);
+    setLocationStatus(status);
+    setLocationLoad(false)
+  };
+
+  useLayoutEffect(()=> {
+    getLocation()
+  }, [])
 
   async function getBookings() {
     let res = await RequestHandler(
@@ -386,6 +406,9 @@ const ActivityPage = ({ navigation }) => {
         style={{ flex: 1, paddingLeft: 20, paddingRight: 20, paddingTop: 20 }}
       >
         <Subtitle>Your Activity</Subtitle>
+        {
+        location ?
+        <View>
         {userBookings.isLoading ? (
           <ActivityIndicator size={"small"}></ActivityIndicator>
         ) : userBookings.isError ? (
@@ -408,6 +431,29 @@ const ActivityPage = ({ navigation }) => {
             ></CustomButton>
           </View>
         )}
+        </View>
+        :
+        locationLoad ?
+        <View style={{
+          paddingLeft: 15,
+          paddingRight: 15,
+          paddingTop: 20
+        }}>
+        <ActivityIndicator size={'small'}></ActivityIndicator>
+        </View>
+        :
+        locationStatus == 'granted' ?
+        <></>
+        :
+        <View style={{
+          paddingLeft: 15,
+          paddingRight: 15,
+          paddingTop: 20
+        }}>
+          <Subtitle>Your Location was not found.</Subtitle>
+          <SubtitleTwo>In order to use the greenclick app, please allow location permissions located in your devices settings.</SubtitleTwo>
+        </View>  
+        }
       </ScrollView>
     </View>
   );

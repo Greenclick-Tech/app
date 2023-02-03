@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { KeyboardAvoidingView, TextInput } from "react-native";
 import styled from 'styled-components';
 import CustomButton from '../../../../components/custom-button';
@@ -51,7 +51,7 @@ const PhonePage = ({ navigation, route }) => {
     const [valid, setValid] = useState(true);
     const [showMessage, setShowMessage] = useState(false);
     const [country, setCountry] = useState("+1");
-
+    const phoneInput = useRef(null);
     const handleRegister = async () => {
         let res = await RequestHandler(
             "post",

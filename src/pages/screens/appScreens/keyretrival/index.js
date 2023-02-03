@@ -73,7 +73,6 @@ const KeyRetrival = ({ route, navigation }) => {
       // probably a 404, hotel prob doesnt exist or somthing
       //
       setError(res);
-      console.log(res);
     } else {
       return res;
     }

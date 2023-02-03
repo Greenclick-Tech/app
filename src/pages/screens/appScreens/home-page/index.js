@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useContext, useRef } from "react";
 import styled from "styled-components";
 import {
   View,
@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
+import * as Location from "expo-location";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import LogoSingle from '../../../../assets/logo-green-single'
 import { LinearGradient } from "expo-linear-gradient";
@@ -192,9 +193,10 @@ const ActiveBookingTextContainer = styled.Text`
 `;
 
 const HomePage = ({ navigation, route }) => {
-  const { location, pushToken } = useContext(Context);
+  const { location, setLocation, locationStatus, setLocationStatus } = useContext(Context);
   const isFocused = useIsFocused();
   const [loading, setLoading] = useState(true);
+  const [locationLoad, setLocationLoad] = useState(true);
   const { colors, locations } = easeGradient({
     colorStops: {
       0: {
@@ -208,6 +210,22 @@ const HomePage = ({ navigation, route }) => {
   });
   const animation = useRef(null);
   const [currentDate, setCurrentDate] = useState(new Date());
+  
+  const getLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+        return;
+    }
+    //obtaining the users location
+    let location = await Location.getCurrentPositionAsync({});
+    setLocation(location);
+    setLocationStatus(status);
+    setLocationLoad(false)
+  };
+
+  useLayoutEffect(()=> {
+    getLocation()
+  }, [])
 
   async function fetchData() {
     let res = await RequestHandler(
@@ -335,13 +353,6 @@ const HomePage = ({ navigation, route }) => {
     enabled: activeBooking.isSuccess && "booking" in activeBooking.data,
   });
 
-  useEffect(() => {
-    
-    if (!isLoading) {
-      setLoading(false);
-    }
-  }, [isLoading]);
-
   useFocusEffect(
     React.useCallback(() => {
       activeBooking.refetch()
@@ -355,47 +366,7 @@ const HomePage = ({ navigation, route }) => {
 
   let main = null;
 
-  if (loading) {
-    main = (
-      <View style={styles.animationContainer}>
-        <LottieView
-          autoPlay
-          ref={animation}
-          style={{
-            width: 300,
-            height: 300,
-          }}
-          // Find more Lottie files at https://lottiefiles.com/featured
-          source={{
-            uri: "https://assets1.lottiefiles.com/packages/lf20_znsmxbjo.json",
-          }}
-        />
-      </View>
-    );
-  } else if (!location) {
-    main = <LocationLoad />;
-  } else if (!pushToken) {
-    main = (
-      <AnimationCenter>
-        <Title alignCenter>Please Enable Notifications</Title>
-        <LottieView
-          autoPlay
-          ref={animation}
-          loop={true}
-          style={{
-            width: 150,
-            height: 150,
-          }}
-          // Find more Lottie files at https://lottiefiles.com/featured
-          source={{
-            uri: "https://assets3.lottiefiles.com/packages/lf20_8i1qogrb.json",
-          }}
-        />
-        <Subtitle alignCenter>{errorMsgNotication}</Subtitle>
-      </AnimationCenter>
-    );
-  } else {
-    main = (
+  main = (
       <View style={{ flex: 1 }}>
         <View>
           <View
@@ -439,177 +410,181 @@ const HomePage = ({ navigation, route }) => {
             </TouchableOpacity>
           </View>
         </View>
-        {activeBooking.isLoading ? (
-          <ActivityIndicator
-            style={{ padding: 20 }}
-            size={"small"}
-          ></ActivityIndicator>
-        ) : activeBooking.isError ? (
-          <SubtitleTwo>
-            An error occured retriving your booking details. Please contact
-            support for assitance at https://support.greenclick.app/
-          </SubtitleTwo>
-        ) : "error" in activeBooking.data ? (
-          <></>
-        ) : (
-          <ActiveBookingContainer>
-            <Subtitle color>Your Active Booking</Subtitle>
-            {activeBooking.isLoading ? (
-              <ActivityIndicator
-                style={{ paddingTop: 10, paddingBottom: 10 }}
-                size={"small"}
-              ></ActivityIndicator>
-            ) : activeBooking.isError ? (
-              <SubtitleTwo white>
-                Error loading your active booking. Please contact support at
-                https://support.greenclick.app
-              </SubtitleTwo>
-            ) : getVehicle.isLoading && getHotel.isLoading ? (
-              <ActivityIndicator
-                style={{ paddingTop: 10, paddingBottom: 10 }}
-                size={"small"}
-              ></ActivityIndicator>
-            ) : getVehicle.isFetching && getHotel.isFetching ? (
-              <ActivityIndicator
-                style={{ paddingTop: 10, paddingBottom: 10 }}
-                size={"small"}
-              ></ActivityIndicator>
-            ) : getVehicle.isFetched && getHotel.isFetched ? (
-              getVehicle.isError && getHotel.isError ? (
+        {
+        location && (
+          activeBooking.isLoading ? (
+            <ActivityIndicator
+              style={{ padding: 20 }}
+              size={"small"}
+            ></ActivityIndicator>
+          ) : activeBooking.isError ? (
+            <SubtitleTwo>
+              An error occured retriving your booking details. Please contact
+              support for assitance at https://support.greenclick.app/
+            </SubtitleTwo>
+          ) : "error" in activeBooking.data ? (
+            <></>
+          ) : (
+            <ActiveBookingContainer>
+              <Subtitle color>Your Active Booking</Subtitle>
+              {activeBooking.isLoading ? (
+                <ActivityIndicator
+                  style={{ paddingTop: 10, paddingBottom: 10 }}
+                  size={"small"}
+                ></ActivityIndicator>
+              ) : activeBooking.isError ? (
+                <SubtitleTwo white>
+                  Error loading your active booking. Please contact support at
+                  https://support.greenclick.app
+                </SubtitleTwo>
+              ) : getVehicle.isLoading && getHotel.isLoading ? (
+                <ActivityIndicator
+                  style={{ paddingTop: 10, paddingBottom: 10 }}
+                  size={"small"}
+                ></ActivityIndicator>
+              ) : getVehicle.isFetching && getHotel.isFetching ? (
+                <ActivityIndicator
+                  style={{ paddingTop: 10, paddingBottom: 10 }}
+                  size={"small"}
+                ></ActivityIndicator>
+              ) : getVehicle.isFetched && getHotel.isFetched ? (
+                getVehicle.isError && getHotel.isError ? (
+                  <SubtitleTwo>
+                    Error loading your active booking. Please contact support at
+                    https://support.greenclick.app
+                  </SubtitleTwo>
+                ) : (
+                  <ActiveBookingTab
+                    onPress={() =>
+                      navigation.navigate("Order", {
+                        bookingId: activeBooking.data.booking.id,
+                        active: true,
+                      })
+                    }
+                  >
+                    <View
+                      style={{
+                        flex: 1,
+                      }}
+                      s
+                    >
+                      <ActiveBookingImage
+                        source={{
+                          uri: getVehicle.data.vehicle.image_urls[0],
+                        }}
+                      ></ActiveBookingImage>
+                    </View>
+
+                    <View
+                      style={{
+                        flex: 2,
+                        padding: 20,
+                      }}
+                    >
+                      <ActiveBookingTextContainer size bold>
+                        {getVehicle.data.vehicle.model}
+                      </ActiveBookingTextContainer>
+                      <ActiveBookingTextContainer size margin={"8px"}>
+                        {getHotel.data.hotel.name}
+                      </ActiveBookingTextContainer>
+                      <View
+                        style={{
+                          padding: 15,
+                          borderWidth: 1,
+                          borderRadius: 10,
+                          borderColor: "#00000020",
+                        }}
+                      >
+                        <View
+                          style={{
+                            flexDirection: "row",
+                          }}
+                        >
+                          <Ionicons
+                            style={{
+                              paddingTop: 1,
+                              paddingRight: 5,
+                            }}
+                            name="calendar"
+                            color={"#00000080"}
+                          ></Ionicons>
+                          <ActiveBookingTextContainer bold>
+                            Start
+                          </ActiveBookingTextContainer>
+                        </View>
+
+                        <ActiveBookingTextContainer margin={"12px"}>
+                          {moment(activeBooking.data.booking.start_date).format(
+                            "LLL"
+                          )}
+                        </ActiveBookingTextContainer>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                          }}
+                        >
+                          <Ionicons
+                            style={{
+                              paddingTop: 1,
+                              paddingRight: 5,
+                            }}
+                            name="calendar"
+                            color={"#00000080"}
+                          ></Ionicons>
+                          <ActiveBookingTextContainer bold>
+                            End
+                          </ActiveBookingTextContainer>
+                        </View>
+                        <ActiveBookingTextContainer margin={"10px"}>
+                          {moment(activeBooking.data.booking.end_date).format(
+                            "LLL"
+                          )}
+                        </ActiveBookingTextContainer>
+                        {moment(currentDate).isAfter(
+                          moment(activeBooking.data.booking.end_date)
+                        ) ? (
+                          <ActiveBookingTextContainer bold color={"#f05157"}>
+                            Your booking is{" "}
+                            {moment(currentDate).diff(
+                              moment(activeBooking.data.booking.end_date),
+                              "hours"
+                            )}{" "}
+                            hours overdue, please return your keys as soon as
+                            possible.
+                          </ActiveBookingTextContainer>
+                        ) : moment(activeBooking.data.booking.end_date).isSame(
+                            moment(currentDate),
+                            "day"
+                          ) ? (
+                          <ActiveBookingTextContainer bold color={"#eba910"}>
+                            Your booking ends today, please return as soon as
+                            possible.
+                          </ActiveBookingTextContainer>
+                        ) : "recieved_keys" in activeBooking.data.booking ? (
+                          <ActiveBookingTextContainer bold color={"#42ad56"}>
+                            Click here to see your rental information and return
+                            your keys.
+                          </ActiveBookingTextContainer>
+                        ) : (
+                          <ActiveBookingTextContainer bold color={"#42ad56"}>
+                            Click here to see your rental information and recieve
+                            your keys.
+                          </ActiveBookingTextContainer>
+                        )}
+                      </View>
+                    </View>
+                  </ActiveBookingTab>
+                )
+              ) : (
                 <SubtitleTwo>
                   Error loading your active booking. Please contact support at
                   https://support.greenclick.app
                 </SubtitleTwo>
-              ) : (
-                <ActiveBookingTab
-                  onPress={() =>
-                    navigation.navigate("Order", {
-                      bookingId: activeBooking.data.booking.id,
-                      active: true,
-                    })
-                  }
-                >
-                  <View
-                    style={{
-                      flex: 1,
-                    }}
-                    s
-                  >
-                    <ActiveBookingImage
-                      source={{
-                        uri: getVehicle.data.vehicle.image_urls[0],
-                      }}
-                    ></ActiveBookingImage>
-                  </View>
-
-                  <View
-                    style={{
-                      flex: 2,
-                      padding: 20,
-                    }}
-                  >
-                    <ActiveBookingTextContainer size bold>
-                      {getVehicle.data.vehicle.model}
-                    </ActiveBookingTextContainer>
-                    <ActiveBookingTextContainer size margin={"8px"}>
-                      {getHotel.data.hotel.name}
-                    </ActiveBookingTextContainer>
-                    <View
-                      style={{
-                        padding: 15,
-                        borderWidth: 1,
-                        borderRadius: 10,
-                        borderColor: "#00000020",
-                      }}
-                    >
-                      <View
-                        style={{
-                          flexDirection: "row",
-                        }}
-                      >
-                        <Ionicons
-                          style={{
-                            paddingTop: 1,
-                            paddingRight: 5,
-                          }}
-                          name="calendar"
-                          color={"#00000080"}
-                        ></Ionicons>
-                        <ActiveBookingTextContainer bold>
-                          Start
-                        </ActiveBookingTextContainer>
-                      </View>
-
-                      <ActiveBookingTextContainer margin={"12px"}>
-                        {moment(activeBooking.data.booking.start_date).format(
-                          "LLL"
-                        )}
-                      </ActiveBookingTextContainer>
-                      <View
-                        style={{
-                          flexDirection: "row",
-                        }}
-                      >
-                        <Ionicons
-                          style={{
-                            paddingTop: 1,
-                            paddingRight: 5,
-                          }}
-                          name="calendar"
-                          color={"#00000080"}
-                        ></Ionicons>
-                        <ActiveBookingTextContainer bold>
-                          End
-                        </ActiveBookingTextContainer>
-                      </View>
-                      <ActiveBookingTextContainer margin={"10px"}>
-                        {moment(activeBooking.data.booking.end_date).format(
-                          "LLL"
-                        )}
-                      </ActiveBookingTextContainer>
-                      {moment(currentDate).isAfter(
-                        moment(activeBooking.data.booking.end_date)
-                      ) ? (
-                        <ActiveBookingTextContainer bold color={"#f05157"}>
-                          Your booking is{" "}
-                          {moment(currentDate).diff(
-                            moment(activeBooking.data.booking.end_date),
-                            "hours"
-                          )}{" "}
-                          hours overdue, please return your keys as soon as
-                          possible.
-                        </ActiveBookingTextContainer>
-                      ) : moment(activeBooking.data.booking.end_date).isSame(
-                          moment(currentDate),
-                          "day"
-                        ) ? (
-                        <ActiveBookingTextContainer bold color={"#eba910"}>
-                          Your booking ends today, please return as soon as
-                          possible.
-                        </ActiveBookingTextContainer>
-                      ) : "recieved_keys" in activeBooking.data.booking ? (
-                        <ActiveBookingTextContainer bold color={"#42ad56"}>
-                          Click here to see your rental information and return
-                          your keys.
-                        </ActiveBookingTextContainer>
-                      ) : (
-                        <ActiveBookingTextContainer bold color={"#42ad56"}>
-                          Click here to see your rental information and recieve
-                          your keys.
-                        </ActiveBookingTextContainer>
-                      )}
-                    </View>
-                  </View>
-                </ActiveBookingTab>
-              )
-            ) : (
-              <SubtitleTwo>
-                Error loading your active booking. Please contact support at
-                https://support.greenclick.app
-              </SubtitleTwo>
-            )}
-          </ActiveBookingContainer>
-        )}
+              )}
+            </ActiveBookingContainer>
+          )
+        )
+        }
         <StaticContainer>
           <Subtitle margin>Rent a Car, E-Bike & More</Subtitle>
           <SubtitleTwo>
@@ -667,6 +642,8 @@ const HomePage = ({ navigation, route }) => {
             </ItemWrapper>
           </ItemContainer>
         </StaticContainer>
+        {
+        location ?
         <StaticContainer>
           {!isLoading && data ? (
             //Data Exists and is not loading
@@ -744,12 +721,28 @@ const HomePage = ({ navigation, route }) => {
               </HotelSubTitle>
             </View>
           ) : (
-            <AnimatedSkeleton width={"100%"} height={150}></AnimatedSkeleton>
+            <AnimatedSkeleton width={"100%"} height={"150px"}></AnimatedSkeleton>
           )}
         </StaticContainer>
+        :
+        locationLoad ?
+        <ActivityIndicator style={{padding: 20}} size={'small'}></ActivityIndicator>
+        :
+        locationStatus == 'granted' ? 
+        <></>
+        :
+        <View style={{
+          paddingLeft: 15,
+          paddingRight: 15,
+          paddingTop: 20
+        }}>
+          <Subtitle>Your Location was not found.</Subtitle>
+          <SubtitleTwo>In order to use the greenclick app, please allow location permissions located in your devices settings.</SubtitleTwo>
+        </View>   
+        
+        }
       </View>
     );
-  }
 
   return (
     <SafeAreaView
@@ -776,13 +769,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     paddingTop: 20,
-  },
-  shadowProp: {
-    shadowColor: "#171717",
-    shadowOffset: { width: -2, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-  },
+  }
 });
 
 export default HomePage;

@@ -13,7 +13,9 @@ const Nav = createBottomTabNavigator();
 
 //Navigation through bottom tabs
 
-const InvalidLocation = () => {
+const InvalidLocation = ({ }) => {
+    const { locationStatus } = useContext(Context)
+    console.log(locationStatus)
     return (
         <View style={{
             flex: 1,
@@ -38,75 +40,61 @@ const InvalidPushToken = () => {
 }
 
 const BottomNavigationRoutes = () => {
-    const {location, pushToken} = useContext(Context)
+    const { location, pushToken } = useContext(Context)
     return (
-        
+
         <Nav.Navigator
             screenOptions={({ route }) => ({
                 tabBarActiveTintColor: '#4aaf6e',
-                tabBarStyle: { display: location && pushToken ? "flex" : "none" },
                 tabBarIcon: ({ focused, color, size }) => {
                     let iconName;
                     //Current Page = Home
                     if (route.name === "Home") {
                         iconName = focused
-                        ? 'home'
-                        : 'home-outline';
+                            ? 'home'
+                            : 'home-outline';
                     }
                     //Current Page = Map
                     if (route.name === "Map") {
                         iconName = focused
-                        ? 'search'
-                        : 'search-outline';
+                            ? 'search'
+                            : 'search-outline';
                     }
                     //Current Page = Activity
                     if (route.name === "Activity") {
                         iconName = focused
-                        ? 'receipt'
-                        : 'receipt-outline';
+                            ? 'receipt'
+                            : 'receipt-outline';
                     }
                     //Current Page = Events
                     if (route.name === "Events") {
                         iconName = focused
-                        ? 'location'
-                        : 'location-outline';
+                            ? 'location'
+                            : 'location-outline';
                     }
 
                     return <Ionicons name={iconName} size={size} color={color}></Ionicons>
 
                 },
             })}
-          >
-            {location && pushToken  && (
-                <Nav.Screen name="Home" component={HomePage} options={{
-                    headerShown: false
-                }}  />
-            )}
-            {location && pushToken  && (<Nav.Screen name="Map" options={{
+        >
+
+            <Nav.Screen name="Home" component={HomePage} options={{
                 headerShown: false
-            }}  component={MapPage} />) }
+            }} />
+
+            <Nav.Screen name="Map" options={{
+                headerShown: false
+            }} component={MapPage} />
 
             {/* {location && pushToken  && (
                 <Nav.Screen name='Events' component={Events}></Nav.Screen>
             )} */}
-            
-            {location && pushToken  && (
-                <Nav.Screen name='Activity' options={{
-                    headerTitle: "Your Purchases"
-                }} component={ActivityPage}></Nav.Screen>
-            )}
 
-            {!location && (
-                <Nav.Screen name='Location not Found'  options={{
-                    headerShown: false
-                }} component={InvalidLocation}></Nav.Screen>
-            )}
+            <Nav.Screen name='Activity' options={{
+                headerTitle: "Your Purchases"
+            }} component={ActivityPage}></Nav.Screen>
 
-            {!pushToken && (
-                <Nav.Screen name='Notification not Found'  options={{
-                    headerShown: false
-                }} component={InvalidPushToken}></Nav.Screen>
-            )}
 
         </Nav.Navigator>
     )

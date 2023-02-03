@@ -8,7 +8,7 @@ import KeyRetrival from "../../../screens/appScreens/keyretrival";
 import KeyReturn from '../../../screens/appScreens/keyreturn'
 import BottomNavigationRoutes from "../nav_routes";
 //
-// import SettingsMain from "../../../screens/appScreens/settings";
+import SettingsMain from "../../../screens/appScreens/settings";
 // import PageAccount from "./pages/pages-app/settings/nested-settings/account";
 // import PageAppearance from "./pages/pages-app/settings/nested-settings/Appearance";
 // import PageHelp from "./pages/pages-app/settings/nested-settings/help";
@@ -50,10 +50,10 @@ const AppRoutes = () => {
 
             {/* Settings page, all settings */}
 
-            {/* <Stack.Screen 
+            <Stack.Screen 
                 name="Settings" 
                 component={SettingsMain} 
-            /> */}
+            />
 
             {/* Account settings page, all user account settings */}
 
