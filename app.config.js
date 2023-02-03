@@ -1,9 +1,11 @@
+import 'dotenv/config';
+
 export default () => ({
   expo: {
     name: "greenclick",
     slug: "greenclick",
     extra: {
-      "GOOGLE_KEY": process.env.GOOGLE_KEY || null,
+      GOOGLE_KEY: process.env.GOOGLE_KEY,
     },
     version: "1.0.0",
     orientation: "portrait",

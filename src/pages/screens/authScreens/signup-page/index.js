@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import styled from "styled-components";
 import CustomButton from "../../../../components/custom-button";
@@ -90,6 +90,10 @@ const ExtraInfo = ({ navigation, route }) => {
   const hideDatePicker = () => {
     setShow(false)
   }
+
+  useEffect(()=> {
+    console.log(GoogleKey);
+  },[GoogleKey])
 
   return (
     <SafeAreaView
