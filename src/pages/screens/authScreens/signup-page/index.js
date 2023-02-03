@@ -216,7 +216,7 @@ const ExtraInfo = ({ navigation, route }) => {
               },
             }}
             query={{
-              key: GoogleKey,
+              key: "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w",
               language: "en",
             }}
           />
