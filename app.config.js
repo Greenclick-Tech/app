@@ -22,7 +22,8 @@ export default () => ({
       "**/*"
     ],
     ios: {
-      supportsTablet: false
+      supportsTablet: false,
+      bundleIdentifier: "org.name.greenclick"
     },
     android: {
       adaptiveIcon: {
@@ -39,7 +40,7 @@ export default () => ({
       }
     },
     runtimeVersion: {
-      policy: "appVersion"
+      policy: "sdkVersion"
     }
   }
 })

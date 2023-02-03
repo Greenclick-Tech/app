@@ -1,5 +1,5 @@
 import React from 'react'
-import { createStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import StartPage from '../../../screens/authScreens/start-page';
 import PhonePage from '../../../screens/authScreens/phone-page';
 import PhoneVerifyPage from '../../../screens/authScreens/phone-verify-page';

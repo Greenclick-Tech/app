@@ -1,5 +1,5 @@
 import React from "react";
-import { createStackNavigator } from "@react-navigation/native-stack";
+import { createStackNavigator } from '@react-navigation/stack';
 import { Button } from "react-native";
 import CarDetails from "../../../screens/appScreens/car-details";
 import CarConfirm from "../../../screens/appScreens/car-confirm";

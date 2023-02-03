@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView } from "react-native";
+import { KeyboardAvoidingView, TextInput } from "react-native";
 import styled from 'styled-components';
 import CustomButton from '../../../../components/custom-button';
 import RequestHandler from '../../../../helpers/api/rest_handler';
 import endpoints from '../../../../constants/endpoints';
+import PhoneInput from "react-native-phone-number-input";
 
 const Cont = styled.View`
     flex: 1;
@@ -89,7 +90,7 @@ const PhonePage = ({ navigation, route }) => {
                 <ButtonContainer>
                     <KeyboardAvoidingView>
 
-                        {/* <PhoneInput
+                        <PhoneInput
                             ref={phoneInput}
                             defaultValue={value}
 
@@ -102,7 +103,7 @@ const PhonePage = ({ navigation, route }) => {
                             textContainerStyle={{ borderBottomWidth: 3, borderBottomColor: "#4aaf6e", backgroundColor: "#fff", marginLeft: 10 }}
                             textInputProps={{ placeholder: "Phone Number", placeholderTextColor: "#a6acad" }}
                             countryPickerButtonStyle={{ borderBottomWidth: 3, borderBottomColor: "#4aaf6e", backgroundColor: "#fff" }}
-                        /> */}
+                        />
 
                     </KeyboardAvoidingView>
 

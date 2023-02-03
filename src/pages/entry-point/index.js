@@ -1,4 +1,5 @@
 //defining entry point for application
+import 'react-native-gesture-handler';
 import { registerRootComponent } from 'expo';
 import Provider from '../../helpers/context/provider';
 
