@@ -2,8 +2,8 @@ import 'dotenv/config';
 
 export default () => ({
   expo: {
-    name: "greenclick",
-    slug: "greenclick",
+    name: "Greenclick",
+    slug: "Greenclick",
     extra: {
       GOOGLE_KEY: process.env.GOOGLE_KEY
     },
@@ -34,6 +34,7 @@ export default () => ({
       }
     },
     android: {
+      package: "org.name.greenclick",
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#FFFFFF"
@@ -49,6 +50,7 @@ export default () => ({
     },
     runtimeVersion: {
       policy: "sdkVersion"
-    },
+    }
+    
   }
 })
