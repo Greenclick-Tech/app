@@ -4,25 +4,30 @@ Greenclick codebase repository containing IOS/Android application, restful api &
 
 ![Greenclick Banner](https://www.greenclick.app/posts/banner.webp)
 
-## IOS/Android App
-- Built with React Native.
-- Expo Modules & EAS Builder.
-- Javascript based.
-- Maintained by Sahil Sian.
+##IOS/Android Application:
 
-## Greenclick Web Application
-- Built with React & Nextjs.
-- Component based, utilizing styled-components.
-- SEO friendly & server-side rendered.
-- Maintained by Sahil Sian.
+- Implemented using the React Native framework.
+- Incorporates the use of Expo Modules and EAS Builder.
+- Written in Javascript programming language.
+- Maintenance is currently managed by Sahil Sian.
 
-## RESTful API
-- Go Fiber HTTP Engine.
-- MongoDB and Redis Cache
-- Go based.
-- Maintained by Shadat Rahman.
+##Greenclick Web Application:
 
-## Greenclick Box Server
-- ExpressJS web framework.
-- Lightweight, hosted on raspberry pi.
-- Maintained by Shadat Rahman.
+- Constructed using React and Nextjs frameworks.
+- Adopts a component-based design approach, utilizing styled-components.
+- Server-side rendering enhances SEO compatibility.
+- Maintenance is currently managed by Sahil Sian.
+
+RESTful API:
+
+- Developed using Go Fiber HTTP Engine technology.
+- Features integration with MongoDB and Redis Cache.
+- Programmed in Go.
+- Maintenance is currently managed by Shadat Rahman.
+
+Greenclick Box Server:
+
+- Built on the ExpressJS web framework.
+- Characterized by its lightweight structure and deployment on a Raspberry Pi.
+- Maintenance is currently managed by Shadat Rahman.
+
