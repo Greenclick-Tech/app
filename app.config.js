@@ -27,7 +27,8 @@ export default () => ({
       buildNumber: "4",
       infoPlist: {
         NSLocationWhenInUseUsageDescription: "This app uses your location to retrieve nearby hotels & unlock the greenclick lock box when you are in clock proximity.",
-        NSLocationAlwaysUsageDescription: "This app requires your location to verify if you are in close proximity of the greenclick lock box."
+        NSLocationAlwaysUsageDescription: "This app requires your location to verify if you are in close proximity of the greenclick lock box.",
+        NSCameraUsageDescription: "This app requires your camera accesss to confirm your rental period to be damage & liability free."
       }
     },
     android: {
