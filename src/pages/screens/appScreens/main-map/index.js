@@ -40,10 +40,6 @@ import endpoints from "../../../../constants/endpoints";
 import RequestHandler from "../../../../helpers/api/rest_handler";
 import CarLoad from "../../../../components/car-load";
 import useDebounce from "../../../../helpers/hooks/useDebounce";
-import Constants from 'expo-constants';
-
-const GoogleKey = Constants.expoConfig.extra.GOOGLE_KEY
-
 
 const MapContainer = styled.View`
   flex: 1;

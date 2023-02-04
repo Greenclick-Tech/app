@@ -1,12 +1,7 @@
-import 'dotenv/config';
-
 export default () => ({
   expo: {
     name: "Greenclick",
     slug: "greenclick",
-    extra: {
-      GOOGLE_KEY: "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w"
-    },
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/icon.png",
@@ -26,7 +21,7 @@ export default () => ({
     ios: {
       supportsTablet: false,
       bundleIdentifier: "org.name.greenclick",
-      buildNumber: "7",
+      buildNumber: "8",
       infoPlist: {
         NSLocationWhenInUseUsageDescription: "This app uses your location to retrieve nearby hotels & unlock the greenclick lock box when you are in clock proximity.",
         NSLocationAlwaysUsageDescription: "This app requires your location to verify if you are in close proximity of the greenclick lock box.",
