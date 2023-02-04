@@ -67,7 +67,6 @@ const ItemComponent = ({bookings, navigation}) => {
       // SAHIL, HANDLE THIS
       // probably a 404, vehicle prob doesnt exist or somthing
       //
-      console.log(res.error);
     } else {
       return res;
     }
@@ -86,7 +85,6 @@ const ItemComponent = ({bookings, navigation}) => {
       // SAHIL, HANDLE THIS
       // probably a 404, vehicle prob doesnt exist or somthing
       //
-      console.log(res.error);
     } else {
       return res;
     }
@@ -361,7 +359,7 @@ const ActivityPage = ({ navigation }) => {
         return;
     }
     //obtaining the users location
-    let location = await Location.getCurrentPositionAsync({});
+    let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Lowest} );
     setLocation(location);
     setLocationStatus(status);
     setLocationLoad(false)
@@ -397,7 +395,6 @@ const ActivityPage = ({ navigation }) => {
   const userBookings = useQuery({
     queryKey: ["bookings"],
     queryFn: () => getBookings(),
-    onSuccess: (data) => console.log(data),
   });
 
   return (

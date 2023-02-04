@@ -175,7 +175,6 @@ const ActiveBookingTab = styled.TouchableOpacity`
   shadow-color: #000;
   shadow-offset: {width: 0, height: 2};
   shadow-opacity: 0.8;
-  shadow-radius: 2;
   elevation: 1;
 `;
 
@@ -197,6 +196,7 @@ const HomePage = ({ navigation, route }) => {
   const isFocused = useIsFocused();
   const [loading, setLoading] = useState(true);
   const [locationLoad, setLocationLoad] = useState(true);
+  const [status, requestPermission] = Location.useForegroundPermissions();
   const { colors, locations } = easeGradient({
     colorStops: {
       0: {
@@ -217,7 +217,9 @@ const HomePage = ({ navigation, route }) => {
         return;
     }
     //obtaining the users location
-    let location = await Location.getCurrentPositionAsync({});
+    let location = await Location.getCurrentPositionAsync(
+      { accuracy: Location.Accuracy.Lowest}
+    );
     setLocation(location);
     setLocationStatus(status);
     setLocationLoad(false)

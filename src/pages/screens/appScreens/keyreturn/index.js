@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState,  useLayoutEffect  } from "react";
 import { ActivityIndicator, Alert, View } from "react-native";
 import styled from "styled-components";
 import { SafeAreaView } from "react-native";
@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Context } from "../../../../helpers/context/context";
 import RequestHandler from "../../../../helpers/api/rest_handler";
 import endpoints from "../../../../constants/endpoints";
+import * as Location from "expo-location";
 
 const Background = styled.View`
     width: 100%;
@@ -40,9 +41,10 @@ const Image = styled.Image`
 `;
 
 const KeyReturn = ({ route, navigation }) => {
-  const { user, location } = useContext(Context);
+  const { user, setLocation, setLocationStatus, location, locationStatus } = useContext(Context);
   const [page, setPage] = useState(0);
   const [error, setError] = useState("");
+  const [locationLoad, setLocationLoad] = useState(true);
 
   const locationSuccess = () => {
     Alert.alert(
@@ -51,6 +53,22 @@ const KeyReturn = ({ route, navigation }) => {
     );
     setPage(1);
   };
+
+  const getLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+        return;
+    }
+    //obtaining the users location
+    let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation} );
+    setLocation(location);
+    setLocationStatus(status);
+    setLocationLoad(false)
+  };
+
+  useLayoutEffect(()=> {
+    getLocation()
+  }, [])
 
   async function checkNearbyBox() {
     let res = await RequestHandler(
@@ -122,6 +140,8 @@ const KeyReturn = ({ route, navigation }) => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      {location ? 
+      <View style={{flex: 1}}>
       {page == 0 ? (
         <Background>
           <Title>Please Stand Near the Greenclick Valet Box</Title>
@@ -211,6 +231,25 @@ const KeyReturn = ({ route, navigation }) => {
           ></CustomButton>
         </Background>
       )}
+      </View>
+      :
+      locationLoad ?
+        <ActivityIndicator style={{padding: 20}} size={'small'}></ActivityIndicator>
+        :
+        locationStatus == 'granted' ? 
+        <></>
+        :
+        <View style={{
+          paddingLeft: 15,
+          paddingRight: 15,
+          paddingTop: 20
+        }}>
+          <Subtitle>Your Location was not found.</Subtitle>
+          <SubtitleTwo>In order to use the greenclick app, please allow location permissions located in your devices settings.</SubtitleTwo>
+        </View>   
+        
+      }
+      
     </SafeAreaView>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useStat, useContext } from "react";
+import React, { useContext, useLayoutEffect } from "react";
 import { View } from "react-native";
 import styled from "styled-components";
 import CustomButton from "../../../../components/custom-button";

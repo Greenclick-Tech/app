@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext } from 'react';
+import React, { useState, useRef, useContext, useLayoutEffect    } from 'react';
 import { KeyboardAvoidingView, TextInput } from "react-native";
 import styled from 'styled-components';
 import CustomButton from '../../../../components/custom-button';
