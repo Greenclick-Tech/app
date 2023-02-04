@@ -311,8 +311,6 @@ const onSelectTimeSlot = (markup, start, end) => {
   const handleConfirm = () => {
     setStartDate(moment(startVehicleTempDate));
     setEndDate(moment(endVehicleTempDate));
-    setTempEndDate("");
-    setTempStartDate("");
     hideDatePicker();
   };
 
@@ -696,6 +694,7 @@ const onSelectTimeSlot = (markup, start, end) => {
                           selectedDayColor="#4aaf6e"
                           selectedDayTextColor="#FFFFFF"
                           previousTitle="Back"
+                          
                           ref={refCalendarPickerMicro}
                           dayLabelsWrapper={{
                             borderColor: "#FFF",

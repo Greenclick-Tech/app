@@ -1,10 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import { KeyboardAvoidingView, TextInput } from "react-native";
 import styled from 'styled-components';
 import CustomButton from '../../../../components/custom-button';
 import RequestHandler from '../../../../helpers/api/rest_handler';
 import endpoints from '../../../../constants/endpoints';
 import PhoneInput from "react-native-phone-number-input";
+import * as Location from "expo-location";
+import { Context } from '../../../../helpers/context/context';
 
 const Cont = styled.View`
     flex: 1;
@@ -52,6 +54,7 @@ const PhonePage = ({ navigation, route }) => {
     const [showMessage, setShowMessage] = useState(false);
     const [country, setCountry] = useState("+1");
     const phoneInput = useRef(null);
+    const { location, setLocation, locationStatus, setLocationStatus } = useContext(Context);
     const handleRegister = async () => {
         let res = await RequestHandler(
             "post",
@@ -77,6 +80,22 @@ const PhonePage = ({ navigation, route }) => {
             }
         }
     }
+
+    const getLocation = async () => {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+            return;
+        }
+        //obtaining the users location
+        let location = await Location.getCurrentPositionAsync({});
+        setLocation(location);
+        setLocationStatus(status);
+    };
+    
+    useLayoutEffect(() => {
+        getLocation()
+    }, [])
+    
 
     return (
         <Cont>

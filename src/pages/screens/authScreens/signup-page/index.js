@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useStat, useContext } from "react";
 import { View } from "react-native";
 import styled from "styled-components";
 import CustomButton from "../../../../components/custom-button";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from "moment";
+import * as Location from "expo-location";
+import { Context } from '../../../../helpers/context/context';
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 const Subtitle = styled.Text`
   color: #3b414b;
@@ -75,19 +78,36 @@ const ExtraInfo = ({ navigation, route }) => {
   const [date_of_birth, setDateOfBirth] = useState(new Date());
   const today = new Date();
   const [show, setShow] = useState(false);
+  const { setLocation, setLocationStatus } = useContext(Context);
   
   const showDatepicker = () => {
     setShow(true)
   };
 
   const handleConfirm = (date) => {
-    setDateOfBirth(date)
-    setShow(false)
+    setDateOfBirth(date);
+    setShow(false);
   }
   
   const hideDatePicker = () => {
-    setShow(false)
+    setShow(false);
   }
+
+  const getLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+        return;
+    }
+    //obtaining the users location
+    let location = await Location.getCurrentPositionAsync({});
+    setLocation(location);
+    setLocationStatus(status);
+};
+
+useLayoutEffect(() => {
+    getLocation()
+}, [])
+ 
 
   return (
     <SafeAreaView
@@ -114,7 +134,6 @@ const ExtraInfo = ({ navigation, route }) => {
           <InputTitle>Email Address</InputTitle>
           <InputMain
             keyboardType="email-address"
-            placeholder="hello@email.com"
             autoCorrect={false}
             placeholderTextColor="#AAA"
             autoCapitalize={"none"}
@@ -128,7 +147,6 @@ const ExtraInfo = ({ navigation, route }) => {
             <InputTitle>First Name</InputTitle>
             <InputMain
               keyboardType="default"
-              placeholder="John"
               autoCorrect={false}
               placeholderTextColor="#AAA"
               onChangeText={(e) => {
@@ -140,7 +158,6 @@ const ExtraInfo = ({ navigation, route }) => {
             <InputTitle>Last Name</InputTitle>
             <InputMain
               keyboardType="default"
-              placeholder="John"
               autoCorrect={false}
               placeholderTextColor="#AAA"
               onChangeText={(e) => {
@@ -153,7 +170,15 @@ const ExtraInfo = ({ navigation, route }) => {
         <ButtonContainer>
           <InputTitle>Address</InputTitle>
           <GooglePlacesAutocomplete
-            placeholder="Search Address"
+              renderLeftButton={()=> {
+                return (
+                  <Ionicons
+                      name={"Search"}
+                      size={18}
+                      color={"#AAA"}
+                    ></Ionicons>
+                )
+              }}
             enablePoweredByContainer={false}
             fetchDetails={true}
             styles={{

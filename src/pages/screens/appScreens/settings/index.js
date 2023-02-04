@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { FlatList } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Context } from '../../../../helpers/context/context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const FAD = styled.View`
     width: 100%;
@@ -100,7 +101,12 @@ const SettingsMain = ( { navigation }) => {
                                             text: 'Cancel',
                                             style: 'cancel',
                                         },
-                                        {text: 'Log Out', onPress: () => setUser()},
+                                        {text: 'Log Out', onPress: () =>  {
+                                            AsyncStorage.removeItem("access_token").catch(()=> {
+                                                Alert.alert("Error Logging out. There was an error preventing you from logging out, please try again.")
+                                            })
+                                            setUser()
+                                        }},
                                         ]);
                                     break;
                                 }
