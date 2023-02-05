@@ -102,7 +102,10 @@ const SettingsMain = ( { navigation }) => {
                                             style: 'cancel',
                                         },
                                         {text: 'Log Out', onPress: () =>  {
-                                            AsyncStorage.removeItem("access_token").catch(()=> {
+                                            AsyncStorage.removeItem("access_token").then(()=> {
+                                                console.log('success')
+                                            }).catch(()=> {
+                                                console.log("error")
                                                 Alert.alert("Error Logging out. There was an error preventing you from logging out, please try again.")
                                             })
                                             setUser()

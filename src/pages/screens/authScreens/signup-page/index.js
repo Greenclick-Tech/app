@@ -1,4 +1,4 @@
-import React, { useContext, useLayoutEffect } from "react";
+import React, { useContext, useLayoutEffect, useState } from "react";
 import { View } from "react-native";
 import styled from "styled-components";
 import CustomButton from "../../../../components/custom-button";
@@ -134,6 +134,7 @@ useLayoutEffect(() => {
           <InputTitle>Email Address</InputTitle>
           <InputMain
             keyboardType="email-address"
+            placeholder={"Email"}
             autoCorrect={false}
             placeholderTextColor="#AAA"
             autoCapitalize={"none"}
@@ -147,6 +148,7 @@ useLayoutEffect(() => {
             <InputTitle>First Name</InputTitle>
             <InputMain
               keyboardType="default"
+              placeholder={"First Name"}
               autoCorrect={false}
               placeholderTextColor="#AAA"
               onChangeText={(e) => {
@@ -159,6 +161,7 @@ useLayoutEffect(() => {
             <InputMain
               keyboardType="default"
               autoCorrect={false}
+              placeholder={"Last Name"}
               placeholderTextColor="#AAA"
               onChangeText={(e) => {
                 e.length != 0 ? setLastName(e) : setLastName();
@@ -170,17 +173,9 @@ useLayoutEffect(() => {
         <ButtonContainer>
           <InputTitle>Address</InputTitle>
           <GooglePlacesAutocomplete
-              renderLeftButton={()=> {
-                return (
-                  <Ionicons
-                      name={"Search"}
-                      size={18}
-                      color={"#AAA"}
-                    ></Ionicons>
-                )
-              }}
             enablePoweredByContainer={false}
             fetchDetails={true}
+            placeholder={"Address"}
             styles={{
               container: {
                 flex: 1,
