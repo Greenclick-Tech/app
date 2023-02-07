@@ -472,6 +472,8 @@ const HomePage = ({ navigation, route }) => {
                   <ActiveBookingTab
                     onPress={() =>
                       navigation.navigate("Order", {
+                        hotelId: activeBooking.data.booking.hotel_id,
+                        vehicleId: activeBooking.data.booking.vehicle_id,
                         bookingId: activeBooking.data.booking.id,
                         active: true,
                       })

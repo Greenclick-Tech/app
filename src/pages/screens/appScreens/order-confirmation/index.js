@@ -283,6 +283,7 @@ const OrderConfirmation = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
+      console.log(res.error)
     } else {
       return res;
     }
@@ -300,6 +301,7 @@ const OrderConfirmation = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
+      console.log(res.error)
     } else {
       return res;
     }
@@ -333,20 +335,14 @@ const OrderConfirmation = ({ route, navigation }) => {
       {
         queryKey: ["hotel", route.params.hotelId],
         queryFn: () => fetchHotel(route.params.hotelId),
-        onSuccess: (data) => console.log(data),
-        onerror: (data) => console.log(data)
       },
       {
         queryKey: ["vehicle", route.params.hotelId, route.params.vehicleId],
         queryFn: () => fetchVehicle(route.params.hotelId, route.params.vehicleId),
-        onSuccess: (data) => console.log(data),
-        onerror: (data) => console.log(data)
       },
       {
         queryKey: ["booking", route.params.bookingId],
         queryFn: () => getBooking( route.params.bookingId),
-        onSuccess: (data) => console.log(data),
-        onerror: (data) => console.log(data)
       }
       // {
       //   queryKey: ["nearbyBox"],
@@ -363,7 +359,7 @@ const OrderConfirmation = ({ route, navigation }) => {
   });
 
   const isLoading = results.every((result) => result.isLoading) 
-  const isError = results.every((result) => result.isError) 
+  const isError = results.every((result) => result.isError)
 
   // useEffect(()=> {
   //   if(results[3].isFetched) {
@@ -377,7 +373,7 @@ const OrderConfirmation = ({ route, navigation }) => {
   // }, [results[3].data])
 
   let main = null;
-  if (results[2].isLoading) {
+  if (isLoading) {
     main = (
       <View>
         <ActivityIndicator
@@ -386,7 +382,7 @@ const OrderConfirmation = ({ route, navigation }) => {
         ></ActivityIndicator>
       </View>
     );
-  } else if (results[2].isError) {
+  } else if (isError) {
     main = (
       <View>
         <Text>
@@ -395,7 +391,7 @@ const OrderConfirmation = ({ route, navigation }) => {
         </Text>
       </View>
     );
-  } else if (results[2].isFetched) {
+  } else {
     main = (
       <Container>
         <DrawerScroll>
@@ -825,7 +821,7 @@ const OrderConfirmation = ({ route, navigation }) => {
                           size={18}
                           color={"#3B414B"}
                         ></Ionicons>
-                        <DateText>{results[1].data.vehicle.model}</DateText>
+                        <DateText>{results[1].data?.vehicle?.model}</DateText>
                       </DateIconFlex>
                     </DateWrapper>
                     <DateWrapper>
@@ -836,7 +832,7 @@ const OrderConfirmation = ({ route, navigation }) => {
                           size={18}
                           color={"#3B414B"}
                         ></Ionicons>
-                        <DateText>{results[0].data.hotel.name}</DateText>
+                        <DateText>{results[0].data?.hotel?.name}</DateText>
                       </DateIconFlex>
                       <DateIconFlex>
                         <Ionicons
@@ -844,7 +840,7 @@ const OrderConfirmation = ({ route, navigation }) => {
                           size={18}
                           color={"#3B414B"}
                         ></Ionicons>
-                        <DateText>{results[0].data.hotel.address}</DateText>
+                        <DateText>{results[0].data?.hotel?.address}</DateText>
                       </DateIconFlex>
                       <DateIconFlex>
                         <Ionicons
@@ -852,7 +848,7 @@ const OrderConfirmation = ({ route, navigation }) => {
                           size={18}
                           color={"#3B414B"}
                         ></Ionicons>
-                        <DateText>{results[0].data.hotel.phone}</DateText>
+                        <DateText>{results[0].data?.hotel?.phone}</DateText>
                       </DateIconFlex>
                     </DateWrapper>
                   </GrayWrapper>
