@@ -17,7 +17,7 @@ import {
 } from "@stripe/stripe-react-native";
 import RequestHandler from "../../../../helpers/api/rest_handler";
 import endpoints from "../../../../constants/endpoints";
-import { useQueries } from "@tanstack/react-query";
+import { useQuery, useQueries } from "@tanstack/react-query";
 import { StripeProvider } from "@stripe/stripe-react-native";
 
 
@@ -242,7 +242,7 @@ const CarConfirm = ({ route, navigation }) => {
   const [isPaymentVisible, setPaymentVisibility] = useState(false);
   const [card, setCard] = useState({});
   const [errorIntent, setErrorIntent] = useState('')
-
+  const [purchaseConfirmed, setPurchaseConfirmed] = useState(false)
   const initializePaymentSheet = async () => {
 
     const { error } = await initPaymentSheet({
@@ -266,18 +266,15 @@ const CarConfirm = ({ route, navigation }) => {
         `Success! Order Confirmed`,
         `Your order was successfully confirmed.`
       );
-      navigation.navigate("Order", {
-        hotelId: route.params.hotelId,
-        id: route.params.id,
-        active: true,
-      });
+      setPurchaseConfirmed(true)
+      
     }
   };
 
-  async function fetchHotel() {
+  async function fetchHotel(hotelId) {
     let res = await RequestHandler(
       "GET",
-      endpoints.GET_HOTEL(route.params.hotelId),
+      endpoints.GET_HOTEL(hotelId),
       undefined,
       undefined,
       true
@@ -291,10 +288,10 @@ const CarConfirm = ({ route, navigation }) => {
     }
   }
 
-  async function fetchVehicle() {
+  async function fetchVehicle(hotelId, vehicleId) {
     let res = await RequestHandler(
       "GET",
-      endpoints.GET_VEHICLE(route.params.hotelId, route.params.id),
+      endpoints.GET_VEHICLE(hotelId, vehicleId),
       undefined,
       undefined,
       true
@@ -308,10 +305,10 @@ const CarConfirm = ({ route, navigation }) => {
     }
   }
 
-  async function fetchPaymentIntent() {
+  async function fetchPaymentIntent(hotelId, vehicleId) {
     let res = await RequestHandler(
       "POST",
-      endpoints.CREATE_PAYMENT_INTENT(route.params.hotelId, route.params.id),
+      endpoints.CREATE_PAYMENT_INTENT(hotelId, vehicleId),
       {
         start_date: moment(route.params.startDate).toISOString(),
         end_date: moment(route.params.endDate).toISOString(),
@@ -324,18 +321,19 @@ const CarConfirm = ({ route, navigation }) => {
       // probably a 404, hotel prob doesnt exist or somthing
       //
       setErrorIntent(res.error.message);
+      console.log(res.error.message)
     } else {
       return res;
     }
   }
 
-  async function fetchPaymentProperties() {
+  async function fetchPaymentProperties(hotelId, vehicleId, startDate, endDate) {
     let res = await RequestHandler(
       "POST",
-      endpoints.GET_ORDER_SUBTOTAL(route.params.hotelId, route.params.id),
+      endpoints.GET_ORDER_SUBTOTAL(hotelId, vehicleId),
       {
-        start_date: moment(route.params.startDate).toISOString(),
-        end_date: moment(route.params.endDate).toISOString(),
+        start_date: moment(startDate).toISOString(),
+        end_date: moment(endDate).toISOString(),
       },
       undefined,
       true
@@ -348,28 +346,53 @@ const CarConfirm = ({ route, navigation }) => {
       return res;
     }
   }
+
+  async function getActiveBooking() {
+    let res = await RequestHandler(
+      "GET",
+      endpoints.GET_USER_BOOKINGS(true),
+      undefined,
+      undefined,
+      true
+    );
+
+    if ("error" in res) {
+      // SAHIL, HANDLE THIS
+      // probably a 404, hotel/vehicle prob doesnt exist or somthing,
+      // OR the hotel doesnt even have a box yet
+      // or u could receive 403, so show the error message to user
+      //
+
+    } else {
+      // res.latch_id = Number
+      // tell the user t expect their keys in "Latch #X"
+      return res;
+    }
+  }
+
+
   const [pubKey, setPubKey] = useState("");
 
 
   const results = useQueries({
     queries: [
       {
-        queryKey: ["hotel"],
-        queryFn: () => fetchHotel(),
+        queryKey: ["hotel", route.params.hotelId],
+        queryFn: () => fetchHotel(route.params.hotelId),
       },
       {
-        queryKey: ["vehicle"],
-        queryFn: () => fetchVehicle(),
+        queryKey: ["vehicle", route.params.hotelId, route.params.vehicleId],
+        queryFn: () => fetchVehicle(route.params.hotelId, route.params.vehicleId),
       },
       {
-        queryKey: ["paymentIntent"],
-        queryFn: () => fetchPaymentIntent(),
+        queryKey: ["paymentIntent", route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate],
+        queryFn: () => fetchPaymentIntent(route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate),
         enabled: !!pubKey,
-        cacheTime: 0
+        cacheTime: 0,
       },
       {
-        queryKey: ["paymentProperties"],
-        queryFn: () => fetchPaymentProperties(),
+        queryKey: ["paymentProperties",route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate],
+        queryFn: () => fetchPaymentProperties(route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate),
       },
       {
         queryKey: ["pubKey"],
@@ -377,6 +400,26 @@ const CarConfirm = ({ route, navigation }) => {
       }
     ],
   });
+
+  const activeBooking = useQuery({
+    queryKey: ["activeBooking"],
+    queryFn: () => getActiveBooking(),
+    enabled: false,
+    onSuccess: (data) => {
+      navigation.navigate("Order", {
+        hotelId: route.params.hotelId,
+        vehicleId: route.params.vehicleId,
+        bookingId: data.booking.id,
+        active: true,
+      });
+    }
+  })
+
+  useEffect(()=> {
+    if(purchaseConfirmed) {
+      activeBooking.refetch()
+    }
+  }, [purchaseConfirmed])
 
 
   async function getStripePub() {
@@ -526,7 +569,7 @@ const CarConfirm = ({ route, navigation }) => {
                             <ButtonEdit
                               onPress={() => {
                                 navigation.navigate("Details", {
-                                  id: route.params.id,
+                                  vehicleId: route.params.vehicleId,
                                   hotelId: route.params.hotelId,
                                 });
                               }}

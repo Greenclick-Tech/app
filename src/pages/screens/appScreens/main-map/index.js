@@ -23,6 +23,7 @@ import {
     Keyboard,
     ActivityIndicator,
     Animated,
+    ScrollView,
     FlatList,
     Dimensions,
 } from "react-native";
@@ -372,7 +373,10 @@ const HotelsFound = ({ hotels, onPress }) => {
     ) : isErrHotels ? (
         <Text>Error getting hotels in your radius.</Text>
     ) : (
-        <View>
+
+        <View style={{paddingBottom: 50}}>
+        <ScrollView >
+
             {hotels?.map((item, index) => {
                 const matchingHotel = mapHotels?.find(
                     (hotel) => hotel?.data?.hotel.id === item.id
@@ -382,14 +386,15 @@ const HotelsFound = ({ hotels, onPress }) => {
                     ("error" in matchingHotel.data ? (
                         <Text>Error Retriving this hotel.</Text>
                     ) : (
+
                         <TouchableOpacity
                             onPress={() =>
                                 onPress(matchingHotel.data.hotel.id, matchingHotel.data.hotel)
                             }
                             key={matchingHotel.data.hotel.id}
                             style={{
-                                paddingTop: 10,
-                                paddingBottom: 10,
+                                paddingTop: 20,
+                                paddingBottom: 20,
                                 alignItems: "center",
                                 flexDirection: "row",
                                 borderBottomColor: "#00000010",
@@ -397,25 +402,31 @@ const HotelsFound = ({ hotels, onPress }) => {
                             }}
                         >
                             <Image
-                                style={{ width: 50, height: 100 }}
+                                style={{ width: 50, height: 50, borderRadius: 40 }}
                                 resizeMethod={"resize"}
-                                resizeMode={"contain"}
-                                source={require("../../../../assets/pintwo.png")}
+                                resizeMode={"cover"}
+                                source={{
+                                    uri: matchingHotel.data.hotel.image_urls[0]
+                                  }}
                             ></Image>
                             <View style={{ paddingLeft: 15 }}>
-                                <Text style={{ fontSize: 17 }}>
+                                <Text style={{ fontSize: 17, paddingBottom: 5 }}>
                                     {matchingHotel.data.hotel.name}
                                 </Text>
-                                <Text style={{ fontSize: 13, width: '100%' }}>
+                                <Text style={{ fontSize: 13, width: '100%', color: "#00000090"  }}>
                                     {matchingHotel.data.hotel.address.slice(0, 40) + "..."}
                                 </Text>
                             </View>
 
                         </TouchableOpacity>
+
                     ))
                 );
             })}
+        </ScrollView>
+
         </View>
+
     );
 };
 
@@ -626,7 +637,7 @@ const MapPage = ({ route, navigation, props }) => {
     const [loading, setLoading] = useState(true);
     const bottomSheetRef = useRef(null);
     const [isSearching, setIsSearching] = useState(false);
-    const snapPoints = useMemo(() => ["15%", "40%", "95%"], []);
+    const snapPoints = useMemo(() => ["20%", "40%", "95%"], []);
     const [searchPlaces, setSearch] = useState("");
     const [selectedHotelID, setSelectedHotelID] = useState("");
     const [selection, setSelection] = useState("vehicles");
@@ -1212,6 +1223,7 @@ const MapPage = ({ route, navigation, props }) => {
                             selectedDayColor="#4aaf6e"
                             selectedDayTextColor="#FFFFFF"
                             previousTitle="Back"
+                            maxRangeDuration={7}
                             dayLabelsWrapper={{
                                 borderColor: "#FFF",
                             }}
@@ -1338,17 +1350,7 @@ const MapPage = ({ route, navigation, props }) => {
                                 <ActivityIndicator size="small"></ActivityIndicator>
                             ) : (
                                 <View
-                                    style={{
-                                        flexDirection: "row",
-                                        alignItems: "center",
-                                        backgroundColor: "#e8e8e8",
-                                        paddingTop: 5,
-                                        paddingBottom: 5,
-                                        paddingLeft: 15,
-                                        paddingRight: 15,
-                                        width: "100%",
-                                        borderRadius: 20,
-                                    }}
+                                    style={styles.inputContainer}
                                 >
                                     <Ionicons
                                         name={"search"}
@@ -1360,9 +1362,9 @@ const MapPage = ({ route, navigation, props }) => {
                                             fontSize: 16,
                                             lineHeight: 20,
                                             flex: 1,
-                                            height: 50,
+                                            height: "100%",
                                             paddingLeft: 10,
-                                            paddingRight: 10
+                                            paddingRight: 10,
                                         }}
                                         placeholder={"Enter a hotel, airport, or address"}
                                         placeholderTextColor={"#494d5280"}
@@ -1617,7 +1619,9 @@ const MapPage = ({ route, navigation, props }) => {
                             )}
                         </View>
                     ) : (
+                        
                         <View style={{ flex: 1 }}>
+
                             <MenuContainer>
                                 {places ? (
                                     <FlexRowConJustify>
@@ -1841,5 +1845,37 @@ const MapPage = ({ route, navigation, props }) => {
         </BottomSheet>
     </MapContainer>
 };
+
+const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 24,
+      backgroundColor: 'grey',
+    },
+    contentContainer: {
+      flex: 1,
+      alignItems: 'center',
+    },
+    input: {
+      marginTop: 8,
+      marginBottom: 10,
+      borderRadius: 10,
+      fontSize: 16,
+      lineHeight: 20,
+      padding: 8,
+      backgroundColor: 'rgba(151, 151, 151, 0.25)',
+    },
+    inputContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#e8e8e8",
+        paddingTop: 20,
+        paddingBottom: 20,
+        paddingLeft: 15,
+        paddingRight: 15,
+        width: "100%",
+        borderRadius: 20,
+    }
+  });
 
 export default MapPage;

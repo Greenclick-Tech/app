@@ -21,20 +21,20 @@ const Subtitle = styled.Text`
 
 const ActiveBookingContainer = styled.View`
   border: 1px solid #00000010;
-  background-color: #eee;
+  background-color: #fff;
   border-radius: 10px;
 `;
 
 const ActiveBookingTab = styled.TouchableOpacity`
   border-radius: 10px;
-  background-color: ${(props) => (props.color ? "#d0d5d9" : "#fff")};
+  background-color: ${(props) => (props.color ? "#d0d5d920" : "#fff")};
   opacity: ${(props) => (props.color ? "0.7" : "1")};
   overflow: hidden;
 `;
 
 const ActiveBookingImage = styled.Image`
   width: 100%;
-  height: 120px;
+  height: ${props=>props.height ? "80px" : "120px"}
 `;
 
 const SubtitleTwo = styled.Text`
@@ -141,6 +141,9 @@ const ItemComponent = ({bookings, navigation}) => {
           if (a.active === b.active) return 0;
           return a.active ? -1 : 1;
         })?.map((item, index) => {
+          // const matchingVehicle = vehicleCalendar.find(
+          //   (booking) => booking.data?.id === item.id
+          // ) ?? {};
           return item.active ? (
             <ActiveBookingContainer key={item.id}  style={{
               marginTop: 10,
@@ -149,6 +152,8 @@ const ItemComponent = ({bookings, navigation}) => {
               <ActiveBookingTab
                 onPress={() => {
                   navigation.navigate("Order", {
+                    vehicleId: item.vehicle_id,
+                    hotelId: item.hotel_id,
                     bookingId: item.id,
                     active: true,
                   });
@@ -285,6 +290,7 @@ const ItemComponent = ({bookings, navigation}) => {
                   s
                 >
                   <ActiveBookingImage
+                    height
                     source={{
                       uri: vehicleQueries[index].data.vehicle
                         .image_urls[0],

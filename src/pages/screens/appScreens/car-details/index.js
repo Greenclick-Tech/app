@@ -171,7 +171,7 @@ const ConfirmText = styled.Text`
 
 const CancelText = styled.Text`
   color: ${(props) => (props.reset ? "#f74551" : "#727d76")};
-  font-weight: ${props=>props.reset ? "600" : "400"};
+  font-weight: ${props => props.reset ? "600" : "400"};
   font-size: 18px;
 `;
 
@@ -273,40 +273,40 @@ const CarDetails = ({ route, navigation }) => {
     }
   };
 
-  
-const onSelectTimeSlot = (markup, start, end) => {
-  let updatedTimeSlots = [];
-  if (selectedTimeSlots.length === 0) {
-    // If no time slots are selected, add the current one
-    updatedTimeSlots.push({ start, end, markup });
-    setMasterStart(start);
-    setMasterEnd(end);
-  } else if (selectedTimeSlots.length === 3) {
-    // If three time slots are already selected, reset the array and add the current one
-    updatedTimeSlots.push({ start, end, markup });
-    setMasterStart(start);
-    setMasterEnd(end);
-  } else {
-    // Check if the current time slot is consecutive to the existing ones
-    let lastEnd = moment(selectedTimeSlots[selectedTimeSlots.length - 1].end);
-    if (moment(start).isSame(lastEnd)) {
-      updatedTimeSlots = [...selectedTimeSlots, { start, end, markup }];
+
+  const onSelectTimeSlot = (markup, start, end) => {
+    let updatedTimeSlots = [];
+    if (selectedTimeSlots.length === 0) {
+      // If no time slots are selected, add the current one
+      updatedTimeSlots.push({ start, end, markup });
+      setMasterStart(start);
+      setMasterEnd(end);
+    } else if (selectedTimeSlots.length === 3) {
+      // If three time slots are already selected, reset the array and add the current one
+      updatedTimeSlots.push({ start, end, markup });
+      setMasterStart(start);
       setMasterEnd(end);
     } else {
-      let firstStart = moment(selectedTimeSlots[0].start);
-      if (moment(end).isSame(firstStart)) {
-        updatedTimeSlots = [{ start, end, markup }, ...selectedTimeSlots];
-        setMasterStart(start);
-      } else {
-        // If the current time slot is not consecutive, reset the array and add the current one
-        updatedTimeSlots.push({ start, end, markup });
-        setMasterStart(start);
+      // Check if the current time slot is consecutive to the existing ones
+      let lastEnd = moment(selectedTimeSlots[selectedTimeSlots.length - 1].end);
+      if (moment(start).isSame(lastEnd)) {
+        updatedTimeSlots = [...selectedTimeSlots, { start, end, markup }];
         setMasterEnd(end);
+      } else {
+        let firstStart = moment(selectedTimeSlots[0].start);
+        if (moment(end).isSame(firstStart)) {
+          updatedTimeSlots = [{ start, end, markup }, ...selectedTimeSlots];
+          setMasterStart(start);
+        } else {
+          // If the current time slot is not consecutive, reset the array and add the current one
+          updatedTimeSlots.push({ start, end, markup });
+          setMasterStart(start);
+          setMasterEnd(end);
+        }
       }
     }
-  }
-  setSelectedTimeSlots(updatedTimeSlots);
-};
+    setSelectedTimeSlots(updatedTimeSlots);
+  };
 
   const handleConfirm = () => {
     setStartDate(moment(startVehicleTempDate));
@@ -315,22 +315,22 @@ const onSelectTimeSlot = (markup, start, end) => {
   };
 
   const handleNext = () => {
-    if(route.params.type == 'vehicle') {
+    if (route.params.type == 'vehicle') {
       navigation.navigate("Confirm", {
         hotelId: route.params.hotelId,
-        id: route.params.id,
+        vehicleId: route.params.id,
         startDate: startDate,
         endDate: endDate,
       });
     } else {
       navigation.navigate("Confirm", {
         hotelId: route.params.hotelId,
-        id: route.params.id,
+        vehicleId: route.params.id,
         startDate: masterStart,
         endDate: masterEnd,
       });
     }
-    
+
   };
 
   const handleTempConfirm = (date, type) => {
@@ -461,10 +461,10 @@ const onSelectTimeSlot = (markup, start, end) => {
     let dates = [];
     if (bookings) {
       bookings.forEach((booking) => {
-        let start = new Date(booking.start_date);
-        let end = new Date(booking.end_date);
-        for (let d = start; d <= end; d.setDate(d.getDate() + 1)) {
-          dates.push(new Date(d));
+        let start = moment(booking.start_date).subtract(1, "days");
+        let end = moment(booking.end_date).add(1, "days");
+        for (let m = start; m.isSameOrBefore(end); m.add(1, 'days')) {
+          dates.push(m.toDate());
         }
       });
     } else {
@@ -499,10 +499,10 @@ const onSelectTimeSlot = (markup, start, end) => {
 
   const addTimeSlots = (startDate, endDate) => {
     const selectedTimeSlots = [];
-  
+
     let current = moment(startDate);
     const end = moment(endDate);
-  
+
     while (current.isBefore(end)) {
       const next = current.clone().add(2, 'hours');
       selectedTimeSlots.push({
@@ -512,12 +512,12 @@ const onSelectTimeSlot = (markup, start, end) => {
       });
       current = next;
     }
-  
+
     return selectedTimeSlots;
   }
-  
-  
-  
+
+
+
 
   useEffect(() => {
     if (startMicroTempDate) {
@@ -525,7 +525,7 @@ const onSelectTimeSlot = (markup, start, end) => {
       let end = moment(current).add(1, "day").endOf("day");
       let timeDates = [];
       let firstNextDayTimeSet = false;
-  
+
       while (current.isBefore(end)) {
         let next = moment(current).add(2, "hours");
         let isNextDay = false;
@@ -575,7 +575,7 @@ const onSelectTimeSlot = (markup, start, end) => {
     setMicroTempStartDate("");
   };
 
-  useEffect(()=> {
+  useEffect(() => {
   }, [masterStart])
 
   let main = null;
@@ -694,7 +694,7 @@ const onSelectTimeSlot = (markup, start, end) => {
                           selectedDayColor="#4aaf6e"
                           selectedDayTextColor="#FFFFFF"
                           previousTitle="Back"
-                          
+
                           ref={refCalendarPickerMicro}
                           dayLabelsWrapper={{
                             borderColor: "#FFF",
@@ -703,7 +703,7 @@ const onSelectTimeSlot = (markup, start, end) => {
                           onMonthChange={(date) => {
                             setCurrentMonth(date)
                           }}
-                          
+
                         />
                       ) : (
                         //if screen 2
@@ -751,8 +751,8 @@ const onSelectTimeSlot = (markup, start, end) => {
                               }}
                             >
                               {masterStart
-                          ? moment(masterStart).format('LT') + " - " + moment(masterEnd).format('LT')
-                          : "Select a Time"}
+                                ? moment(masterStart).format('LT') + " - " + moment(masterEnd).format('LT')
+                                : "Select a Time"}
                             </Text>
                           </View>
 
@@ -777,7 +777,7 @@ const onSelectTimeSlot = (markup, start, end) => {
                                     isBooked = true;
                                   }
                                 });
-                              
+
                                 return (
                                   <View
                                     style={{
@@ -899,50 +899,50 @@ const onSelectTimeSlot = (markup, start, end) => {
                         </WrapperFlex>
                       )
                     ) : //vehicles
-                    !startVehicleTempDate && !endVehicleTempDate ? (
-                      <WrapperFlex>
-                        <ConfirmButton onPress={hideDatePicker}>
-                          <CancelText>Cancel</CancelText>
-                        </ConfirmButton>
-                        <ConfirmButton>
-                          <ConfirmText>Confirm</ConfirmText>
-                        </ConfirmButton>
-                      </WrapperFlex>
-                    ) : (
-                      <WrapperFlex>
-                        <ConfirmButton
-                          onPress={() => {
-                            handleReset();
-                          }}
-                        >
-                          <CancelText reset>Reset</CancelText>
-                        </ConfirmButton>
-
-                        {startVehicleTempDate && endVehicleTempDate ? (
-                          checkDatesInRange(
-                            unavailableDates,
-                            startVehicleTempDate,
-                            endVehicleTempDate
-                          ) ? (
-                            <ConfirmButton>
-                              <ConfirmText color={"#FF0000"}>
-                                Please Select Available Dates
-                              </ConfirmText>
-                            </ConfirmButton>
-                          ) : (
-                            <ConfirmButton onPress={() => handleConfirm()}>
-                              <ConfirmText color={"#4aaf6e"}>
-                                Confirm
-                              </ConfirmText>
-                            </ConfirmButton>
-                          )
-                        ) : (
+                      !startVehicleTempDate && !endVehicleTempDate ? (
+                        <WrapperFlex>
+                          <ConfirmButton onPress={hideDatePicker}>
+                            <CancelText>Cancel</CancelText>
+                          </ConfirmButton>
                           <ConfirmButton>
                             <ConfirmText>Confirm</ConfirmText>
                           </ConfirmButton>
-                        )}
-                      </WrapperFlex>
-                    )}
+                        </WrapperFlex>
+                      ) : (
+                        <WrapperFlex>
+                          <ConfirmButton
+                            onPress={() => {
+                              handleReset();
+                            }}
+                          >
+                            <CancelText reset>Reset</CancelText>
+                          </ConfirmButton>
+
+                          {startVehicleTempDate && endVehicleTempDate ? (
+                            checkDatesInRange(
+                              unavailableDates,
+                              startVehicleTempDate,
+                              endVehicleTempDate
+                            ) ? (
+                              <ConfirmButton>
+                                <ConfirmText color={"#FF0000"}>
+                                  Please Select Available Dates
+                                </ConfirmText>
+                              </ConfirmButton>
+                            ) : (
+                              <ConfirmButton onPress={() => handleConfirm()}>
+                                <ConfirmText color={"#4aaf6e"}>
+                                  Confirm
+                                </ConfirmText>
+                              </ConfirmButton>
+                            )
+                          ) : (
+                            <ConfirmButton>
+                              <ConfirmText>Confirm</ConfirmText>
+                            </ConfirmButton>
+                          )}
+                        </WrapperFlex>
+                      )}
                   </ModalMargin>
                 </ModalContent>
               </ModalView>
@@ -1144,9 +1144,9 @@ const onSelectTimeSlot = (markup, start, end) => {
                       <DateWrapper>
                         {
                           route.params.type == 'vehicle' ?
-                          <MiniSubtitle>Rate Per Day</MiniSubtitle>
-                          :
-                        <MiniSubtitle>Rate Per Hour</MiniSubtitle>
+                            <MiniSubtitle>Rate Per Day</MiniSubtitle>
+                            :
+                            <MiniSubtitle>Rate Per Hour</MiniSubtitle>
 
                         }
                         <DateIconFlex>
@@ -1204,11 +1204,11 @@ const onSelectTimeSlot = (markup, start, end) => {
                               >
                                 $
                                 {
-                                vehicleQuery.data.vehicle.rate.toFixed(2) *
+                                  vehicleQuery.data.vehicle.rate.toFixed(2) *
                                   moment(masterEnd).diff(
-                                  masterStart,
-                                  "hours"
-                                ).toFixed(2)
+                                    masterStart,
+                                    "hours"
+                                  ).toFixed(2)
                                 }
                               </DateText>
                             </DateIconFlex>
@@ -1250,15 +1250,15 @@ const onSelectTimeSlot = (markup, start, end) => {
                 ) : (
                   <ContainerPrice>
                     <WrapperPriceFix>
-                        <TitlePrice color>
-                          ${vehicleQuery.data.vehicle.rate.toFixed(2)} Per Hour
-                        </TitlePrice>
-                        <Price color>
-                          $
-                          {vehicleQuery.data.vehicle.rate.toFixed(2) *
-                            moment(endDate).diff(startDate, "days")}{" "}
-                          est. total
-                        </Price>
+                      <TitlePrice color>
+                        ${vehicleQuery.data.vehicle.rate.toFixed(2)} Per Hour
+                      </TitlePrice>
+                      <Price color>
+                        $
+                        {vehicleQuery.data.vehicle.rate.toFixed(2) *
+                          moment(endDate).diff(startDate, "days")}{" "}
+                        est. total
+                      </Price>
                     </WrapperPriceFix>
 
                     <WrapperPrice style={{ marginLeft: 20 }}>
@@ -1290,22 +1290,22 @@ const onSelectTimeSlot = (markup, start, end) => {
                       ></Ionicons>
                     </WrapperPrice>
                   </ContainerPrice>
-                :
-                <ContainerPrice>
+                  :
+                  <ContainerPrice>
                     <WrapperPriceFix>
-                        <TitlePrice color>
-                          ${vehicleQuery.data.vehicle.rate.toFixed(2)} Per Hour
-                        </TitlePrice>
-                      
-                        <Price color>
-                          $
-                          {vehicleQuery.data.vehicle.rate.toFixed(2) *
-                            moment(masterEnd).diff(
-                              masterStart,
-                              "hours"
-                            )}{" "}
-                          est. total
-                        </Price>
+                      <TitlePrice color>
+                        ${vehicleQuery.data.vehicle.rate.toFixed(2)} Per Hour
+                      </TitlePrice>
+
+                      <Price color>
+                        $
+                        {vehicleQuery.data.vehicle.rate.toFixed(2) *
+                          moment(masterEnd).diff(
+                            masterStart,
+                            "hours"
+                          )}{" "}
+                        est. total
+                      </Price>
                     </WrapperPriceFix>
 
                     <WrapperPrice style={{ marginLeft: 20 }}>

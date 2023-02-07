@@ -194,6 +194,7 @@ const ActiveBookingTextContainer = styled.Text`
 const HomePage = ({ navigation, route }) => {
   const { location, setLocation, locationStatus, setLocationStatus } = useContext(Context);
   const isFocused = useIsFocused();
+  const [pageLoading, setPageLoading] = useState(true)
   const [loading, setLoading] = useState(true);
   const [locationLoad, setLocationLoad] = useState(true);
   const [status, requestPermission] = Location.useForegroundPermissions();
@@ -227,6 +228,12 @@ const HomePage = ({ navigation, route }) => {
 
   useLayoutEffect(()=> {
     getLocation()
+  }, [])
+
+  useEffect(()=> {
+    setTimeout(()=> {
+      setPageLoading(false)
+    }, 1000)
   }, [])
 
   async function fetchData() {
@@ -340,7 +347,8 @@ const HomePage = ({ navigation, route }) => {
   const activeBooking = useQuery({
     queryKey: ["active"],
     queryFn: () => getActiveBooking(),
-    cacheTime: 0
+    cacheTime: 0,
+    onSuccess: (data) => console.log(data),
   });
 
   const getVehicle = useQuery({
@@ -367,8 +375,13 @@ const HomePage = ({ navigation, route }) => {
   })
 
   let main = null;
-
-  main = (
+  if(pageLoading) {
+    main = <ActivityIndicator style={{
+      padding: 20
+    }} size={'small'}></ActivityIndicator>
+  }
+  if(!pageLoading) {
+    main = (
       <View style={{ flex: 1 }}>
         <View>
           <View
@@ -745,6 +758,8 @@ const HomePage = ({ navigation, route }) => {
         }
       </View>
     );
+  }
+  
 
   return (
     <SafeAreaView

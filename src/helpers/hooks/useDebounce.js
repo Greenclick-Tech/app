@@ -3,9 +3,10 @@ import React, {useState, useEffect} from 'react'
 function useDebounce(value, delay) {
   // State and setters for debounced value
   const [debouncedValue, setDebouncedValue] = useState(value);
-
+  const [loading, setLoading] = useState(false);
   useEffect(
     () => {
+      setLoading(true)
       // Update debounced value after delay
       const handler = setTimeout(() => {
         setDebouncedValue(value);
@@ -16,6 +17,7 @@ function useDebounce(value, delay) {
       // .. within the delay period. Timeout gets cleared and restarted.
       return () => {
         clearTimeout(handler);
+        setLoading(false)
       };
     },
     [value, delay] // Only re-call effect if value or delay changes

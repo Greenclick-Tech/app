@@ -18,7 +18,7 @@ import MapView, { Circle, Marker } from "react-native-maps";
 import Swiper from "react-native-swiper";
 import RequestHandler from "../../../../helpers/api/rest_handler";
 import endpoints from "../../../../constants/endpoints";
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import moment from "moment";
 
 const BoxContainer = styled.View`
@@ -271,10 +271,10 @@ const OrderConfirmation = ({ route, navigation }) => {
   });
 
 
-  async function fetchHotel() {
+  async function fetchHotel(hotelId) {
     let res = await RequestHandler(
       "GET",
-      endpoints.GET_HOTEL(route.params.hotelId),
+      endpoints.GET_HOTEL(hotelId),
       undefined,
       undefined,
       true
@@ -288,10 +288,10 @@ const OrderConfirmation = ({ route, navigation }) => {
     }
   }
 
-  async function fetchVehicle() {
+  async function fetchVehicle(hotelId, vehicleId) {
     let res = await RequestHandler(
       "GET",
-      endpoints.GET_VEHICLE(route.params.hotelId, route.params.id),
+      endpoints.GET_VEHICLE(hotelId, vehicleId),
       undefined,
       undefined,
       true
@@ -331,19 +331,23 @@ const OrderConfirmation = ({ route, navigation }) => {
   const results = useQueries({
     queries: [
       {
-        queryKey: ["hotel"],
-        queryFn: () => fetchHotel(),
-        enabled: false,
+        queryKey: ["hotel", route.params.hotelId],
+        queryFn: () => fetchHotel(route.params.hotelId),
+        onSuccess: (data) => console.log(data),
+        onerror: (data) => console.log(data)
       },
       {
-        queryKey: ["vehicle"],
-        queryFn: () => fetchVehicle(),
-        enabled: false,
+        queryKey: ["vehicle", route.params.hotelId, route.params.vehicleId],
+        queryFn: () => fetchVehicle(route.params.hotelId, route.params.vehicleId),
+        onSuccess: (data) => console.log(data),
+        onerror: (data) => console.log(data)
       },
       {
         queryKey: ["booking", route.params.bookingId],
         queryFn: () => getBooking( route.params.bookingId),
-      },
+        onSuccess: (data) => console.log(data),
+        onerror: (data) => console.log(data)
+      }
       // {
       //   queryKey: ["nearbyBox"],
       //   queryFn: () => nearbyBox(),
@@ -357,6 +361,9 @@ const OrderConfirmation = ({ route, navigation }) => {
       // },
     ],
   });
+
+  const isLoading = results.every((result) => result.isLoading) 
+  const isError = results.every((result) => result.isError) 
 
   // useEffect(()=> {
   //   if(results[3].isFetched) {
@@ -416,7 +423,8 @@ const OrderConfirmation = ({ route, navigation }) => {
             ></Circle>
           </MapView>
           <BoxContainer>
-            {route.params.active ? (
+            {
+            route.params.active ? (
               results[2].data && "recieved_key" in results[2].data.booking ? (
                 results[2].data && "returned_key" in results[2].data.booking ? (
                   <Title>Order is Active</Title>
@@ -428,7 +436,8 @@ const OrderConfirmation = ({ route, navigation }) => {
               )
             ) : (
               <Title>Your Order</Title>
-            )}
+            )
+            }
             <MainIconFlex>
               <OrderNumber>
                 Order Number: #{results[2].data && results[2].data.booking.id}
@@ -715,7 +724,6 @@ const OrderConfirmation = ({ route, navigation }) => {
         </Containing> */}
           </BoxContainer>
         </DrawerScroll>
-
         <BottomSheet
           ref={bottomSheetRef}
           index={index}
@@ -755,7 +763,14 @@ const OrderConfirmation = ({ route, navigation }) => {
                 <TabItem color={tabState == "Events"}>Events Nearby</TabItem>
               </IndividualTab>
             </Tabs>
-            <DrawerScroll>
+            {
+              isLoading ?
+                <ActivityIndicator size={"small"}></ActivityIndicator>
+              :
+                isError ?
+                <Subtitle>An error occured fetching data. Please try again.</Subtitle>
+                :
+                <DrawerScroll>
               {/* <Subtitle>How to Recieve your Rental Keys</Subtitle>
             <TextElement>
               To recieve your Rental keys, please stand within{" "}
@@ -783,8 +798,7 @@ const OrderConfirmation = ({ route, navigation }) => {
                           color={"#3B414B"}
                         ></Ionicons>
                         <DateText>
-                          1234
-                          {/* {moment(route.params.startDate).toISOString()} */}
+                          {moment(results[2].data.booking.start_date).format("LLL")}
                         </DateText>
                       </DateIconFlex>
                     </DateWrapper>
@@ -799,8 +813,7 @@ const OrderConfirmation = ({ route, navigation }) => {
                           color={"#3B414B"}
                         ></Ionicons>
                         <DateText>
-                          1234
-                          {/* {moment(route.params.endDate).toISOString()} */}
+                        {moment(results[2].data.booking.end_date).format("LLL")}
                         </DateText>
                       </DateIconFlex>
                     </DateWrapper>
@@ -812,15 +825,7 @@ const OrderConfirmation = ({ route, navigation }) => {
                           size={18}
                           color={"#3B414B"}
                         ></Ionicons>
-                        <DateText>Model: Car</DateText>
-                      </DateIconFlex>
-                      <DateIconFlex>
-                        <Ionicons
-                          name={"information-circle-outline"}
-                          size={18}
-                          color={"#3B414B"}
-                        ></Ionicons>
-                        <DateText>Color: Blue</DateText>
+                        <DateText>{results[1].data.vehicle.model}</DateText>
                       </DateIconFlex>
                     </DateWrapper>
                     <DateWrapper>
@@ -831,7 +836,7 @@ const OrderConfirmation = ({ route, navigation }) => {
                           size={18}
                           color={"#3B414B"}
                         ></Ionicons>
-                        <DateText>Hotel Name</DateText>
+                        <DateText>{results[0].data.hotel.name}</DateText>
                       </DateIconFlex>
                       <DateIconFlex>
                         <Ionicons
@@ -839,7 +844,7 @@ const OrderConfirmation = ({ route, navigation }) => {
                           size={18}
                           color={"#3B414B"}
                         ></Ionicons>
-                        <DateText>Hotel Address</DateText>
+                        <DateText>{results[0].data.hotel.address}</DateText>
                       </DateIconFlex>
                       <DateIconFlex>
                         <Ionicons
@@ -847,18 +852,22 @@ const OrderConfirmation = ({ route, navigation }) => {
                           size={18}
                           color={"#3B414B"}
                         ></Ionicons>
-                        <DateText>+1778-952-6800</DateText>
+                        <DateText>{results[0].data.hotel.phone}</DateText>
                       </DateIconFlex>
                     </DateWrapper>
                   </GrayWrapper>
                   <Subtitle>Support</Subtitle>
+                  <Text style={{fontSize: 14}}>Need help with your booking? Contact us at</Text> 
+                  <Text style={{fontSize: 14}}>https://support.greenclick.app</Text>
                 </View>
               ) : (
                 <View>
                   <Subtitle>Events Nearby</Subtitle>
                 </View>
               )}
-            </DrawerScroll>
+                </DrawerScroll>
+            }
+            
           </DrawerView>
         </BottomSheet>
       </Container>
