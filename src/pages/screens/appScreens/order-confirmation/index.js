@@ -360,7 +360,7 @@ const OrderConfirmation = ({ route, navigation }) => {
 
   const isLoading = results.every((result) => result.isLoading) 
   const isError = results.every((result) => result.isError)
-
+  const isSuccess = results.every((result) => result.isSuccess)
   // useEffect(()=> {
   //   if(results[3].isFetched) {
   //     results[4].refetch()
@@ -391,7 +391,7 @@ const OrderConfirmation = ({ route, navigation }) => {
         </Text>
       </View>
     );
-  } else {
+  } else if (isSuccess) {
     main = (
       <Container>
         <DrawerScroll>
