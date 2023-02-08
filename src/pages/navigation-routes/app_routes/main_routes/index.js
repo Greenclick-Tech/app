@@ -120,7 +120,9 @@ const AppRoutes = () => {
                     headerBackTitle: "Home",
                     headerTitle: "Your Order",
                     headerLeft: () => (
-                        <Button color={"#000"} onPress={() => navigation.navigate("Home")} title="Home" />
+                        <Button color={"#000"} onPress={() => navigation.navigate("Home", {
+                            refresh: true
+                        })} title="Home" />
                     ),
                 })}
                 component={OrderConfirmation}

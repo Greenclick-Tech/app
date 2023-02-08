@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect, useLayoutEffect, useContext, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useContext, useCallback, useRef} from "react";
 import styled from "styled-components";
 import {
   View,
@@ -7,6 +7,7 @@ import {
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
+  RefreshControl 
 } from "react-native";
 import * as Location from "expo-location";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -198,6 +199,7 @@ const HomePage = ({ navigation, route }) => {
   const [loading, setLoading] = useState(true);
   const [locationLoad, setLocationLoad] = useState(true);
   const [status, requestPermission] = Location.useForegroundPermissions();
+  const [refreshing, setRefreshing] = useState(false);
   const { colors, locations } = easeGradient({
     colorStops: {
       0: {
@@ -211,6 +213,11 @@ const HomePage = ({ navigation, route }) => {
   });
   const animation = useRef(null);
   const [currentDate, setCurrentDate] = useState(new Date());
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    activeBooking.refetch()
+  }, []);
   
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -249,9 +256,7 @@ const HomePage = ({ navigation, route }) => {
       true
     );
     if ("error" in res) {
-      // SAHIL, HANDLE THIS
-      // probably a 400, maybe the long/lat was malformed or server couldnt parse it, or something like that
-      //
+      
     } else {
       return res;
     }
@@ -267,15 +272,10 @@ const HomePage = ({ navigation, route }) => {
     );
 
     if ("error" in res) {
-      // SAHIL, HANDLE THIS
-      // probably a 404, hotel/vehicle prob doesnt exist or somthing,
-      // OR the hotel doesnt even have a box yet
-      // or u could receive 403, so show the error message to user
-      //
+      
       return res;
     } else {
-      // res.latch_id = Number
-      // tell the user t expect their keys in "Latch #X"
+      
       return res;
     }
   }
@@ -293,9 +293,7 @@ const HomePage = ({ navigation, route }) => {
     );
 
     if ("error" in res) {
-      // SAHIL, HANDLE THIS
-      // probably a 404, vehicle prob doesnt exist or somthing
-      //
+      
     } else {
       return res;
     }
@@ -311,9 +309,7 @@ const HomePage = ({ navigation, route }) => {
     );
 
     if ("error" in res) {
-      // SAHIL, HANDLE THIS
-      // probably a 404, vehicle prob doesnt exist or somthing
-      //
+      
     } else {
       return res;
     }
@@ -329,9 +325,7 @@ const HomePage = ({ navigation, route }) => {
     );
 
     if ("error" in res) {
-      // SAHIL, HANDLE THIS
-      // probably a 404, vehicle prob doesnt exist or somthing
-      //
+      
     } else {
       return res;
     }
@@ -347,8 +341,12 @@ const HomePage = ({ navigation, route }) => {
   const activeBooking = useQuery({
     queryKey: ["active"],
     queryFn: () => getActiveBooking(),
-    cacheTime: 0,
-    onSuccess: (data) => console.log(data),
+    onSuccess: () => {
+      setTimeout(()=> {
+        setRefreshing(false)
+      }, 500)
+    },
+    refetchOnWindowFocus: 'always'
   });
 
   const getVehicle = useQuery({
@@ -372,7 +370,8 @@ const HomePage = ({ navigation, route }) => {
   const getUser = useQuery({
     queryKey: ["user"],
     queryFn: () => fetchUser(),
-  })
+  });
+
 
   let main = null;
   if(pageLoading) {
@@ -771,6 +770,9 @@ const HomePage = ({ navigation, route }) => {
       <View style={{ flex: 1, width: "100%" }}>
         <ScrollView
           contentContainerStyle={{ minHeight: "100%", paddingBottom: 30 }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         >
           {main}
         </ScrollView>

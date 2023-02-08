@@ -1,5 +1,5 @@
-import React, { useState, useContext, useLayoutEffect } from "react";
-import { ScrollView, View, ActivityIndicator } from "react-native";
+import React, { useState, useContext, useLayoutEffect, useCallback, useEffect } from "react";
+import { ScrollView, View, ActivityIndicator, RefreshControl, } from "react-native";
 import styled from "styled-components";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useQuery, useQueries } from "@tanstack/react-query";
@@ -53,6 +53,8 @@ const ActiveBookingTextContainer = styled.Text`
 
 const ItemComponent = ({bookings, navigation}) => {
   const [currentDate, setCurrentDate] = useState(new Date());
+
+  
 
   async function fetchVehicle(vehicle_id, hotel_id) {
     let res = await RequestHandler(
@@ -358,6 +360,14 @@ const ItemComponent = ({bookings, navigation}) => {
 const ActivityPage = ({ navigation }) => {
   const { location, setLocation, locationStatus, setLocationStatus } = useContext(Context);
   const [locationLoad, setLocationLoad] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 500);
+  }, []);
 
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -397,16 +407,30 @@ const ActivityPage = ({ navigation }) => {
     }
   }
 
-  
   const userBookings = useQuery({
     queryKey: ["bookings"],
     queryFn: () => getBookings(),
+    onSuccess: () => {
+      setTimeout(()=> {
+        setRefreshing(false)
+      }, 500)
+    }
   });
+
+  useEffect(()=> {
+    if(refreshing) {
+      setRefreshing(true)
+      userBookings.refetch();
+    }
+  }, [refreshing])
 
   return (
     <View style={{ flex: 1 }}>
       <ScrollView
         style={{ flex: 1, paddingLeft: 20, paddingRight: 20, paddingTop: 20 }}
+        refreshControl={
+          <RefreshControl tintColor={"#00000040"} refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
         <Subtitle>Your Activity</Subtitle>
         {
