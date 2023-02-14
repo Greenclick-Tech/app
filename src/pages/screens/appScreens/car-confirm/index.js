@@ -466,7 +466,7 @@ const CarConfirm = ({ route, navigation }) => {
           {errorIntent == 'User already has an active booking.' ?
           <Subtitle>You already have an active booking on your account. Users can only rent 1 vehicle at a time.</Subtitle>
             :
-          <Subtitle>An unidentified error has occured, please try again.</Subtitle>
+          <Subtitle>{errorIntent}</Subtitle>
 
           }
         </View>
