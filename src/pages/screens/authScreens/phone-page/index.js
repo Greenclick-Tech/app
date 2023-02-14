@@ -1,5 +1,5 @@
 import React, { useState, useRef, useContext, useLayoutEffect    } from 'react';
-import { KeyboardAvoidingView, TextInput } from "react-native";
+import { KeyboardAvoidingView, TextInput, Alert } from "react-native";
 import styled from 'styled-components';
 import CustomButton from '../../../../components/custom-button';
 import RequestHandler from '../../../../helpers/api/rest_handler';
@@ -51,10 +51,9 @@ const SafeArea = styled.ScrollView``;
 const PhonePage = ({ navigation, route }) => {
     const [value, setValue] = useState("");
     const [valid, setValid] = useState(true);
-    const [showMessage, setShowMessage] = useState(false);
-    const [country, setCountry] = useState("+1");
     const phoneInput = useRef(null);
-    const { location, setLocation, locationStatus, setLocationStatus } = useContext(Context);
+    const { setLocation, setLocationStatus } = useContext(Context);
+
     const handleRegister = async () => {
         let res = await RequestHandler(
             "post",
@@ -78,6 +77,8 @@ const PhonePage = ({ navigation, route }) => {
                     phone: value
                 })
             }
+        } else {
+            Alert.alert("An error has occured", res.error.message);
         }
     }
 

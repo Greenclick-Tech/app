@@ -642,7 +642,6 @@ const MapPage = ({ route, navigation, props }) => {
     const [selectedHotelID, setSelectedHotelID] = useState("");
     const [selection, setSelection] = useState("vehicles");
     const [modalView, setModalView] = useState(0);
-    const [isMapSearching, setIsMapSearching] = useState(false);
     const [mapRegion, setmapRegion] = useState({
         latitude: 48.166666,
         longitude: -100.166666,
@@ -713,6 +712,18 @@ const MapPage = ({ route, navigation, props }) => {
 
     const handleRegionChange = (region) => {
         handleSheetChanges(0)
+        console.log(region)
+
+        // const topLeft = {
+        //     latitude: region.latitude + (region.latitudeDelta / 2),
+        //     longitude: region.longitude - (region.longitudeDelta / 2),
+        // };
+          
+        // const bottomRight = {
+        // latitude: region.latitude - (region.latitudeDelta / 2),
+        // longitude: region.longitude + (region.longitudeDelta / 2),
+        // };
+          
         setmapRegion({
             latitude: region.latitude,
             longitude: region.longitude,
@@ -991,7 +1002,7 @@ const MapPage = ({ route, navigation, props }) => {
 
 
     useFocusEffect(
-        React.useCallback(() => {
+        useCallback(() => {
             if (route.params?.hotelID) {
                 handleSheetChanges(1);
                 setSelectedHotelID(route.params.hotelID);
@@ -1303,6 +1314,7 @@ const MapPage = ({ route, navigation, props }) => {
             style={{ alignSelf: "stretch", height: "100%" }}
             userInterfaceStyle={"light"}
             showsUserLocation={true}
+            showsMyLocationButton={true}
             region={mapRegion}
             rotateEnabled={false}
             ref={mapRef}
