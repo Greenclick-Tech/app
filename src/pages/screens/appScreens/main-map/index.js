@@ -717,6 +717,7 @@ const MapPage = ({ route, navigation, props }) => {
         // const topLeft = {
         //     latitude: region.latitude + (region.latitudeDelta / 2),
         //     longitude: region.longitude - (region.longitudeDelta / 2),
+        // hi haste
         // };
           
         // const bottomRight = {
