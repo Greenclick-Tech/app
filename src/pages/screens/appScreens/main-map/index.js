@@ -1101,6 +1101,7 @@ const MapPage = ({ route, navigation, props }) => {
                                 minDate={moment()}
                                 selectedDayColor="#4aaf6e"
                                 selectedDayTextColor="#FFFFFF"
+                                maxDate={moment().add(1, 'month').subtract(1, 'day')}
                                 previousTitle="Back"
                                 dayLabelsWrapper={{
                                     borderColor: "#FFF",
@@ -1236,6 +1237,7 @@ const MapPage = ({ route, navigation, props }) => {
                             selectedDayTextColor="#FFFFFF"
                             previousTitle="Back"
                             maxRangeDuration={7}
+                            maxDate={moment().add(1, 'month').subtract(1, 'day')}
                             dayLabelsWrapper={{
                                 borderColor: "#FFF",
                             }}

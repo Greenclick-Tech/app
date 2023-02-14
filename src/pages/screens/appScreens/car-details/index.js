@@ -694,7 +694,7 @@ const CarDetails = ({ route, navigation }) => {
                           selectedDayColor="#4aaf6e"
                           selectedDayTextColor="#FFFFFF"
                           previousTitle="Back"
-
+                          maxDate={moment().add(1, 'month').subtract(1, 'day')}
                           ref={refCalendarPickerMicro}
                           dayLabelsWrapper={{
                             borderColor: "#FFF",
@@ -850,6 +850,7 @@ const CarDetails = ({ route, navigation }) => {
                         onMonthChange={(date) => {
                           setCurrentMonth(date)
                         }}
+                        maxDate={moment().add(1, 'month').subtract(1, 'day')}
                         maxRangeDuration={7}
                       />
                     )}
