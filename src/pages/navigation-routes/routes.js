@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { Context } from "../../helpers/context/context";
 import AuthRoutes from "./auth_routes/main_routes";
@@ -23,7 +23,10 @@ const MyTheme = {
 const Routes = ({ }) => {
 
     const [loading, setLoading] = useState(true);
-    
+    const [notification, setNotification] = useState(false);
+    const notificationListener = useRef();
+    const responseListener = useRef();
+
     const {
         user,
         location,
@@ -52,46 +55,72 @@ const Routes = ({ }) => {
 
     //Retriving notifications push token to populate context
     //If user denies push token or an emulator is being used, push token will not generate.
-    async function getPushToken() {
+    async function registerForPushNotificationsAsync() {
+        let token;
         if (Device.isDevice) {
-            const { status: existingStatus } =
-                await Notifications.getPermissionsAsync();
-            let finalStatus = existingStatus;
-            if (existingStatus !== "granted") {
-                const { status } = await Notifications.requestPermissionsAsync();
-                finalStatus = status;
-            }
-            if (finalStatus !== "granted") {
-                alert("Failed to get push token for push notification!");
-                return;
-            }
-            const token = (await Notifications.getExpoPushTokenAsync()).data;
-            setPushToken(token);
-            setNotificationStatus(finalStatus)
-
+          const { status: existingStatus } = await Notifications.getPermissionsAsync();
+          let finalStatus = existingStatus;
+          if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+          }
+          if (finalStatus !== 'granted') {
+            alert('Failed to get push token for push notification!');
+            return;
+          }
+          token = (await Notifications.getExpoPushTokenAsync()).data;
         } else {
-            setNotificationStatus("Device")
+          alert('Must use physical device for Push Notifications');
         }
-
-        if (Platform.OS === "android") {
-            Notifications.setNotificationChannelAsync("default", {
-                name: "default",
-                importance: Notifications.AndroidImportance.MAX,
-                vibrationPattern: [0, 250, 250, 250],
-                lightColor: "#FF231F7C",
-            });
+      
+        if (Platform.OS === 'android') {
+          Notifications.setNotificationChannelAsync('default', {
+            name: 'default',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+          });
         }
+      
+        return token;
     }
 
+
     //Function for async retrival of location
-    
+
+    // async function getPushToken() {
+    //     if (Device.isDevice) {
+    //         const { status: existingStatus } =
+    //             await Notifications.getPermissionsAsync();
+    //         let finalStatus = existingStatus;
+    //         if (existingStatus !== "granted") {
+    //             const { status } = await Notifications.requestPermissionsAsync();
+    //             finalStatus = status;
+    //         }
+    //         if (finalStatus !== "granted") {
+    //             alert("Failed to get push token for push notification!");
+    //             return;
+    //         }
+    //         const token = (await Notifications.getExpoPushTokenAsync()).data;
+    //         setPushToken(token);
+    //         setNotificationStatus(finalStatus)
+
+    //     } else {
+    //         setNotificationStatus("Device")
+    //     }
+
+    //     if (Platform.OS === "android") {
+    //         Notifications.setNotificationChannelAsync("default", {
+    //             name: "default",
+    //             importance: Notifications.AndroidImportance.MAX,
+    //             vibrationPattern: [0, 250, 250, 250],
+    //             lightColor: "#FF231F7C",
+    //         });
+    //     }
+    // }
+
 
     //Function for asnyc retrival of notification pushToken
-    const notificationFunc = async () => {
-        if (!pushToken) {
-            await getPushToken();
-        }
-    };
 
     //Function for async retrival of user
     let returnUser = async () => {
@@ -105,14 +134,25 @@ const Routes = ({ }) => {
             setLoading(false);
         }
     };
+    
+    useEffect(() => {
+        registerForPushNotificationsAsync().then(token => setPushToken(token));
+    
+        notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+          setNotification(notification);
+        });
+    
+        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+          console.log(response);
+        });
+    
+        return () => {
+          Notifications.removeNotificationSubscription(notificationListener.current);
+          Notifications.removeNotificationSubscription(responseListener.current);
+        };
+      }, []);
 
     //Trigger functions on component mount
-    useEffect(() => {
-        if (!pushToken) {
-            notificationFunc();
-        }
-
-      }, [user]);
 
     useEffect(() => {
 

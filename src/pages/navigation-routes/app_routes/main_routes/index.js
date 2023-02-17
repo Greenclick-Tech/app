@@ -9,11 +9,11 @@ import KeyReturn from '../../../screens/appScreens/keyreturn'
 import BottomNavigationRoutes from "../nav_routes";
 //
 import SettingsMain from "../../../screens/appScreens/settings";
-// import PageAccount from "./pages/pages-app/settings/nested-settings/account";
+import PageAccount from "../../../screens/appScreens/settings/nested-settings/account";
 // import PageAppearance from "./pages/pages-app/settings/nested-settings/Appearance";
 // import PageHelp from "./pages/pages-app/settings/nested-settings/help";
-// import PageNotifications from "./pages/pages-app/settings/nested-settings/notifications";
-// import PagePrivacy from "./pages/pages-app/settings/nested-settings/privacy";
+import PageNotifications from "../../../screens/appScreens/settings/nested-settings/notifications";
+import PagePrivacy from "../../../screens/appScreens/settings/nested-settings/privacy";
 
 // import Activity from "./pages/pages-app/activity";
 // import PaymentMethods from "./pages/pages-app/payment-methods";
@@ -57,10 +57,10 @@ const AppRoutes = () => {
 
             {/* Account settings page, all user account settings */}
 
-            {/* <Stack.Screen 
+            <Stack.Screen 
                 name="Account-Page" 
                 component={PageAccount} 
-            /> */}
+            />
 
             {/* Application Appearance, no use for page at the moment */}
 
@@ -78,17 +78,20 @@ const AppRoutes = () => {
 
             {/* Notification management, user managing all extra notifications that are not related to user experience */}
 
-            {/* <Stack.Screen 
+            <Stack.Screen 
                 name="Notifications" 
                 component={PageNotifications}
-            /> */}
+            />
 
             {/* Privacy and Security, privacy policy text scroll */}
 
-            {/* <Stack.Screen 
+            <Stack.Screen 
                 name="PrivacySecurity" 
-                component={PagePrivacy} 
-            /> */}
+                component={PagePrivacy}
+                options={{
+                    headerTitle: "Privacy & Security"
+                }}
+            />
 
             {/* Application Pages outside of Navigation */}
 
