@@ -43,11 +43,11 @@ const SettingsMain = ( { navigation }) => {
             <FAD>
                 <FlatList
                 data={[
-                    // {
-                    //     name: "Account",
-                    //     route: "Account-Page",
-                    //     icon: "people-outline"
-                    // },
+                    {
+                        name: "Account",
+                        route: "Account-Page",
+                        icon: "people-outline"
+                    },
                     // {
                     //     name: "Notifications",
                     //     route: "Notifications",
@@ -58,11 +58,11 @@ const SettingsMain = ( { navigation }) => {
                     //     route: "Appearance",
                     //     icon: "eye-outline"
                     // },
-                    // {
-                    //     name: "Privacy & Security",
-                    //     route: "PrivacySecurity",
-                    //     icon: "lock-closed-outline"
-                    // },
+                    {
+                        name: "Privacy & Security",
+                        route: "PrivacySecurity",
+                        icon: "lock-closed-outline"
+                    },
                     // {
                     //     name: "Help & Support",
                     //     route: "HelpSupport",
@@ -75,7 +75,6 @@ const SettingsMain = ( { navigation }) => {
                     }
                 ]}
                 renderItem={(e)=> {
-                    console.log(e.item.route)
                     return (
                         <Container>
                             <Touchable onPress={()=> {
