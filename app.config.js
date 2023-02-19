@@ -6,6 +6,9 @@ export default () => ({
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "light",
+    extra: {
+      GOOGLE_API_KEY: process.env.GOOGLE_API_KEY || null
+    },
     splash: {
       image: "./assets/splash.png",
       resizeMode: "contain",
@@ -21,7 +24,7 @@ export default () => ({
     ios: {
       supportsTablet: false,
       bundleIdentifier: "org.name.greenclick",
-      buildNumber: "18",
+      buildNumber: "19",
       infoPlist: {
         NSLocationWhenInUseUsageDescription: "This app uses your location to retrieve nearby hotels & unlock the greenclick lock box when you are in clock proximity.",
         NSLocationAlwaysUsageDescription: "This app requires your location to verify if you are in close proximity of the greenclick lock box.",

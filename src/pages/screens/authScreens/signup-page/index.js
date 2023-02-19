@@ -10,6 +10,7 @@ import moment from "moment";
 import * as Location from "expo-location";
 import { Context } from '../../../../helpers/context/context';
 import Ionicons from "@expo/vector-icons/Ionicons";
+import Constants from "expo-constants";
 
 const Subtitle = styled.Text`
   color: #3b414b;
@@ -230,7 +231,7 @@ useLayoutEffect(() => {
               },
             }}
             query={{
-              key: "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w",
+              key: Constants.expoConfig.extra.GOOGLE_API_KEY,
               language: "en",
             }}
           />

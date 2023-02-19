@@ -39,6 +39,7 @@ import CalendarPicker from "react-native-calendar-picker";
 import { useQuery, useQueries } from "@tanstack/react-query";
 import endpoints from "../../../../constants/endpoints";
 import RequestHandler from "../../../../helpers/api/rest_handler";
+import Constants from "expo-constants";
 import CarLoad from "../../../../components/car-load";
 import useDebounce from "../../../../helpers/hooks/useDebounce";
 
@@ -973,7 +974,7 @@ const MapPage = ({ route, navigation, props }) => {
         const delaySearch = setTimeout(() => {
             axios
                 .get(
-                    `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchPlaces}&&location=${location.coords.latitude}%2C${location.coords.longitude}&&radius=1000&key=AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w`
+                    `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchPlaces}&&location=${location.coords.latitude}%2C${location.coords.longitude}&&radius=1000&key=${Constants.expoConfig.extra.GOOGLE_API_KEY}`
                 )
                 .then((res) => {
                     setPlaces(res.data.predictions);
@@ -1755,7 +1756,7 @@ const MapPage = ({ route, navigation, props }) => {
                                                                     Keyboard.dismiss();
                                                                     await axios
                                                                         .get(
-                                                                            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w`
+                                                                            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=${Constants.expoConfig.extra.GOOGLE_API_KEY}`
                                                                         )
                                                                         .then((res) => {
                                                                             handleSheetChanges(0);
