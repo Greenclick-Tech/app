@@ -21,6 +21,9 @@
     "production": {
       "ios": {
         "resourceClass": "m1-medium"
+      },
+      "env": {
+        "GOOGLE_API_KEY": "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w"
       }
     }
   },

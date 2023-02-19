@@ -6,6 +6,8 @@ export default {
     VERIFY: () => `/auth/verify`,
     TOKEN: () => `/auth/token`,
 
+    SAVE_PUSH_TOKEN: () => `/push-token`,
+
     GET_CURRENT_USER: () => `/me`,
     GET_USER_BOOKINGS: (active = false) => `/bookings${active ? `?active=true` : ``}`,
     GET_USER_BOOKING: (id) => `/bookings/${id}`,
@@ -22,4 +24,5 @@ export default {
     GET_ORDER_SUBTOTAL: (hotelID, vehicleID) => `/hotels/${hotelID}/vehicles/${vehicleID}/order-subtotal`,
     CREATE_PAYMENT_INTENT: (hotelID, vehicleID) => `/hotels/${hotelID}/vehicles/${vehicleID}/payment-intent`,
     GET_PUBLISHABLE_KEY: () => `/stripe/pub-key`,
+
 }

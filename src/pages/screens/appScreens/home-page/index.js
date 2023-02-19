@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect, useLayoutEffect, useContext, useCallback, useRef} from "react";
+import { useState, useEffect, useLayoutEffect, useContext, useCallback, useRef } from "react";
 import styled from "styled-components";
 import {
   View,
@@ -7,7 +7,8 @@ import {
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
-  RefreshControl 
+  RefreshControl,
+  Alert
 } from "react-native";
 import * as Location from "expo-location";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -22,6 +23,8 @@ import { useQuery } from "@tanstack/react-query";
 import endpoints from "../../../../constants/endpoints";
 import RequestHandler from "../../../../helpers/api/rest_handler";
 import LocationLoad from "../../../../components/location-load";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
 import { useFocusEffect } from "@react-navigation/native";
 import AnimatedSkeleton from "../../../../components/animated-skeleton";
 import moment from "moment";
@@ -193,13 +196,17 @@ const ActiveBookingTextContainer = styled.Text`
 `;
 
 const HomePage = ({ navigation, route }) => {
-  const { location, setLocation, locationStatus, setLocationStatus } = useContext(Context);
+  const { location, setLocation, locationStatus, setLocationStatus, pushToken, setPushToken } = useContext(Context);
   const isFocused = useIsFocused();
   const [pageLoading, setPageLoading] = useState(true)
   const [loading, setLoading] = useState(true);
   const [locationLoad, setLocationLoad] = useState(true);
   const [status, requestPermission] = Location.useForegroundPermissions();
   const [refreshing, setRefreshing] = useState(false);
+  const [notification, setNotification] = useState(false);
+  const notificationListener = useRef();
+  const responseListener = useRef();
+
   const { colors, locations } = easeGradient({
     colorStops: {
       0: {
@@ -214,31 +221,62 @@ const HomePage = ({ navigation, route }) => {
   const animation = useRef(null);
   const [currentDate, setCurrentDate] = useState(new Date());
 
+  async function registerForPushNotificationsAsync() {
+    let token;
+    if (Device.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+      token = (await Notifications.getExpoPushTokenAsync()).data;
+      savePushToken(token)
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+
+    if (Platform.OS === 'android') {
+      Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+
+    return token;
+  }
+
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     activeBooking.refetch()
   }, []);
-  
+
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
-        return;
+      return;
     }
     //obtaining the users location
     let location = await Location.getCurrentPositionAsync(
-      { accuracy: Location.Accuracy.Lowest}
+      { accuracy: Location.Accuracy.Lowest }
     );
     setLocation(location);
     setLocationStatus(status);
     setLocationLoad(false)
   };
 
-  useLayoutEffect(()=> {
+  useLayoutEffect(() => {
     getLocation()
   }, [])
 
-  useEffect(()=> {
-    setTimeout(()=> {
+  useEffect(() => {
+    setTimeout(() => {
       setPageLoading(false)
     }, 1000)
   }, [])
@@ -256,7 +294,7 @@ const HomePage = ({ navigation, route }) => {
       true
     );
     if ("error" in res) {
-      
+
     } else {
       return res;
     }
@@ -272,10 +310,10 @@ const HomePage = ({ navigation, route }) => {
     );
 
     if ("error" in res) {
-      
+
       return res;
     } else {
-      
+
       return res;
     }
   }
@@ -293,9 +331,26 @@ const HomePage = ({ navigation, route }) => {
     );
 
     if ("error" in res) {
-      
+
     } else {
       return res;
+    }
+  }
+
+  async function savePushToken(token) {
+    let res = await RequestHandler(
+      "post",
+      endpoints.SAVE_PUSH_TOKEN(),
+      {
+        push_token: token
+      },
+      'application/x-www-form-urlencoded',
+      true
+    );
+    
+    if (res == 'OK') {
+    } else {
+      Alert.alert('An error has occured', res.error.message)
     }
   }
 
@@ -309,7 +364,7 @@ const HomePage = ({ navigation, route }) => {
     );
 
     if ("error" in res) {
-      
+
     } else {
       return res;
     }
@@ -325,7 +380,7 @@ const HomePage = ({ navigation, route }) => {
     );
 
     if ("error" in res) {
-      
+
     } else {
       return res;
     }
@@ -342,7 +397,7 @@ const HomePage = ({ navigation, route }) => {
     queryKey: ["active"],
     queryFn: () => getActiveBooking(),
     onSuccess: (data) => {
-      setTimeout(()=> {
+      setTimeout(() => {
         setRefreshing(false)
       }, 500)
     },
@@ -372,14 +427,31 @@ const HomePage = ({ navigation, route }) => {
     queryFn: () => fetchUser(),
   });
 
+  useEffect(() => {
+    registerForPushNotificationsAsync().then(token => setPushToken(token));
+
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      setNotification(notification);
+    });
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log(response);
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
+
 
   let main = null;
-  if(pageLoading) {
+  if (pageLoading) {
     main = <ActivityIndicator style={{
       padding: 20
     }} size={'small'}></ActivityIndicator>
   }
-  if(!pageLoading) {
+  if (!pageLoading) {
     main = (
       <View style={{ flex: 1 }}>
         <View>
@@ -405,9 +477,9 @@ const HomePage = ({ navigation, route }) => {
             >
               <LogoSingle></LogoSingle>
               {getUser.isLoading ?
-              <ActivityIndicator size={'small'}></ActivityIndicator>
-              :
-              <Title>Hey {getUser.data.user.first_name}</Title>
+                <ActivityIndicator size={'small'}></ActivityIndicator>
+                :
+                <Title>Hey {getUser.data.user.first_name}</Title>
               }
             </View>
             <TouchableOpacity
@@ -425,181 +497,181 @@ const HomePage = ({ navigation, route }) => {
           </View>
         </View>
         {
-        location && (
-          activeBooking.isLoading ? (
-            <ActivityIndicator
-              style={{ padding: 20 }}
-              size={"small"}
-            ></ActivityIndicator>
-          ) : activeBooking.isError ? (
-            <SubtitleTwo>
-              An error occured retriving your booking details. Please contact
-              support for assitance at https://support.greenclick.app/
-            </SubtitleTwo>
-          ) : "error" in activeBooking.data ? (
-            <></>
-          ) : (
-            <ActiveBookingContainer>
-              <Subtitle color>Your Active Booking</Subtitle>
-              {activeBooking.isLoading ? (
-                <ActivityIndicator
-                  style={{ paddingTop: 10, paddingBottom: 10 }}
-                  size={"small"}
-                ></ActivityIndicator>
-              ) : activeBooking.isError ? (
-                <SubtitleTwo white>
-                  Error loading your active booking. Please contact support at
-                  https://support.greenclick.app
-                </SubtitleTwo>
-              ) : getVehicle.isLoading && getHotel.isLoading ? (
-                <ActivityIndicator
-                  style={{ paddingTop: 10, paddingBottom: 10 }}
-                  size={"small"}
-                ></ActivityIndicator>
-              ) : getVehicle.isFetching && getHotel.isFetching ? (
-                <ActivityIndicator
-                  style={{ paddingTop: 10, paddingBottom: 10 }}
-                  size={"small"}
-                ></ActivityIndicator>
-              ) : getVehicle.isFetched && getHotel.isFetched ? (
-                getVehicle.isError && getHotel.isError ? (
+          location && (
+            activeBooking.isLoading ? (
+              <ActivityIndicator
+                style={{ padding: 20 }}
+                size={"small"}
+              ></ActivityIndicator>
+            ) : activeBooking.isError ? (
+              <SubtitleTwo>
+                An error occured retriving your booking details. Please contact
+                support for assitance at https://support.greenclick.app/
+              </SubtitleTwo>
+            ) : "error" in activeBooking.data ? (
+              <></>
+            ) : (
+              <ActiveBookingContainer>
+                <Subtitle color>Your Active Booking</Subtitle>
+                {activeBooking.isLoading ? (
+                  <ActivityIndicator
+                    style={{ paddingTop: 10, paddingBottom: 10 }}
+                    size={"small"}
+                  ></ActivityIndicator>
+                ) : activeBooking.isError ? (
+                  <SubtitleTwo white>
+                    Error loading your active booking. Please contact support at
+                    https://support.greenclick.app
+                  </SubtitleTwo>
+                ) : getVehicle.isLoading && getHotel.isLoading ? (
+                  <ActivityIndicator
+                    style={{ paddingTop: 10, paddingBottom: 10 }}
+                    size={"small"}
+                  ></ActivityIndicator>
+                ) : getVehicle.isFetching && getHotel.isFetching ? (
+                  <ActivityIndicator
+                    style={{ paddingTop: 10, paddingBottom: 10 }}
+                    size={"small"}
+                  ></ActivityIndicator>
+                ) : getVehicle.isFetched && getHotel.isFetched ? (
+                  getVehicle.isError && getHotel.isError ? (
+                    <SubtitleTwo>
+                      Error loading your active booking. Please contact support at
+                      https://support.greenclick.app
+                    </SubtitleTwo>
+                  ) : (
+                    <ActiveBookingTab
+                      onPress={() =>
+                        navigation.navigate("Order", {
+                          hotelId: activeBooking.data.booking.hotel_id,
+                          vehicleId: activeBooking.data.booking.vehicle_id,
+                          bookingId: activeBooking.data.booking.id,
+                          active: true,
+                        })
+                      }
+                    >
+                      <View
+                        style={{
+                          flex: 1,
+                        }}
+                        s
+                      >
+                        <ActiveBookingImage
+                          source={{
+                            uri: getVehicle.data.vehicle.image_urls[0],
+                          }}
+                        ></ActiveBookingImage>
+                      </View>
+
+                      <View
+                        style={{
+                          flex: 2,
+                          padding: 20,
+                        }}
+                      >
+                        <ActiveBookingTextContainer size bold>
+                          {getVehicle.data.vehicle.model}
+                        </ActiveBookingTextContainer>
+                        <ActiveBookingTextContainer size margin={"8px"}>
+                          {getHotel.data.hotel.name}
+                        </ActiveBookingTextContainer>
+                        <View
+                          style={{
+                            padding: 15,
+                            borderWidth: 1,
+                            borderRadius: 10,
+                            borderColor: "#00000020",
+                          }}
+                        >
+                          <View
+                            style={{
+                              flexDirection: "row",
+                            }}
+                          >
+                            <Ionicons
+                              style={{
+                                paddingTop: 1,
+                                paddingRight: 5,
+                              }}
+                              name="calendar"
+                              color={"#00000080"}
+                            ></Ionicons>
+                            <ActiveBookingTextContainer bold>
+                              Start
+                            </ActiveBookingTextContainer>
+                          </View>
+
+                          <ActiveBookingTextContainer margin={"12px"}>
+                            {moment(activeBooking.data.booking.start_date).format(
+                              "LLL"
+                            )}
+                          </ActiveBookingTextContainer>
+                          <View
+                            style={{
+                              flexDirection: "row",
+                            }}
+                          >
+                            <Ionicons
+                              style={{
+                                paddingTop: 1,
+                                paddingRight: 5,
+                              }}
+                              name="calendar"
+                              color={"#00000080"}
+                            ></Ionicons>
+                            <ActiveBookingTextContainer bold>
+                              End
+                            </ActiveBookingTextContainer>
+                          </View>
+                          <ActiveBookingTextContainer margin={"10px"}>
+                            {moment(activeBooking.data.booking.end_date).format(
+                              "LLL"
+                            )}
+                          </ActiveBookingTextContainer>
+                          {moment(currentDate).isAfter(
+                            moment(activeBooking.data.booking.end_date)
+                          ) ? (
+                            <ActiveBookingTextContainer bold color={"#f05157"}>
+                              Your booking is{" "}
+                              {moment(currentDate).diff(
+                                moment(activeBooking.data.booking.end_date),
+                                "hours"
+                              )}{" "}
+                              hours overdue, please return your keys as soon as
+                              possible.
+                            </ActiveBookingTextContainer>
+                          ) : moment(activeBooking.data.booking.end_date).isSame(
+                            moment(currentDate),
+                            "day"
+                          ) ? (
+                            <ActiveBookingTextContainer bold color={"#eba910"}>
+                              Your booking ends today, please return as soon as
+                              possible.
+                            </ActiveBookingTextContainer>
+                          ) : "recieved_keys" in activeBooking.data.booking ? (
+                            <ActiveBookingTextContainer bold color={"#42ad56"}>
+                              Click here to see your rental information and return
+                              your keys.
+                            </ActiveBookingTextContainer>
+                          ) : (
+                            <ActiveBookingTextContainer bold color={"#42ad56"}>
+                              Click here to see your rental information and recieve
+                              your keys.
+                            </ActiveBookingTextContainer>
+                          )}
+                        </View>
+                      </View>
+                    </ActiveBookingTab>
+                  )
+                ) : (
                   <SubtitleTwo>
                     Error loading your active booking. Please contact support at
                     https://support.greenclick.app
                   </SubtitleTwo>
-                ) : (
-                  <ActiveBookingTab
-                    onPress={() =>
-                      navigation.navigate("Order", {
-                        hotelId: activeBooking.data.booking.hotel_id,
-                        vehicleId: activeBooking.data.booking.vehicle_id,
-                        bookingId: activeBooking.data.booking.id,
-                        active: true,
-                      })
-                    }
-                  >
-                    <View
-                      style={{
-                        flex: 1,
-                      }}
-                      s
-                    >
-                      <ActiveBookingImage
-                        source={{
-                          uri: getVehicle.data.vehicle.image_urls[0],
-                        }}
-                      ></ActiveBookingImage>
-                    </View>
-
-                    <View
-                      style={{
-                        flex: 2,
-                        padding: 20,
-                      }}
-                    >
-                      <ActiveBookingTextContainer size bold>
-                        {getVehicle.data.vehicle.model}
-                      </ActiveBookingTextContainer>
-                      <ActiveBookingTextContainer size margin={"8px"}>
-                        {getHotel.data.hotel.name}
-                      </ActiveBookingTextContainer>
-                      <View
-                        style={{
-                          padding: 15,
-                          borderWidth: 1,
-                          borderRadius: 10,
-                          borderColor: "#00000020",
-                        }}
-                      >
-                        <View
-                          style={{
-                            flexDirection: "row",
-                          }}
-                        >
-                          <Ionicons
-                            style={{
-                              paddingTop: 1,
-                              paddingRight: 5,
-                            }}
-                            name="calendar"
-                            color={"#00000080"}
-                          ></Ionicons>
-                          <ActiveBookingTextContainer bold>
-                            Start
-                          </ActiveBookingTextContainer>
-                        </View>
-
-                        <ActiveBookingTextContainer margin={"12px"}>
-                          {moment(activeBooking.data.booking.start_date).format(
-                            "LLL"
-                          )}
-                        </ActiveBookingTextContainer>
-                        <View
-                          style={{
-                            flexDirection: "row",
-                          }}
-                        >
-                          <Ionicons
-                            style={{
-                              paddingTop: 1,
-                              paddingRight: 5,
-                            }}
-                            name="calendar"
-                            color={"#00000080"}
-                          ></Ionicons>
-                          <ActiveBookingTextContainer bold>
-                            End
-                          </ActiveBookingTextContainer>
-                        </View>
-                        <ActiveBookingTextContainer margin={"10px"}>
-                          {moment(activeBooking.data.booking.end_date).format(
-                            "LLL"
-                          )}
-                        </ActiveBookingTextContainer>
-                        {moment(currentDate).isAfter(
-                          moment(activeBooking.data.booking.end_date)
-                        ) ? (
-                          <ActiveBookingTextContainer bold color={"#f05157"}>
-                            Your booking is{" "}
-                            {moment(currentDate).diff(
-                              moment(activeBooking.data.booking.end_date),
-                              "hours"
-                            )}{" "}
-                            hours overdue, please return your keys as soon as
-                            possible.
-                          </ActiveBookingTextContainer>
-                        ) : moment(activeBooking.data.booking.end_date).isSame(
-                            moment(currentDate),
-                            "day"
-                          ) ? (
-                          <ActiveBookingTextContainer bold color={"#eba910"}>
-                            Your booking ends today, please return as soon as
-                            possible.
-                          </ActiveBookingTextContainer>
-                        ) : "recieved_keys" in activeBooking.data.booking ? (
-                          <ActiveBookingTextContainer bold color={"#42ad56"}>
-                            Click here to see your rental information and return
-                            your keys.
-                          </ActiveBookingTextContainer>
-                        ) : (
-                          <ActiveBookingTextContainer bold color={"#42ad56"}>
-                            Click here to see your rental information and recieve
-                            your keys.
-                          </ActiveBookingTextContainer>
-                        )}
-                      </View>
-                    </View>
-                  </ActiveBookingTab>
-                )
-              ) : (
-                <SubtitleTwo>
-                  Error loading your active booking. Please contact support at
-                  https://support.greenclick.app
-                </SubtitleTwo>
-              )}
-            </ActiveBookingContainer>
+                )}
+              </ActiveBookingContainer>
+            )
           )
-        )
         }
         <StaticContainer>
           <Subtitle margin>Rent a Car, E-Bike & More</Subtitle>
@@ -659,108 +731,108 @@ const HomePage = ({ navigation, route }) => {
           </ItemContainer>
         </StaticContainer>
         {
-        location ?
-        <StaticContainer>
-          {!isLoading && data ? (
-            //Data Exists and is not loading
-            <NearbyHotel>
-              {data.hotels && data.hotels.length == 1 ? (
-                <Subtitle>Nearest Hotel with Greenclick</Subtitle>
-              ) : (
-                <Subtitle>Nearest Hotels with Greenclick</Subtitle>
-              )}
-              {data.hotels ? (
-                <HotelWrapper
-                onPress={() => {
-                  navigation.navigate("Map", {
-                    hotelID: data.hotels[0].id,
-                  });
-                }}
-              >
-                <SecondaryWrapper>
-                  <MapContainer>
-                    <HotelImage
-                      source={{
-                        uri: data.hotels[0].image_urls[0],
+          location ?
+            <StaticContainer>
+              {!isLoading && data ? (
+                //Data Exists and is not loading
+                <NearbyHotel>
+                  {data.hotels && data.hotels.length == 1 ? (
+                    <Subtitle>Nearest Hotel with Greenclick</Subtitle>
+                  ) : (
+                    <Subtitle>Nearest Hotels with Greenclick</Subtitle>
+                  )}
+                  {data.hotels ? (
+                    <HotelWrapper
+                      onPress={() => {
+                        navigation.navigate("Map", {
+                          hotelID: data.hotels[0].id,
+                        });
                       }}
-                      resizeMode="cover"
                     >
-                      <LinearGradient
-                        style={{
-                          flex: 1,
-                          justifyContent: "center",
-                        }}
-                        colors={colors}
-                        locations={locations}
-                        start={{ x: 0, y: 1 }}
-                        end={{ x: 0, y: 0.7 }}
-                      ></LinearGradient>
-                    </HotelImage>
-                  </MapContainer>
-                  <View style={{ flex: 1, height: 50 }}>
-                    <NearestHotelContainer>
-                      <View
-                        style={{
-                          position: "absolute",
-                          zIndex: 2,
-                        }}
-                      >
-                        <HotelTitle>{data.hotels[0].name}</HotelTitle>
-                        <HotelSubTitle>
-                          {data.hotels[0].address.length > 45
-                            ? data.hotels[0].address.slice(0, 45) + "..."
-                            : data.hotels[0].address}
-                        </HotelSubTitle>
-                      </View>
-                      <View
-                        style={{
-                          maxWidth: "70%",
-                          flex: 1,
-                          alignItems: "flex-end",
-                          marginLeft: "auto",
-                        }}
-                      ></View>
-                    </NearestHotelContainer>
-                  </View>
-                </SecondaryWrapper>
-              </HotelWrapper>
+                      <SecondaryWrapper>
+                        <MapContainer>
+                          <HotelImage
+                            source={{
+                              uri: data.hotels[0].image_urls[0],
+                            }}
+                            resizeMode="cover"
+                          >
+                            <LinearGradient
+                              style={{
+                                flex: 1,
+                                justifyContent: "center",
+                              }}
+                              colors={colors}
+                              locations={locations}
+                              start={{ x: 0, y: 1 }}
+                              end={{ x: 0, y: 0.7 }}
+                            ></LinearGradient>
+                          </HotelImage>
+                        </MapContainer>
+                        <View style={{ flex: 1, height: 50 }}>
+                          <NearestHotelContainer>
+                            <View
+                              style={{
+                                position: "absolute",
+                                zIndex: 2,
+                              }}
+                            >
+                              <HotelTitle>{data.hotels[0].name}</HotelTitle>
+                              <HotelSubTitle>
+                                {data.hotels[0].address.length > 45
+                                  ? data.hotels[0].address.slice(0, 45) + "..."
+                                  : data.hotels[0].address}
+                              </HotelSubTitle>
+                            </View>
+                            <View
+                              style={{
+                                maxWidth: "70%",
+                                flex: 1,
+                                alignItems: "flex-end",
+                                marginLeft: "auto",
+                              }}
+                            ></View>
+                          </NearestHotelContainer>
+                        </View>
+                      </SecondaryWrapper>
+                    </HotelWrapper>
+                  ) : (
+                    <HotelSubTitle>No nearby hotels found.</HotelSubTitle>
+                  )}
+                </NearbyHotel>
+              ) : isError ? (
+                //Data is Error
+                <View>
+                  <Subtitle>Nearest Hotels with Greenclick</Subtitle>
+                  <HotelSubTitle>
+                    An error occured finding hotels, please try again.
+                  </HotelSubTitle>
+                </View>
               ) : (
-                <HotelSubTitle>No nearby hotels found.</HotelSubTitle>
+                <AnimatedSkeleton width={"100%"} height={"150px"}></AnimatedSkeleton>
               )}
-            </NearbyHotel>
-          ) : isError ? (
-            //Data is Error
-            <View>
-              <Subtitle>Nearest Hotels with Greenclick</Subtitle>
-              <HotelSubTitle>
-                An error occured finding hotels, please try again.
-              </HotelSubTitle>
-            </View>
-          ) : (
-            <AnimatedSkeleton width={"100%"} height={"150px"}></AnimatedSkeleton>
-          )}
-        </StaticContainer>
-        :
-        locationLoad ?
-        <ActivityIndicator style={{padding: 20}} size={'small'}></ActivityIndicator>
-        :
-        locationStatus == 'granted' ? 
-        <></>
-        :
-        <View style={{
-          paddingLeft: 15,
-          paddingRight: 15,
-          paddingTop: 20
-        }}>
-          <Subtitle>Your Location was not found.</Subtitle>
-          <SubtitleTwo>In order to use the greenclick app, please allow location permissions located in your devices settings.</SubtitleTwo>
-        </View>   
-        
+            </StaticContainer>
+            :
+            locationLoad ?
+              <ActivityIndicator style={{ padding: 20 }} size={'small'}></ActivityIndicator>
+              :
+              locationStatus == 'granted' ?
+                <></>
+                :
+                <View style={{
+                  paddingLeft: 15,
+                  paddingRight: 15,
+                  paddingTop: 20
+                }}>
+                  <Subtitle>Your Location was not found.</Subtitle>
+                  <SubtitleTwo>In order to use the greenclick app, please allow location permissions located in your devices settings.</SubtitleTwo>
+                </View>
+
         }
       </View>
     );
   }
-  
+
 
   return (
     <SafeAreaView
