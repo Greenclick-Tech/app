@@ -283,7 +283,7 @@ const OrderConfirmation = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
-      console.log(res.error)
+      //console.log(res.error)
     } else {
       return res;
     }
@@ -301,7 +301,7 @@ const OrderConfirmation = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
-      console.log(res.error)
+      //console.log(res.error)
     } else {
       return res;
     }

@@ -532,8 +532,6 @@ const VehicleList = ({
                 const matchingVehicle = vehicleCalendar.find(
                     (booking) => booking.data?.id === item.id
                 ) ?? {};
-                console.log("ITEM")
-                console.log(matchingVehicle.data)
                 return (
                     <TouchWrap outline={matchingVehicle && matchingVehicle.data?.bookings.length > 0} key={item.id}>
                         <TouchableCar
@@ -1015,8 +1013,6 @@ const MapPage = ({ route, navigation, props }) => {
             }
         }, [isFocused])
     );
-
-
 
     return <MapContainer>
         <ModalView
