@@ -584,7 +584,7 @@ const CarConfirm = ({ route, navigation }) => {
                               color={"#3B414B"}
                             ></Ionicons>
                             <DateText>
-                              {moment(route.params.startDate).format("LL")}
+                              {moment(route.params.startDate).utc().format("LLL")}
                             </DateText>
                           </DateIconFlex>
                         </DateWrapper>
@@ -599,7 +599,7 @@ const CarConfirm = ({ route, navigation }) => {
                               color={"#3B414B"}
                             ></Ionicons>
                             <DateText>
-                              {moment(route.params.endDate).format("LL")}
+                              {moment(route.params.endDate).utc().format("LLL")}
                             </DateText>
                           </DateIconFlex>
                         </DateWrapper>

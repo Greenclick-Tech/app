@@ -441,6 +441,7 @@ const VehicleList = ({
     vehicleEndDate,
     selection,
 }) => {
+
     const getVehicleCalendar = async (hotelID, vehicleID, startDate, endDate) => {
         let res = await RequestHandler(
             "GET",
@@ -531,6 +532,8 @@ const VehicleList = ({
                 const matchingVehicle = vehicleCalendar.find(
                     (booking) => booking.data?.id === item.id
                 ) ?? {};
+                console.log("ITEM")
+                console.log(matchingVehicle.data)
                 return (
                     <TouchWrap outline={matchingVehicle && matchingVehicle.data?.bookings.length > 0} key={item.id}>
                         <TouchableCar
@@ -602,7 +605,7 @@ const VehicleList = ({
                                             ${5 * vehicleEndDate.diff(vehicleStartDate, "hours")}
                                             .00
                                         </PriceMain>
-                                        <PriceHour>est. total</PriceHour>
+                                        <PriceHour>est. total {item.id}</PriceHour>
                                     </PriceWrapper>
                                 ) : (
                                     <PriceWrapper>
@@ -944,7 +947,7 @@ const MapPage = ({ route, navigation, props }) => {
 
     useEffect(() => {
         if (startMicroTempDate) {
-            let current = moment(startMicroTempDate).startOf("day");
+            let current = moment(startMicroTempDate).utc().startOf("day");
             let end = moment(current).add(1, "day").endOf("day");
             let timeDates = [];
             let firstNextDayTimeSet = false;

@@ -75,12 +75,27 @@ const PhoneVerifyPage = ({ navigation, route }) => {
     const [value, setValue] = useState("");
     const [error, setError] = useState("");
     const ref = useBlurOnFulfill({ value, cellCount: CELL_COUNT });
+    const [retryCooldown, setRetryCooldown] = useState();
     const [props, getCellOnLayoutHandler] = useClearByFocusCell({
         value,
         setValue,
     });
     //Phone number from previous page
     const phone = route.params.phone;
+
+    const handleRetry = async () => {
+        let res = await RequestHandler(
+            "post",
+            endpoints.VERIFY(),
+            { "phone": phone },
+            "application/x-www-form-urlencoded",
+        )
+        if (res == 'OK') {
+            
+        } else {
+            Alert.alert("An error has occured", res.error.message);
+        }
+    }
 
     //Verify User. Request returns accessToken
     const handleVerify = async () => {
@@ -170,7 +185,9 @@ const PhoneVerifyPage = ({ navigation, route }) => {
                     </KeyboardAvoidingView>
 
                 </ButtonContainer>
-                <TryAgain><Body>Didn't recieve a text? <UnderlineText>Tap here to try again.</UnderlineText></Body></TryAgain>
+                <TryAgain onPress={()=> {
+                    handleRetry()
+                }}><Body>Didn't recieve a text? <UnderlineText>Tap here to retry.</UnderlineText></Body></TryAgain>
 
                 {value.length === 6 ?
                     <CustomButton

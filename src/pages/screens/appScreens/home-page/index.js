@@ -602,7 +602,7 @@ const HomePage = ({ navigation, route }) => {
                           </View>
 
                           <ActiveBookingTextContainer margin={"12px"}>
-                            {moment(activeBooking.data.booking.start_date).format(
+                            {moment(activeBooking.data.booking.start_date).utc().format(
                               "LLL"
                             )}
                           </ActiveBookingTextContainer>
@@ -624,24 +624,24 @@ const HomePage = ({ navigation, route }) => {
                             </ActiveBookingTextContainer>
                           </View>
                           <ActiveBookingTextContainer margin={"10px"}>
-                            {moment(activeBooking.data.booking.end_date).format(
+                            {moment(activeBooking.data.booking.end_date).utc().format(
                               "LLL"
                             )}
                           </ActiveBookingTextContainer>
-                          {moment(currentDate).isAfter(
-                            moment(activeBooking.data.booking.end_date)
+                          {moment(currentDate).utc().isAfter(
+                            moment(activeBooking.data.booking.end_date).utc()
                           ) ? (
                             <ActiveBookingTextContainer bold color={"#f05157"}>
                               Your booking is{" "}
-                              {moment(currentDate).diff(
-                                moment(activeBooking.data.booking.end_date),
+                              {moment(currentDate).utc().diff(
+                                moment(activeBooking.data.booking.end_date).utc(),
                                 "hours"
                               )}{" "}
                               hours overdue, please return your keys as soon as
                               possible.
                             </ActiveBookingTextContainer>
-                          ) : moment(activeBooking.data.booking.end_date).isSame(
-                            moment(currentDate),
+                          ) : moment(activeBooking.data.booking.end_date).utc().isSame(
+                            moment(currentDate).utc(),
                             "day"
                           ) ? (
                             <ActiveBookingTextContainer bold color={"#eba910"}>

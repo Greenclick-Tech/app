@@ -343,6 +343,7 @@ const OrderConfirmation = ({ route, navigation }) => {
       {
         queryKey: ["booking", route.params.bookingId],
         queryFn: () => getBooking( route.params.bookingId),
+        onSuccess: (data) => console.log(data)
       }
       // {
       //   queryKey: ["nearbyBox"],
@@ -482,17 +483,31 @@ const OrderConfirmation = ({ route, navigation }) => {
                 </View>
               )}
               {route.params.active ?
-              <View
-              style={{
-                flexDirection: "row",
-                paddingBottom: 10,
-              }}
-            >
-              
-              <MainText bold>Return By: </MainText>
-              <MainText>
-                {moment(results[2].data.booking.end_date).format("LLL")}
-              </MainText>
+              <View>
+                <View
+                style={{
+                  flexDirection: "row",
+                  paddingBottom: 10,
+                }}
+              >
+                
+                <MainText bold>Order Starts: </MainText>
+                <MainText>
+                  {moment(results[2].data.booking.start_date).utc().format("LLL")}
+                </MainText>
+              </View>
+                <View
+                style={{
+                  flexDirection: "row",
+                  paddingBottom: 10,
+                }}
+              >
+                
+                <MainText bold>Return By: </MainText>
+                <MainText>
+                  {moment(results[2].data.booking.end_date).utc().format("LLL")}
+                </MainText>
+              </View>
             </View>
                 :
               <View
