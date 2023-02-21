@@ -28,7 +28,7 @@ const RequestHandler = async (method, endpoint, body = null, contentType = "Appl
             break;
     }
 
-    console.log(`[DEBUG] ${method.toUpperCase()} ${endpoint}`);
+    //console.log(`[DEBUG] ${method.toUpperCase()} ${endpoint}`);
     const resp = await axios(options).catch(async (err) => {   
         if(!err.response) {
             Alert.alert("Error Connecting to Server", "There was an error connecting to our server. Please check our server status at status.greenclick.app.")

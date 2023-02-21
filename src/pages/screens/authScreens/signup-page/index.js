@@ -80,7 +80,7 @@ const ExtraInfo = ({ navigation, route }) => {
   const today = new Date();
   const [show, setShow] = useState(false);
   const { setLocation, setLocationStatus } = useContext(Context);
-  
+  const key = Constants.expoConfig.extra.GOOGLE_API_KEY
   const showDatepicker = () => {
     setShow(true)
   };
@@ -231,7 +231,7 @@ useLayoutEffect(() => {
               },
             }}
             query={{
-              key: Constants.expoConfig.extra.GOOGLE_API_KEY,
+              key: key,
               language: "en",
             }}
           />

@@ -15,7 +15,6 @@ const Nav = createBottomTabNavigator();
 
 const InvalidLocation = ({ }) => {
     const { locationStatus } = useContext(Context)
-    console.log(locationStatus)
     return (
         <View style={{
             flex: 1,
