@@ -214,7 +214,7 @@ const ItemComponent = ({bookings, navigation}) => {
                     </View>
 
                     <ActiveBookingTextContainer margin={"12px"}>
-                      {moment(item.start_date).format("LLL")}
+                      {moment(item.start_date).utc().format("LLL")}
                     </ActiveBookingTextContainer>
                     <View
                       style={{
@@ -234,22 +234,22 @@ const ItemComponent = ({bookings, navigation}) => {
                       </ActiveBookingTextContainer>
                     </View>
                     <ActiveBookingTextContainer margin={"10px"}>
-                      {moment(item.end_date).format("LLL")}
+                      {moment(item.end_date).utc().format("LLL")}
                     </ActiveBookingTextContainer>
-                    {moment(currentDate).isAfter(
-                      moment(item.end_date)
+                    {moment(currentDate).utc().isAfter(
+                      moment(item.end_date).utc()
                     ) ? (
                       <ActiveBookingTextContainer bold color={"#f05157"}>
                         Your booking is{" "}
-                        {moment(currentDate).diff(
-                          moment(item.end_date),
+                        {moment(currentDate).utc().diff(
+                          moment(item.end_date).utc(),
                           "hours"
                         )}{" "}
                         hours overdue, please return your keys as soon as
                         possible.
                       </ActiveBookingTextContainer>
-                    ) : moment(item.end_date).isSame(
-                        moment(currentDate),
+                    ) : moment(item.end_date).utc().isSame(
+                        moment(currentDate).utc(),
                         "day"
                       ) ? (
                       <ActiveBookingTextContainer bold color={"#eba910"}>

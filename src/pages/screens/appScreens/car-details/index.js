@@ -319,15 +319,15 @@ const CarDetails = ({ route, navigation }) => {
       navigation.navigate("Confirm", {
         hotelId: route.params.hotelId,
         vehicleId: route.params.id,
-        startDate: startDate,
-        endDate: endDate,
+        startDate: moment(startDate).utc(),
+        endDate: moment(endDate).utc(),
       });
     } else {
       navigation.navigate("Confirm", {
         hotelId: route.params.hotelId,
         vehicleId: route.params.id,
-        startDate: masterStart,
-        endDate: masterEnd,
+        startDate: moment(masterStart).utc(),
+        endDate: moment(masterEnd).utc(),
       });
     }
 
@@ -337,13 +337,13 @@ const CarDetails = ({ route, navigation }) => {
     if (route.params.type == "vehicle") {
       if (type == "END_DATE") {
         setCheckedDates("");
-        setVehicleTempEndDate(moment(date));
+        setVehicleTempEndDate(moment(date).utc());
       } else {
         setCheckedDates("");
-        setVehicleTempStartDate(moment(date));
+        setVehicleTempStartDate(moment(date).utc());
       }
     } else {
-      setMicroTempStartDate(moment(date));
+      setMicroTempStartDate(moment(date).utc());
     }
 
     if (endVehicleTempDate && startVehicleTempDate) {
@@ -387,8 +387,8 @@ const CarDetails = ({ route, navigation }) => {
       endpoints.GET_VEHICLE_CALENDAR(
         hotelID,
         id,
-        moment(startDate).toISOString(),
-        moment(endDate).toISOString()
+        moment(startDate).utc().toISOString(),
+        moment(endDate).utc().toISOString()
       ),
       undefined,
       undefined,
@@ -438,15 +438,15 @@ const CarDetails = ({ route, navigation }) => {
       "calendar",
       vehicle && vehicleQuery.data.vehicle.hotel_id,
       vehicle && vehicleQuery.data.vehicle.id,
-      moment(currentMonth).startOf("month"),
-      moment(currentMonth).endOf("month"),
+      moment(currentMonth).utc().startOf("month"),
+      moment(currentMonth).utc().endOf("month"),
     ],
     queryFn: () =>
       fetchCalendar(
         vehicle && vehicleQuery.data.vehicle.hotel_id,
         vehicle && vehicleQuery.data.vehicle.id,
-        moment(currentMonth).startOf("month"),
-        moment(currentMonth).endOf("month")
+        moment(currentMonth).utc().startOf("month"),
+        moment(currentMonth).utc().endOf("month")
       ),
     enabled: vehicle,
   });
@@ -461,8 +461,8 @@ const CarDetails = ({ route, navigation }) => {
     let dates = [];
     if (bookings) {
       bookings.forEach((booking) => {
-        let start = moment(booking.start_date).subtract(1, "days");
-        let end = moment(booking.end_date).add(1, "days");
+        let start = moment(booking.start_date).utc().subtract(1, "days");
+        let end = moment(booking.end_date).utc().add(1, "days");
         for (let m = start; m.isSameOrBefore(end); m.add(1, 'days')) {
           dates.push(m.toDate());
         }
@@ -483,14 +483,14 @@ const CarDetails = ({ route, navigation }) => {
   useEffect(() => {
     if (route.params.startDate && route.params.endDate) {
       if (route.params.type == "vehicle") {
-        setVehicleTempStartDate(moment(route.params.startDate));
-        setVehicleTempEndDate(moment(route.params.startDate));
-        setStartDate(moment(route.params.startDate));
-        setEndDate(moment(route.params.endDate));
+        setVehicleTempStartDate(moment(route.params.startDate).utc());
+        setVehicleTempEndDate(moment(route.params.startDate).utc());
+        setStartDate(moment(route.params.startDate).utc());
+        setEndDate(moment(route.params.endDate).utc());
       } else {
         setMicroTempStartDate(route.params.startDate)
         setMicroStartDate(route.params.startDate)
-        setSelectedTimeSlots(addTimeSlots(moment(route.params.startDate), moment(route.params.endDate)));
+        setSelectedTimeSlots(addTimeSlots(moment(route.params.startDate).utc(), moment(route.params.endDate).utc()));
         setMasterStart(route.params.startDate)
         setMasterEnd(route.params.endDate)
       }
@@ -521,7 +521,7 @@ const CarDetails = ({ route, navigation }) => {
 
   useEffect(() => {
     if (startMicroTempDate) {
-      let current = moment(startMicroTempDate).startOf("day");
+      let current = moment(startMicroTempDate).utc().startOf("day");
       let end = moment(current).add(1, "day").endOf("day");
       let timeDates = [];
       let firstNextDayTimeSet = false;
@@ -1088,7 +1088,7 @@ const CarDetails = ({ route, navigation }) => {
                             color={"#3B414B"}
                           ></Ionicons>
                           <DateText>
-                            {moment(masterStart).format("LLL")}
+                            {moment(masterStart).utc().format("LLL")}
                           </DateText>
                         </DateIconFlex>
                       </DateWrapper>
@@ -1103,7 +1103,7 @@ const CarDetails = ({ route, navigation }) => {
                             color={"#3B414B"}
                           ></Ionicons>
                           <DateText>
-                            {moment(masterEnd).format("LLL")}
+                            {moment(masterEnd).utc().format("LLL")}
                           </DateText>
                         </DateIconFlex>
                       </DateWrapper>
@@ -1167,53 +1167,65 @@ const CarDetails = ({ route, navigation }) => {
                         >
                           Sub Total
                         </MiniSubtitle>
-                        {startDate || masterStart == "" ? (
+
+                        {(route.params.type == "vehicle" ? (
+                          startDate ?
+                            <DateIconFlex>
+                              <Ionicons
+                                name={"cash-outline"}
+                                size={16}
+                                color={"#4aaf6e"}
+                              ></Ionicons>
+                              <DateText
+                                style={{ color: "#4aaf6e", fontWeight: "700" }}
+                              >
+                                $
+                                {(vehicleQuery.data.vehicle.rate *
+                                  moment(endDate).diff(startDate, "days")).toFixed(2)}
+                                {" "}USD
+                              </DateText>
+                            </DateIconFlex>
+
+                            :
+                            <DateIconFlex>
+                              <Ionicons
+                                name={"cash-outline"}
+                                size={16}
+                                color={"#3B414B"}
+                              ></Ionicons>
+                              <DateText>Select a Date to Reveal</DateText>
+                            </DateIconFlex>
+                        ) : (
+                          masterStart ?
                           <DateIconFlex>
                             <Ionicons
                               name={"cash-outline"}
                               size={16}
-                              color={"#3B414B"}
+                              color={"#4aaf6e"}
                             ></Ionicons>
-                            <DateText>Select a Date to Reveal</DateText>
+                            <DateText
+                              style={{ color: "#4aaf6e", fontWeight: "700" }}
+                            >
+                              $
+                              {
+                                vehicleQuery.data.vehicle.rate.toFixed(2) *
+                                moment(masterEnd).diff(
+                                  masterStart,
+                                  "hours"
+                                ).toFixed(2)
+                              }
+                            </DateText>
                           </DateIconFlex>
-                        ) : (
-                          (route.params.type == "vehicle" ? (
-                            <DateIconFlex>
+                          :
+                          <DateIconFlex>
                               <Ionicons
                                 name={"cash-outline"}
                                 size={16}
-                                color={"#4aaf6e"}
+                                color={"#3B414B"}
                               ></Ionicons>
-                              <DateText
-                                style={{ color: "#4aaf6e", fontWeight: "700" }}
-                              >
-                                $
-                                {vehicleQuery.data.vehicle.rate.toFixed(2) *
-                                  moment(endDate).diff(startDate, "hours")}
-                                .0 USD
-                              </DateText>
+                              <DateText>Select a Date to Reveal</DateText>
                             </DateIconFlex>
-                          ) : (
-                            <DateIconFlex>
-                              <Ionicons
-                                name={"cash-outline"}
-                                size={16}
-                                color={"#4aaf6e"}
-                              ></Ionicons>
-                              <DateText
-                                style={{ color: "#4aaf6e", fontWeight: "700" }}
-                              >
-                                $
-                                {
-                                  vehicleQuery.data.vehicle.rate.toFixed(2) *
-                                  moment(masterEnd).diff(
-                                    masterStart,
-                                    "hours"
-                                  ).toFixed(2)
-                                }
-                              </DateText>
-                            </DateIconFlex>
-                          ))
+                        )
                         )}
                       </DateWrapper>
                     </GrayWrapper>
