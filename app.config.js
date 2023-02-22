@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 export default () => ({
   expo: {
     name: "Greenclick",
@@ -42,8 +44,7 @@ export default () => ({
       eas: {
         projectId: "ba4ba5d3-f0ba-4205-8be9-9f9fa9aa6854"
       },
-      GOOGLE_API_KEY: process.env.GOOGLE_API_KEY || "hello world"
-
+      GOOGLE_API_KEY: process.env.GOOGLE_API_KEY || "test"
     },
     runtimeVersion: {
       policy: "sdkVersion"
