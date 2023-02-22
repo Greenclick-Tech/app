@@ -662,6 +662,8 @@ const MapPage = ({ route, navigation, props }) => {
 
     const animateMapRegion = new Animated.Value(0);
 
+    console.log(Constants.expoConfig.extra.GOOGLE_API_KEY)
+
     //Location
 
     const getLocation = async () => {

@@ -3,13 +3,17 @@
     "version": ">= 3.5.1"
   },
   "build": {
+    "production": {
+      "ios": {
+        "resourceClass": "m1-medium"
+      }
+    },
     "development": {
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
         "resourceClass": "m1-medium"
-      },
-      "extends": "production"
+      }
     },
     "staging": {
       "distribution": "internal",
@@ -17,14 +21,6 @@
         "resourceClass": "m1-medium"
       },
       "extends": "production"
-    },
-    "production": {
-      "ios": {
-        "resourceClass": "m1-medium"
-      },
-      "env": {
-        "GOOGLE_API_KEY": "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w"
-      }
     }
   },
   "submit": {
