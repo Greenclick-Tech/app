@@ -80,7 +80,8 @@ const ExtraInfo = ({ navigation, route }) => {
   const today = new Date();
   const [show, setShow] = useState(false);
   const { setLocation, setLocationStatus } = useContext(Context);
-  const key = Constants.expoConfig.GOOGLE_API_KEY
+  const key = "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w"
+  
   const showDatepicker = () => {
     setShow(true)
   };
