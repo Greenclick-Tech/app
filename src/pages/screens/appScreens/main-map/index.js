@@ -662,6 +662,7 @@ const MapPage = ({ route, navigation, props }) => {
 
     const animateMapRegion = new Animated.Value(0);
 
+    const google_key = "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w"
     //Location
 
     const getLocation = async () => {
@@ -975,7 +976,7 @@ const MapPage = ({ route, navigation, props }) => {
         const delaySearch = setTimeout(() => {
             axios
                 .get(
-                    `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchPlaces}&&location=${location.coords.latitude}%2C${location.coords.longitude}&&radius=1000&key=${Constants.expoConfig.GOOGLE_API_KEY}`
+                    `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchPlaces}&&location=${location.coords.latitude}%2C${location.coords.longitude}&&radius=1000&key=${google_key}`
                 )
                 .then((res) => {
                     setPlaces(res.data.predictions);
@@ -1755,7 +1756,7 @@ const MapPage = ({ route, navigation, props }) => {
                                                                     Keyboard.dismiss();
                                                                     await axios
                                                                         .get(
-                                                                            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=${Constants.expoConfig.GOOGLE_API_KEY}`
+                                                                            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=${google_key}`
                                                                         )
                                                                         .then((res) => {
                                                                             handleSheetChanges(0);
