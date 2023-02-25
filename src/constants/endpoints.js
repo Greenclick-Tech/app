@@ -5,6 +5,7 @@ export default {
     REGISTER: () => `/auth/register`,
     VERIFY: () => `/auth/verify`,
     TOKEN: () => `/auth/token`,
+    DELETE: () => `/me`,
 
     SAVE_PUSH_TOKEN: () => `/push-token`,
 

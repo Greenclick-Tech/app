@@ -6,6 +6,8 @@ import { FlatList } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Context } from '../../../../helpers/context/context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import RequestHandler from '../../../../helpers/api/rest_handler';
+import endpoints from '../../../../constants/endpoints';
 
 const FAD = styled.View`
     width: 100%;
@@ -37,6 +39,29 @@ const Text = styled.Text`
 
 const SettingsMain = ( { navigation }) => {
     const { setUser } = useContext(Context);
+
+    const DeleteAccount = async() => {
+        let res = await RequestHandler(
+            "DELETE",
+            endpoints.DELETE,
+            undefined,
+            undefined,
+            true
+          );
+      
+          if ("error" in res) {
+            Alert.alert('Error deleting your account', 'Please contact support@greenclicktechnologies.com for assistance in deleting your account', [
+                {
+                    text: 'Cancel',
+                    style: 'cancel',
+                },
+                {text: 'Ok'},
+            ]);
+          } else {
+            console.log(res)
+            return res;
+          }
+    }
 
     return (
         <SafeAreaView tyle={{ flex: 1, justifyContent: 'space-between', alignItems: 'center',   }}  edges={['top', 'left', 'right']}>
@@ -72,6 +97,11 @@ const SettingsMain = ( { navigation }) => {
                         name: "Logout",
                         route: "Logout",
                         icon: "log-out-outline"
+                    },
+                    {
+                        name: "Delete Account",
+                        route: "Delete",
+                        icon: "alert-circle-outline"
                     }
                 ]}
                 renderItem={(e)=> {
@@ -111,6 +141,16 @@ const SettingsMain = ( { navigation }) => {
                                         }},
                                         ]);
                                     break;
+                                    case 'Delete':
+                                        Alert.alert('You are about to Delete your Account', 'Deleting your account will remove all of your account data from our servers. You will have to sign up to use the greenclick app again. Are you sure you want to continue?', [
+                                            {
+                                                text: 'Cancel',
+                                                style: 'cancel',
+                                            },
+                                            {text: 'Delete Account', onPress: () =>  {
+                                                DeleteAccount()
+                                            }},
+                                        ]);
                                 }
                             }}>
                                 <View style={{flexDirection: "row", alignItems: "center"}}>

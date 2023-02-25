@@ -14,13 +14,18 @@ const Title = styled.Text`
 
 `;
 
+const SubTitle = styled.Text`
+    font-size: 20px;
+    
+`;
+
 const PageAccount = () => {
 
     return (
         <SafeAreaView tyle={{ flex: 1, justifyContent: 'space-between', alignItems: 'center',   }}  edges={['top', 'left', 'right']}>
             <Container>
                 <Title>Account</Title>
-                <Text>To manage your account settings, please contact us at support@greenclick.com</Text>
+                <Text>To make changes to your account settings, please contact us at support@greenclick.com</Text>
             </Container>
         </SafeAreaView>
     )
