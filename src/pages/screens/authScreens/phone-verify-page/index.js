@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
 const PhoneVerifyPage = ({ navigation, route }) => {
 
     const CELL_COUNT = 6;
-    const { setUser } = useContext(Context);
+    const { setUser, pushToken } = useContext(Context);
     const [value, setValue] = useState("");
     const [error, setError] = useState("");
     const ref = useBlurOnFulfill({ value, cellCount: CELL_COUNT });
@@ -109,6 +109,7 @@ const PhoneVerifyPage = ({ navigation, route }) => {
                 {
                     "phone": phone,
                     "code": value,
+                    "push_token": pushToken,
                     "first_name": route.params.firstname,
                     "last_name": route.params.lastname,
                     "email": route.params.email,
@@ -123,7 +124,8 @@ const PhoneVerifyPage = ({ navigation, route }) => {
                 endpoints.LOGIN(),
                 {
                     "phone": phone,
-                    "code": value
+                    "code": value,
+                    "push_token": pushToken
                 },
                 "application/x-www-form-urlencoded"
             );

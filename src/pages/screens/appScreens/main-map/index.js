@@ -445,7 +445,7 @@ const VehicleList = ({
     const getVehicleCalendar = async (hotelID, vehicleID, startDate, endDate) => {
         let res = await RequestHandler(
             "GET",
-            endpoints.GET_VEHICLE_CALENDAR(
+            endpoints.GET_VEHICLE_BOOKINGS(
                 hotelID,
                 vehicleID,
                 moment(startDate).toISOString(),
@@ -626,7 +626,6 @@ const MapPage = ({ route, navigation, props }) => {
     const [selectedHotel, setSelectedHotel] = useState();
     const [index, setIndex] = useState(0);
     const [locationLoad, setLocationLoad] = useState(true);
-
     const { location, setLocation, locationStatus, setLocationStatus } = useContext(Context);
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [vehicleStartDate, setVehicleStartDate] = useState();
@@ -979,6 +978,7 @@ const MapPage = ({ route, navigation, props }) => {
                     `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchPlaces}&&location=${location.coords.latitude}%2C${location.coords.longitude}&&radius=1000&key=${google_key}`
                 )
                 .then((res) => {
+                    console.log(res)
                     setPlaces(res.data.predictions);
                 });
             setIsSearching(false);

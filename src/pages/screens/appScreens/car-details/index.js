@@ -384,7 +384,7 @@ const CarDetails = ({ route, navigation }) => {
   async function fetchCalendar(hotelID, id, startDate, endDate) {
     let res = await RequestHandler(
       "GET",
-      endpoints.GET_VEHICLE_CALENDAR(
+      endpoints.GET_VEHICLE_BOOKINGS(
         hotelID,
         id,
         moment(startDate).utc().toISOString(),
