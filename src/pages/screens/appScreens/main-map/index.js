@@ -607,23 +607,43 @@ const VehicleList = ({
                                     })}
                                 </Swiper>
                             </WrapperImageTwo>
-                            <View style={{ flex: 3, padding: 15 }}>
+                            {item.micro_mobility ?
+                                <View style={{ flex: 3, padding: 15 }}>
                                 <CarTitle>{item.model}</CarTitle>
-                                {vehicleStartDate && vehicleEndDate ? (
+                                {masterStart ? (
                                     <PriceWrapper>
                                         <PriceMain>
-                                            ${5 * vehicleEndDate.diff(vehicleStartDate, "hours")}
+                                            ${item.rate * masterEnd.diff(masterStart, "hours").toFixed(2)}
                                             .00
                                         </PriceMain>
                                         <PriceHour>est. total</PriceHour>
                                     </PriceWrapper>
                                 ) : (
                                     <PriceWrapper>
-                                        <PriceMain>$5.00</PriceMain>
+                                        <PriceMain>${item.rate.toFixed(2)}</PriceMain>
                                         <PriceHour>/ per hour</PriceHour>
                                     </PriceWrapper>
                                 )}
                             </View>
+                            :
+                            <View style={{ flex: 3, padding: 15 }}>
+                                <CarTitle>{item.model}</CarTitle>
+                                {vehicleStartDate && vehicleEndDate ? (
+                                    <PriceWrapper>
+                                        <PriceMain>
+                                            ${item.rate * vehicleEndDate.diff(vehicleStartDate, "days").toFixed(2)}
+                                            
+                                        </PriceMain>
+                                        <PriceHour>est. total</PriceHour>
+                                    </PriceWrapper>
+                                ) : (
+                                    <PriceWrapper>
+                                        <PriceMain>${item.rate.toFixed(2)}</PriceMain>
+                                        <PriceHour>/ per day</PriceHour>
+                                    </PriceWrapper>
+                                )}
+                            </View>
+                            }
                         </TouchableCar>
                     </TouchWrap>
                 );
@@ -714,7 +734,8 @@ const MapPage = ({ route, navigation, props }) => {
         keepPreviousData: true,
         onSuccess: (data) => setCarQueries(data.vehicles),
         staleTime: 10 * (60 * 1000),
-        cacheTime: 15 * (60 * 1000)
+        cacheTime: 15 * (60 * 1000),
+        onSuccess: (data) => console.log(data)
     });
 
     const specificHotelQuery = useQuery({

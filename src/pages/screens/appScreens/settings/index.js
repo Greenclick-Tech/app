@@ -43,13 +43,17 @@ const SettingsMain = ( { navigation }) => {
     const DeleteAccount = async() => {
         let res = await RequestHandler(
             "DELETE",
-            endpoints.DELETE,
+            endpoints.DELETE(),
             undefined,
             undefined,
             true
           );
-      
-          if ("error" in res) {
+        console.log(res)
+          if (res == 'OK') {
+            AsyncStorage.multiRemove(["access_token", "refresh_token"]).catch((err) => Alert.alert("Error Logging out. There was an error preventing you from logging out, please try again."))
+            setUser()
+            
+          } else {
             Alert.alert('Error deleting your account', 'Please contact support@greenclicktechnologies.com for assistance in deleting your account', [
                 {
                     text: 'Cancel',
@@ -57,8 +61,6 @@ const SettingsMain = ( { navigation }) => {
                 },
                 {text: 'Ok'},
             ]);
-          } else {
-            return res;
           }
     }
 
