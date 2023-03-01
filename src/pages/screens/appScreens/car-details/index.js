@@ -1315,7 +1315,7 @@ const CarDetails = ({ route, navigation }) => {
                   <ContainerPrice>
                     <WrapperPriceFix>
                       <TitlePrice color>
-                        ${vehicleQuery.data.vehicle.rate.toFixed(2)} Per Day
+                        ${vehicleQuery.data.vehicle.rate.toFixed(2)} Per Hour
                       </TitlePrice>
                       <Price color>Select your Trip Dates</Price>
                     </WrapperPriceFix>
