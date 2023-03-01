@@ -61,24 +61,12 @@ const PhonePage = ({ navigation, route }) => {
             { "phone": value },
             "application/x-www-form-urlencoded",
         )
-        if (res == 'OK') {
-            if (route.params.signup) {
-                navigation.navigate('PhoneVerifyPage', {
-                    phone: value,
-                    firstname: route.params.firstname,
-                    lastname: route.params.lastname,
-                    email: route.params.email,
-                    address: route.params.address,
-                    date_of_birth: route.params.date_of_birth,
-                    signup: true
-                })
-            } else {
-                navigation.navigate('PhoneVerifyPage', {
-                    phone: value
-                })
-            }
-        } else {
+        if (res.error) {
             Alert.alert("An error has occured", res.error.message);
+        } else {
+            navigation.navigate('PhoneVerifyPage', {
+                phone: value
+            })
         }
     }
 

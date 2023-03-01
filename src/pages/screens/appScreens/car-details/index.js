@@ -319,15 +319,15 @@ const CarDetails = ({ route, navigation }) => {
       navigation.navigate("Confirm", {
         hotelId: route.params.hotelId,
         vehicleId: route.params.id,
-        startDate: moment(startDate).utc(),
-        endDate: moment(endDate).utc(),
+        startDate: moment(startDate),
+        endDate: moment(endDate),
       });
     } else {
       navigation.navigate("Confirm", {
         hotelId: route.params.hotelId,
         vehicleId: route.params.id,
-        startDate: moment(masterStart).utc(),
-        endDate: moment(masterEnd).utc(),
+        startDate: moment(masterStart),
+        endDate: moment(masterEnd),
       });
     }
 
@@ -335,15 +335,24 @@ const CarDetails = ({ route, navigation }) => {
 
   const handleTempConfirm = (date, type) => {
     if (route.params.type == "vehicle") {
-      if (type == "END_DATE") {
+
+
+      if(type === "END_DATE" && date != null) {
         setCheckedDates("");
-        setVehicleTempEndDate(moment(date).utc());
-      } else {
-        setCheckedDates("");
-        setVehicleTempStartDate(moment(date).utc());
+        setVehicleTempEndDate(moment(date))
+      } else if(type === "END_DATE" && date === null) {
+        setVehicleTempEndDate("")
       }
+
+      if(type === "START_DATE" && date != null) {
+        setCheckedDates("");
+        setVehicleTempStartDate(moment(date))
+      } else if (type === "START_DATE" && date === null) {
+        setVehicleTempStartDate("")
+      }
+      
     } else {
-      setMicroTempStartDate(moment(date).utc());
+      setMicroTempStartDate(moment(date));
     }
 
     if (endVehicleTempDate && startVehicleTempDate) {
@@ -376,6 +385,8 @@ const CarDetails = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, vehicle prob doesnt exist or somthing
       //
+
+      return res;
     } else {
       return res;
     }
@@ -399,6 +410,7 @@ const CarDetails = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, vehicle prob doesnt exist or somthing
       //
+      return res;
     } else {
       return res;
     }
@@ -430,7 +442,7 @@ const CarDetails = ({ route, navigation }) => {
   const vehicleQuery = useQuery({
     queryKey: ["car"],
     queryFn: () => fetchData(),
-    onSuccess: (data) => setVehicle(true),
+    onSuccess: (data) => "error" in data ? setVehicle(false) : setVehicle(true),
   });
 
   const bookingQuery = useQuery({
@@ -438,17 +450,19 @@ const CarDetails = ({ route, navigation }) => {
       "calendar",
       vehicle && vehicleQuery.data.vehicle.hotel_id,
       vehicle && vehicleQuery.data.vehicle.id,
-      moment(currentMonth).utc().startOf("month"),
-      moment(currentMonth).utc().endOf("month"),
+      moment(currentMonth).startOf("month"),
+      moment(currentMonth).endOf("month"),
     ],
     queryFn: () =>
       fetchCalendar(
         vehicle && vehicleQuery.data.vehicle.hotel_id,
         vehicle && vehicleQuery.data.vehicle.id,
-        moment(currentMonth).utc().startOf("month"),
-        moment(currentMonth).utc().endOf("month")
+        moment(currentMonth).startOf("month"),
+        moment(currentMonth).endOf("month")
       ),
     enabled: vehicle,
+    onSuccess: (data) => console.log(data),
+    onError: (data) => console.log(data)
   });
 
   const activeBooking = useQuery({
@@ -461,8 +475,8 @@ const CarDetails = ({ route, navigation }) => {
     let dates = [];
     if (bookings) {
       bookings.forEach((booking) => {
-        let start = moment(booking.start_date).utc().subtract(1, "days");
-        let end = moment(booking.end_date).utc().add(1, "days");
+        let start = moment(booking.start_date).subtract(1, "days");
+        let end = moment(booking.end_date).add(1, "days");
         for (let m = start; m.isSameOrBefore(end); m.add(1, 'days')) {
           dates.push(m.toDate());
         }
@@ -483,14 +497,14 @@ const CarDetails = ({ route, navigation }) => {
   useEffect(() => {
     if (route.params.startDate && route.params.endDate) {
       if (route.params.type == "vehicle") {
-        setVehicleTempStartDate(moment(route.params.startDate).utc());
-        setVehicleTempEndDate(moment(route.params.startDate).utc());
-        setStartDate(moment(route.params.startDate).utc());
-        setEndDate(moment(route.params.endDate).utc());
+        setVehicleTempStartDate(moment(route.params.startDate));
+        setVehicleTempEndDate(moment(route.params.startDate));
+        setStartDate(moment(route.params.startDate));
+        setEndDate(moment(route.params.endDate));
       } else {
         setMicroTempStartDate(route.params.startDate)
         setMicroStartDate(route.params.startDate)
-        setSelectedTimeSlots(addTimeSlots(moment(route.params.startDate).utc(), moment(route.params.endDate).utc()));
+        setSelectedTimeSlots(addTimeSlots(moment(route.params.startDate), moment(route.params.endDate)));
         setMasterStart(route.params.startDate)
         setMasterEnd(route.params.endDate)
       }
@@ -521,7 +535,7 @@ const CarDetails = ({ route, navigation }) => {
 
   useEffect(() => {
     if (startMicroTempDate) {
-      let current = moment(startMicroTempDate).utc().startOf("day");
+      let current = moment(startMicroTempDate).startOf("day");
       let end = moment(current).add(1, "day").endOf("day");
       let timeDates = [];
       let firstNextDayTimeSet = false;
@@ -592,7 +606,18 @@ const CarDetails = ({ route, navigation }) => {
   } else {
     main = (
       <View style={{ flex: 1 }}>
-        {vehicleQuery.data.vehicle ? (
+        {
+        "error" in vehicleQuery.data ?
+        <View style={{
+          padding: 20,
+          paddingTop: 50,
+          backgroundColor: "#00000050"
+        }}>
+
+        <Title>{vehicleQuery.data.error.message}</Title>
+        </View>
+        :
+        vehicleQuery.data.vehicle ? (
           <View style={{ flex: 1 }}>
             <ScrollView
               scrollIndicatorInsets={{ right: 1 }}
@@ -603,6 +628,7 @@ const CarDetails = ({ route, navigation }) => {
                 transparent={true}
                 animationType="slide"
               >
+                
                 <ModalContent activeOpacity={1}>
                   <ModalMargin onPress={() => null} activeOpacity={1}>
                     <View
@@ -651,6 +677,7 @@ const CarDetails = ({ route, navigation }) => {
                         ></Ionicons>
                       </View>
                     </View>
+
                     {route.params.type == "micro_mobility" ? (
                       //Micro Mobility
                       <View
@@ -687,6 +714,7 @@ const CarDetails = ({ route, navigation }) => {
 
                       modalView == 0 ? (
                         //if screen 1
+                        
                         <CalendarPicker
                           onDateChange={handleTempConfirm}
                           allowRangeSelection={false}
@@ -772,7 +800,7 @@ const CarDetails = ({ route, navigation }) => {
                                 let isBooked = false;
                                 let start = moment(item.start).format();
                                 let end = moment(item.end).format();
-                                bookingQuery.data.bookings.forEach((booking) => {
+                                bookingQuery.data.bookings && bookingQuery.data?.bookings?.forEach((booking) => {
                                   if (moment(booking.start_date).isSame(start) && moment(booking.end_date).isSame(end)) {
                                     isBooked = true;
                                   }
@@ -824,6 +852,7 @@ const CarDetails = ({ route, navigation }) => {
                       )
                     ) : (
                       //if selection is vehicles
+                      
                       <CalendarPicker
                         onDateChange={handleTempConfirm}
                         allowRangeSelection={true}
@@ -837,9 +866,6 @@ const CarDetails = ({ route, navigation }) => {
                         }}
                         selectedStartDate={startDate}
                         selectedEndDate={endDate}
-                        enableDateChange={
-                          (startVehicleTempDate && endVehicleTempDate) == false || (startDate && endDate) == false
-                        }
                         disabledDates={unavailableDates}
                         selectedDisabledDatesTextStyle={{
                           color: "#FF0000",
@@ -1088,7 +1114,7 @@ const CarDetails = ({ route, navigation }) => {
                             color={"#3B414B"}
                           ></Ionicons>
                           <DateText>
-                            {moment(masterStart).utc().format("LLL")}
+                            {moment(masterStart).format("LLL")}
                           </DateText>
                         </DateIconFlex>
                       </DateWrapper>
@@ -1103,7 +1129,7 @@ const CarDetails = ({ route, navigation }) => {
                             color={"#3B414B"}
                           ></Ionicons>
                           <DateText>
-                            {moment(masterEnd).utc().format("LLL")}
+                            {moment(masterEnd).format("LLL")}
                           </DateText>
                         </DateIconFlex>
                       </DateWrapper>
@@ -1335,7 +1361,9 @@ const CarDetails = ({ route, navigation }) => {
               )}
             </Footer>
           </View>
-        ) : (
+        )
+        
+        : (
           <></>
         )}
       </View>

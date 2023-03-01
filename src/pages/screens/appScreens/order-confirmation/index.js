@@ -3,14 +3,14 @@ import styled from "styled-components";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { ActivityIndicator } from "react-native";
 import { Context } from "../../../../helpers/context/context";
-import { Image, View, Text } from "react-native";
+import { Image, View, Text, RefreshControl } from "react-native";
 import {
-  useState,
-  useEffect,
-  useRef,
-  useMemo,
-  useCallback,
-  useContext,
+    useState,
+    useEffect,
+    useRef,
+    useMemo,
+    useCallback,
+    useContext,
 } from "react";
 import BottomSheet from "@gorhom/bottom-sheet";
 import CustomButton from "../../../../components/custom-button";
@@ -253,319 +253,353 @@ const ColoredText = styled.Text`
 const ButtonEdit = styled.TouchableOpacity``;
 
 const OrderConfirmation = ({ route, navigation }) => {
-  const [tabState, setTabState] = useState("Overview");
-  const [index, setIndex] = useState(0);
-  const { user, location } = useContext(Context);
-  const bottomSheetRef = useRef(null);
-  const snapPoints = useMemo(() => ["15%", "100%"], []);
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const handleSheetChanges = useCallback((number) => {
-    setIndex(number);
-  }, []);
+    const [tabState, setTabState] = useState("Overview");
+    const [index, setIndex] = useState(0);
+    const { user, location } = useContext(Context);
+    const bottomSheetRef = useRef(null);
+    const snapPoints = useMemo(() => ["15%", "100%"], []);
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [refreshing, setRefreshing] = useState(false);
+    const handleSheetChanges = useCallback((number) => {
+        setIndex(number);
+    }, []);
 
-  const [mapRegion, setmapRegion] = useState({
-    latitude: location.coords.latitude,
-    longitude: location.coords.longitude,
-    latitudeDelta: 0.004,
-    longitudeDelta: 0.004,
-  });
+    const [mapRegion, setmapRegion] = useState({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.004,
+        longitudeDelta: 0.004,
+    });
 
 
-  async function fetchHotel(hotelId) {
-    let res = await RequestHandler(
-      "GET",
-      endpoints.GET_HOTEL(hotelId),
-      undefined,
-      undefined,
-      true
-    );
-    if ("error" in res) {
-      // SAHIL, HANDLE THIS
-      // probably a 404, hotel prob doesnt exist or somthing
-      //
-      //console.log(res.error)
-    } else {
-      return res;
+    async function fetchHotel(hotelId) {
+        let res = await RequestHandler(
+            "GET",
+            endpoints.GET_HOTEL(hotelId),
+            undefined,
+            undefined,
+            true
+        );
+        if ("error" in res) {
+            // SAHIL, HANDLE THIS
+            // probably a 404, hotel prob doesnt exist or somthing
+            //
+            //console.log(res.error)
+            return res;
+        } else {
+            return res;
+        }
     }
-  }
 
-  async function fetchVehicle(hotelId, vehicleId) {
-    let res = await RequestHandler(
-      "GET",
-      endpoints.GET_VEHICLE(hotelId, vehicleId),
-      undefined,
-      undefined,
-      true
-    );
-    if ("error" in res) {
-      // SAHIL, HANDLE THIS
-      // probably a 404, hotel prob doesnt exist or somthing
-      //
-      //console.log(res.error)
-    } else {
-      return res;
+    async function fetchVehicle(hotelId, vehicleId) {
+        let res = await RequestHandler(
+            "GET",
+            endpoints.GET_VEHICLE(hotelId, vehicleId),
+            undefined,
+            undefined,
+            true
+        );
+        if ("error" in res) {
+            // SAHIL, HANDLE THIS
+            // probably a 404, hotel prob doesnt exist or somthing
+            //
+            //console.log(res.error)
+            return res;
+        } else {
+            return res;
+        }
     }
-  }
 
-  async function getBooking(id) {
-    let res = await RequestHandler(
-      "GET",
-      endpoints.GET_USER_BOOKING(id),
-      undefined,
-      undefined,
-      true
-    );
+    async function getBooking(id) {
+        let res = await RequestHandler(
+            "GET",
+            endpoints.GET_USER_BOOKING(id),
+            undefined,
+            undefined,
+            true
+        );
 
-    if ("error" in res) {
-      // SAHIL, HANDLE THIS
-      // probably a 404, hotel/vehicle prob doesnt exist or somthing,
-      // OR the hotel doesnt even have a box yet
-      // or u could receive 403, so show the error message to user
-      //
-
-    } else {
-      // res.latch_id = Number
-      // tell the user t expect their keys in "Latch #X"
-      return res;
+        if ("error" in res) {
+            // SAHIL, HANDLE THIS
+            // probably a 404, hotel/vehicle prob doesnt exist or somthing,
+            // OR the hotel doesnt even have a box yet
+            // or u could receive 403, so show the error message to user
+            //
+            return res;
+        } else {
+            // res.latch_id = Number
+            // tell the user t expect their keys in "Latch #X"
+            return res;
+        }
     }
-  }
 
-  const results = useQueries({
-    queries: [
-      {
-        queryKey: ["hotel", route.params.hotelId],
-        queryFn: () => fetchHotel(route.params.hotelId),
-      },
-      {
-        queryKey: ["vehicle", route.params.hotelId, route.params.vehicleId],
-        queryFn: () => fetchVehicle(route.params.hotelId, route.params.vehicleId),
-      },
-      {
-        queryKey: ["booking", route.params.bookingId],
-        queryFn: () => getBooking( route.params.bookingId),
-        onSuccess: (data) => console.log(data)
-      }
-      // {
-      //   queryKey: ["nearbyBox"],
-      //   queryFn: () => nearbyBox(),
-      //   retry: false,
-      //   enabled: false,
-      // },
-      // {
-      //   queryKey: ["unlockBox"],
-      //   queryFn: () => unlockBox(),
-      //   enabled: false,
-      // },
-    ],
-  });
-
-  const isLoading = results.every((result) => result.isLoading) 
-  const isError = results.every((result) => result.isError)
-  const isSuccess = results.every((result) => result.isSuccess)
-  // useEffect(()=> {
-  //   if(results[3].isFetched) {
-  //     results[4].refetch()
-  //     if(results[4].data && "received_keys" in results[4].data.booking ) {
-  //       Alert.alert("Success!", "Your Box has been Unlocked, Please revieve your keys.")
-  //     } else if (results[4].data && "returned_keys" in results[4].data.booking ) {
-  //       Alert.alert("Success!", "Your Box has been Unlocked, Please return your keys.")
-  //     }
-  //   }
-  // }, [results[3].data])
-
-  let main = null;
-  if (isLoading) {
-    main = (
-      <View>
-        <ActivityIndicator
-          style={{ padding: 20 }}
-          size={"small"}
-        ></ActivityIndicator>
-      </View>
-    );
-  } else if (isError) {
-    main = (
-      <View>
-        <Text>
-          Error loading your bookings. Please contact support at
-          https://support.greenclick.app
-        </Text>
-      </View>
-    );
-  } else if (isSuccess) {
-    main = (
-      <Container>
-        <DrawerScroll>
-          <MapView
-            style={{ alignSelf: "stretch", height: 140 }}
-            userInterfaceStyle={"light"}
-            showsUserLocation={true}
-            region={mapRegion}
-          >
-            <Marker
-              coordinate={{ latitude: 49.283832, longitude: -123.119333 }}
-            >
-              <Image
-                source={require("../../../../assets/pin.png")}
-                style={{ flex: 1, width: 30 }}
-                resizeMode={"contain"}
-                resizeMethod="scale"
-              ></Image>
-            </Marker>
-            <Circle
-              strokeColor={"#abcaea"}
-              fillColor="#abcaea"
-              radius={7}
-              center={{ latitude: 49.283832, longitude: -123.119333 }}
-            ></Circle>
-          </MapView>
-          <BoxContainer>
+    const results = useQueries({
+        queries: [
             {
-            route.params.active ? (
-              results[2].data && "recieved_key" in results[2].data.booking ? (
-                results[2].data && "returned_key" in results[2].data.booking ? (
-                  <Title>Order is Active</Title>
-                ) : (
-                  <Title>Order has Completed</Title>
-                )
-              ) : (
-                <Title>Order Confirmed</Title>
-              )
-            ) : (
-              <Title>Your Order</Title>
-            )
+                queryKey: ["hotel", route.params.hotelId],
+                queryFn: () => fetchHotel(route.params.hotelId),
+            },
+            {
+                queryKey: ["vehicle", route.params.hotelId, route.params.vehicleId],
+                queryFn: () => fetchVehicle(route.params.hotelId, route.params.vehicleId),
+            },
+            {
+                queryKey: ["booking", route.params.bookingId],
+                queryFn: () => getBooking(route.params.bookingId),
+                onSuccess: (data) => {
+                    console.log(data)
+                    setTimeout(() => {
+                        setRefreshing(false)
+                    }, 500)
+                },
+                onError: (data) => {
+                    setTimeout(() => {
+                        setRefreshing(false)
+                    }, 500)
+                }
             }
-            <MainIconFlex>
-              <OrderNumber>
-                Order Number: #{results[2].data && results[2].data.booking.id}
-              </OrderNumber>
-            </MainIconFlex>
-            <SeperatorFull></SeperatorFull>
-            <View
-              style={{
-                paddingBottom: 20,
-              }}
-            >
-              {route.params.active ? (
-                moment(currentDate).isAfter(
-                  moment(results[2].data.booking.end_date)) ? (
-                    <View
-                      style={{
-                        alignItems: "flex-start",
-                        paddingBottom: 10,
-                      }}
-                    >
-                      <ColoredText color={"#FF0000"}>
-                        Order is Late
-                      </ColoredText>
-                    </View>
-                  ) : (
-                    <View
-                      style={{
-                        alignItems: "flex-start",
-                        paddingBottom: 10,
-                      }}
-                    >
-                      <ColoredText color={"#4aaf6e"}>
-                        Order is Active
-                      </ColoredText>
-                    </View>
-                  )
+            // {
+            //   queryKey: ["nearbyBox"],
+            //   queryFn: () => nearbyBox(),
+            //   retry: false,
+            //   enabled: false,
+            // },
+            // {
+            //   queryKey: ["unlockBox"],
+            //   queryFn: () => unlockBox(),
+            //   enabled: false,
+            // },
+        ],
+    });
 
-              ) : (
-                <View
-                  style={{
-                    alignItems: "flex-start",
-                    paddingBottom: 10,
-                  }}
-                >
-                  <ColoredText color={"#9197a3"}>Order Complete</ColoredText>
-                </View>
-              )}
-              {route.params.active ?
-              <View>
-                <View
-                style={{
-                  flexDirection: "row",
-                  paddingBottom: 10,
-                }}
-              >
-                
-                <MainText bold>Order Starts: </MainText>
-                <MainText>
-                  {moment(results[2].data.booking.start_date).utc().format("LLL")}
-                </MainText>
-              </View>
-                <View
-                style={{
-                  flexDirection: "row",
-                  paddingBottom: 10,
-                }}
-              >
-                
-                <MainText bold>Return By: </MainText>
-                <MainText>
-                  {moment(results[2].data.booking.end_date).utc().format("LLL")}
-                </MainText>
-              </View>
+    const isLoading = results.every((result) => result.isLoading)
+    const isError = results.every((result) => result.isError)
+    const isSuccess = results.every((result) => result.isSuccess)
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        results[2].refetch()
+    }, []);
+
+    let main = null;
+    if (isLoading) {
+        main = (
+            <View>
+                <ActivityIndicator
+                    style={{ padding: 20 }}
+                    size={"small"}
+                ></ActivityIndicator>
             </View>
+        );
+    } else if (isError) {
+        main = (
+            <View>
+                <Text>
+                    Error loading your booking. Please contact support at
+                    https://support.greenclick.app
+                </Text>
+            </View>
+        );
+    } else if (isSuccess) {
+        main = (
+            "error" in results[2].data ?
+                <Text>
+                    {results[2].data.error.message}
+                </Text>
                 :
-              <View
-                style={{
-                  flexDirection: "row",
-                  paddingBottom: 10,
-                }}
-              >
-                
-                <MainText bold>Returned On: </MainText>
-                <MainText>
-                  {moment(results[2].data.booking.end_date).format("LLL")}
-                </MainText>
-              </View>
-              }
+                <Container>
+                    <DrawerScroll refreshControl= {
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                    }>
+                    
+                        {/* <MapView
+                            style={{ alignSelf: "stretch", height: 140 }}
+                            userInterfaceStyle={"light"}
+                            showsUserLocation={true}
+                            region={mapRegion}
+                        >
+                            <Marker
+                                coordinate={{ latitude: 49.283832, longitude: -123.119333 }}
+                            >
+                                <Image
+                                    source={require("../../../../assets/pin.png")}
+                                    style={{ flex: 1, width: 30 }}
+                                    resizeMode={"contain"}
+                                    resizeMethod="scale"
+                                ></Image>
+                            </Marker>
+                            <Circle
+                                strokeColor={"#abcaea"}
+                                fillColor="#abcaea"
+                                radius={7}
+                                center={{ latitude: 49.283832, longitude: -123.119333 }}
+                            ></Circle>
+                        </MapView> */}
+                        <BoxContainer>
+                            {
+                                route.params.active ? (
 
-              {route.params.active ? (
-                moment(currentDate).isAfter(
-                  moment(results[2].data.booking.end_date)
-                ) ? (
-                  <MainText bold color={"#f05157"}>
-                    Your booking is{" "}
-                    {moment(currentDate).diff(
-                      moment(results[2].data.booking.end_date),
-                      "hours"
-                    )}{" "}
-                    hours overdue, please return your keys as soon as possible.
-                  </MainText>
-                ) : moment(results[2].data.booking.end_date).isSame(
-                    moment(currentDate),
-                    "day"
-                  ) ? (
-                  <MainText bold color={"#eba910"}>
-                    Your booking ends today, please return as soon as possible.
-                  </MainText>
-                ) : "recieved_keys" in results[2].data.booking ? (
-                  <MainText bold color={"#42ad56"}>
-                    Your rental is now active. Please make sure to return your
-                    keys before the return date.
-                  </MainText>
-                ) : (
-                  <MainText bold color={"#42ad56"}>
-                    Click below to recieve your keys and start your rental.
-                  </MainText>
-                )
-              ) : (
-                <></>
-              )}
 
-              {"recieved_keys" in results[2].data.booking ? (
-                <DisclaimerTextReturn>
-                  Orders returned late will be subject to late fees.
-                </DisclaimerTextReturn>
-              ) : (
-                <></>
-              )}
-            </View>
-            {/* {results[2].data && "received_keys" in results[2].data.booking ? (
+                                    results[2].data && "recieved_key" in results[2].data.booking ? (
+                                        results[2].data && "returned_key" in results[2].data.booking ? (
+                                            <Title>Order is Active</Title>
+                                        ) : (
+                                            <Title>Order has Completed</Title>
+                                        )
+                                    ) : (
+                                        <Title>Order Confirmed</Title>
+                                    )
+
+
+                                ) : (
+                                    <Title>Your Order</Title>
+                                )
+                            }
+                            <MainIconFlex>
+                                <OrderNumber>
+                                    Order Number: #{results[2].data && results[2].data.booking.id}
+                                </OrderNumber>
+                            </MainIconFlex>
+                            <SeperatorFull></SeperatorFull>
+                            <View
+                                style={{
+                                    paddingBottom: 20,
+                                }}
+                            >
+                                {route.params.active ? (
+
+                                    // Check if Rental Period has Started or Not
+                                    moment(currentDate).isBefore(moment(results[2].data.booking.start_date)) ?
+                                        //Has Not Started
+                                        <View
+                                            style={{
+                                                alignItems: "flex-start",
+                                                paddingBottom: 10,
+                                            }}
+                                        >
+                                            <ColoredText color={"#42ad56"}>
+                                                Booking Period has not Started
+                                            </ColoredText>
+                                        </View>
+                                        :
+                                        moment(currentDate).isBefore(moment(results[2].data.booking.end_date)) ?
+                                            //Has Started
+                                            "recieved_key" in results[2].data.booking ?
+                                                <View
+                                                    style={{
+                                                        alignItems: "flex-start",
+                                                        paddingBottom: 10,
+                                                    }}
+                                                >
+                                                    <ColoredText color={"#42ad56"}>
+                                                        Order is Active
+                                                    </ColoredText>
+                                                </View>
+                                                :
+                                                <View
+                                                    style={{
+                                                        alignItems: "flex-start",
+                                                        paddingBottom: 10,
+                                                    }}
+                                                >
+                                                    <ColoredText color={"#42ad56"}>
+                                                        Order is Ready to be Activated
+                                                    </ColoredText>
+                                                </View>
+                                            :
+                                            //Has Ended
+                                            <View
+                                                style={{
+                                                    alignItems: "flex-start",
+                                                    paddingBottom: 10,
+                                                }}
+                                            >
+                                                <ColoredText color={"#FF0000"}>
+                                                    Order is Overdue
+                                                </ColoredText>
+                                            </View>
+
+                                ) : (
+                                    <View
+                                        style={{
+                                            alignItems: "flex-start",
+                                            paddingBottom: 10,
+                                        }}
+                                    >
+                                        <ColoredText color={"#9197a3"}>Order Complete</ColoredText>
+                                    </View>
+                                )}
+                                {route.params.active ?
+                                    <View>
+                                        <View
+                                            style={{
+                                                flexDirection: "row",
+                                                paddingBottom: 10,
+                                            }}
+                                        >
+
+                                            <MainText bold>Order Starts: </MainText>
+                                            <MainText>
+                                                {moment(results[2].data.booking.start_date).format("LLL")}
+                                            </MainText>
+                                        </View>
+                                        <View
+                                            style={{
+                                                flexDirection: "row",
+                                                paddingBottom: 10,
+                                            }}
+                                        >
+
+                                            <MainText bold>Return By: </MainText>
+                                            <MainText>
+                                                {moment(results[2].data.booking.end_date).format("LLL")}
+                                            </MainText>
+                                        </View>
+                                    </View>
+                                    :
+                                    <View
+                                        style={{
+                                            flexDirection: "row",
+                                            paddingBottom: 10,
+                                        }}
+                                    >
+
+                                        <MainText bold>Returned On: </MainText>
+                                        <MainText>
+                                            {moment(results[2].data.booking.end_date).format("LLL")}
+                                        </MainText>
+                                    </View>
+                                }
+
+                                {route.params.active ? (
+                                    // Check if Rental Period has Started or Not
+                                    moment(currentDate).isBefore(moment(results[2].data.booking.start_date)) ?
+                                        //Has Not Started
+                                        <MainText bold color={"#42ad56"}>
+                                            Your rentals booking period has not started yet. You will be able to access your vehicle keys when the rental begins.
+                                        </MainText>
+                                        :
+                                        moment(currentDate).isBefore(moment(results[2].data.booking.end_date)) ?
+                                            //Has Started
+                                            "recieved_key" in results[2].data.booking ?
+                                                <MainText bold color={"#42ad56"}>
+                                                    Your rental period is active. Enjoy your trip! Please make sure to return your vehicle keys before the rental period is over.
+                                                </MainText>
+                                                :
+                                                <MainText bold color={"#42ad56"}>
+                                                    Your rental period is ready to be activated. You can access your vehicle keys by tapping "Get your Key".
+                                                </MainText>
+                                            :
+                                            //Has Ended
+                                            <MainText bold color={"#FF0000"}>
+                                                Your rental period is over, return your keys immediately to avoid late fees.
+                                            </MainText>
+
+                                ) : (
+                                    <></>
+                                )}
+                            </View>
+                            {/* {results[2].data && "received_keys" in results[2].data.booking ? (
               results[2].data && "returned_keys" in results[2].data.booking ? (
                 <GreenBox>
                   <Swiper
@@ -655,533 +689,255 @@ const OrderConfirmation = ({ route, navigation }) => {
                 </Swiper>
               </GreenBox>
             )} */}
-            {route.params.active ? (
-              <View
-                style={{
-                  borderWidth: 1,
-                  padding: 15,
-                  borderRadius: 10,
-                  borderColor: "#00000020",
-                }}
-              >
-                {results[2].data &&
-                "received_keys" in results[2].data.booking ? (
-                  "returned_keys" in results[2].data.booking ? (
-                    <MainText>Vehicle Successfully Returned</MainText>
-                  ) : (
-                    <AddBody reverse>
-                      <BoxImageBody
-                        source={require("../../../../assets/boxrad.png")}
-                      ></BoxImageBody>
-                      <ItemContainerAdd>
-                        <CustomButton
-                          title={"Return Key"}
-                          bgcolor={"#4aaf6e"}
-                          fcolor={"#fff"}
-                          width={"100%"}
-                          onPress={() =>
-                            navigation.navigate("Key Return", {
-                              hotel_id: results[2].data.booking.hotel_id,
-                              id: results[2].data.booking.id,
-                              vehicle_id: results[2].data.booking.vehicle_id,
-                            })
-                          }
-                        ></CustomButton>
-                        <DisclaimerText>
-                          By returning your key, you are ending your car rental
-                          period.
-                        </DisclaimerText>
-                      </ItemContainerAdd>
-                    </AddBody>
-                  )
-                ) : (
-                  <AddBody>
-                    <BoxImageBody
-                      source={require("../../../../assets/boxrad.png")}
-                    ></BoxImageBody>
-                    <ItemContainerAdd>
-                      <CustomButton
-                        onPress={() =>
-                          navigation.navigate("Key Retrival", {
-                            hotel_id: results[2].data.booking.hotel_id,
-                            id: results[2].data.booking.id,
-                            vehicle_id: results[2].data.booking.vehicle_id,
-                          })
-                        }
-                        title={"Get your Key"}
-                        bgcolor={"#4aaf6e"}
-                        fcolor={"#fff"}
-                        width={"100%"}
-                      ></CustomButton>
-                      <DisclaimerText>
-                        By obtaining your rental vehicle key, you are agreeing
-                        to our terms and conditions.
-                      </DisclaimerText>
-                    </ItemContainerAdd>
-                  </AddBody>
-                )}
-              </View>
-            ) : (
-              <></>
-            )}
+                            {route.params.active ? (
+                                <View
+                                    style={{
+                                        borderWidth: 1,
+                                        padding: 15,
+                                        borderRadius: 10,
+                                        borderColor: "#00000020",
+                                    }}
+                                >
+                                    {results[2].data &&
+                                        "received_keys" in results[2].data.booking ? (
+                                        "returned_keys" in results[2].data.booking ? (
+                                            <MainText>Vehicle Successfully Returned</MainText>
+                                        ) : (
+                                            <AddBody reverse>
+                                                <BoxImageBody
+                                                    source={require("../../../../assets/boxrad.png")}
+                                                ></BoxImageBody>
+                                                <ItemContainerAdd>
+                                                    <CustomButton
+                                                        title={"Return Key"}
+                                                        bgcolor={"#4aaf6e"}
+                                                        fcolor={"#fff"}
+                                                        width={"100%"}
+                                                        onPress={() =>
+                                                            navigation.navigate("Key Return", {
+                                                                hotel_id: results[2].data.booking.hotel_id,
+                                                                id: results[2].data.booking.id,
+                                                                vehicle_id: results[2].data.booking.vehicle_id,
+                                                            })
+                                                        }
+                                                    ></CustomButton>
+                                                    <DisclaimerText>
+                                                        By returning your key, you are ending your car rental
+                                                        period.
+                                                    </DisclaimerText>
+                                                </ItemContainerAdd>
+                                            </AddBody>
+                                        )
+                                    ) : (
+                                        <AddBody>
+                                            <BoxImageBody
+                                                source={require("../../../../assets/boxrad.png")}
+                                            ></BoxImageBody>
+                                            <ItemContainerAdd>
+                                                {
+                                                    moment(currentDate).isBefore(moment(results[2].data.booking.start_date)) ?
+                                                        <CustomButton
 
-            <Spacer></Spacer>
-            {/* <Containing>
+                                                            title={"Get your Key"}
+                                                            bgcolor={"#878787"}
+                                                            fcolor={"#fff"}
+                                                            width={"100%"}
+                                                        ></CustomButton>
+                                                        :
+                                                        <CustomButton
+                                                            onPress={() =>
+                                                                navigation.navigate("Key Retrival", {
+                                                                    hotel_id: results[2].data.booking.hotel_id,
+                                                                    id: results[2].data.booking.id,
+                                                                    vehicle_id: results[2].data.booking.vehicle_id,
+                                                                })
+                                                            }
+                                                            title={"Get your Key"}
+                                                            bgcolor={"#4aaf6e"}
+                                                            fcolor={"#fff"}
+                                                            width={"100%"}
+                                                        ></CustomButton>
+                                                }
+                                                <DisclaimerText>
+                                                    By obtaining your rental vehicle key, you are agreeing
+                                                    to our terms and conditions.
+                                                </DisclaimerText>
+                                            </ItemContainerAdd>
+                                        </AddBody>
+                                    )}
+                                </View>
+                            ) : (
+                                <></>
+                            )}
+
+                            <Spacer></Spacer>
+                            {/* <Containing>
             <BoxRadImg
             source={require("../../../../assets/boxrad.png")}
             >
 
             </BoxRadImg>
         </Containing> */}
-          </BoxContainer>
-        </DrawerScroll>
-        <BottomSheet
-          ref={bottomSheetRef}
-          index={index}
-          animateOnMount={true}
-          snapPoints={snapPoints}
-          onChange={handleSheetChanges}
-          keyboardBehavior={"extend"}
-          keyboardBlurBehavior={"restore"}
-          backgroundStyle={"ViewStyle"}
-          style={{
-            shadowColor: "#000",
-            shadowOffset: {
-              width: 0,
-              height: 6,
-            },
-            shadowOpacity: 0.39,
-            shadowRadius: 8.3,
-            elevation: 13,
-          }}
-        >
-          <DrawerView>
-            <Tabs>
-              <IndividualTab
-                onPress={() => {
-                  setTabState("Overview");
-                }}
-                color={tabState == "Overview"}
-              >
-                <TabItem color={tabState == "Overview"}>Overview</TabItem>
-              </IndividualTab>
-              <IndividualTab
-                onPress={() => {
-                  setTabState("Events");
-                }}
-                color={tabState == "Events"}
-              >
-                <TabItem color={tabState == "Events"}>Events Nearby</TabItem>
-              </IndividualTab>
-            </Tabs>
-            {
-              isLoading ?
-                <ActivityIndicator size={"small"}></ActivityIndicator>
-              :
-                isError ?
-                <Subtitle>An error occured fetching data. Please try again.</Subtitle>
-                :
-                <DrawerScroll>
-              {/* <Subtitle>How to Recieve your Rental Keys</Subtitle>
-            <TextElement>
-              To recieve your Rental keys, please stand within{" "}
-              <Bold>5 meters</Bold> of the greenclick box. Then, tap the{" "}
-              <Bold>Get Key</Bold> button above to open the latch.
-            </TextElement>
-            <Subtitle>How to Return your Vehicle Keys</Subtitle>
-            <TextElement>
-              To recieve your vehicle rentals keys, please stand within{" "}
-              <Bold>5 meters</Bold> of the greenclick box. Then, tap the{" "}
-              <Bold>Get Key</Bold> button above to open the latch.
-            </TextElement> */}
-              {tabState == "Overview" ? (
-                <View>
-                  <Subtitle>Order Details</Subtitle>
-                  <GrayWrapper>
-                    <DateWrapper>
-                      <TitleButtonWrapper>
-                        <MiniSubtitle>Start Date</MiniSubtitle>
-                      </TitleButtonWrapper>
-                      <DateIconFlex>
-                        <Ionicons
-                          name={"calendar-outline"}
-                          size={16}
-                          color={"#3B414B"}
-                        ></Ionicons>
-                        <DateText>
-                          {moment(results[2].data.booking.start_date).format("LLL")}
-                        </DateText>
-                      </DateIconFlex>
-                    </DateWrapper>
-                    <DateWrapper>
-                      <TitleButtonWrapper>
-                        <MiniSubtitle>End Date</MiniSubtitle>
-                      </TitleButtonWrapper>
-                      <DateIconFlex>
-                        <Ionicons
-                          name={"calendar-outline"}
-                          size={16}
-                          color={"#3B414B"}
-                        ></Ionicons>
-                        <DateText>
-                        {moment(results[2].data.booking.end_date).format("LLL")}
-                        </DateText>
-                      </DateIconFlex>
-                    </DateWrapper>
-                    <DateWrapper>
-                      <MiniSubtitle>Vehicle</MiniSubtitle>
-                      <DateIconFlex>
-                        <Ionicons
-                          name={"car-outline"}
-                          size={18}
-                          color={"#3B414B"}
-                        ></Ionicons>
-                        <DateText>{results[1].data?.vehicle?.model}</DateText>
-                      </DateIconFlex>
-                    </DateWrapper>
-                    <DateWrapper>
-                      <MiniSubtitle>Hotel</MiniSubtitle>
-                      <DateIconFlex>
-                        <Ionicons
-                          name={"bed-outline"}
-                          size={18}
-                          color={"#3B414B"}
-                        ></Ionicons>
-                        <DateText>{results[0].data?.hotel?.name}</DateText>
-                      </DateIconFlex>
-                      <DateIconFlex>
-                        <Ionicons
-                          name={"map-outline"}
-                          size={18}
-                          color={"#3B414B"}
-                        ></Ionicons>
-                        <DateText>{results[0].data?.hotel?.address}</DateText>
-                      </DateIconFlex>
-                      <DateIconFlex>
-                        <Ionicons
-                          name={"call-outline"}
-                          size={18}
-                          color={"#3B414B"}
-                        ></Ionicons>
-                        <DateText>{results[0].data?.hotel?.phone}</DateText>
-                      </DateIconFlex>
-                    </DateWrapper>
-                  </GrayWrapper>
-                  <Subtitle>Support</Subtitle>
-                  <Text style={{fontSize: 14}}>Need help with your booking? Contact us at</Text> 
-                  <Text style={{fontSize: 14}}>https://support.greenclick.app</Text>
-                </View>
-              ) : (
-                <View>
-                  <Subtitle>Events Nearby</Subtitle>
-                </View>
-              )}
-                </DrawerScroll>
-            }
-            
-          </DrawerView>
-        </BottomSheet>
-      </Container>
-    );
-    // main = <View></View>
-  }
+                        </BoxContainer>
+                    </DrawerScroll>
+                    <BottomSheet
+                        ref={bottomSheetRef}
+                        index={index}
+                        animateOnMount={true}
+                        snapPoints={snapPoints}
+                        onChange={handleSheetChanges}
+                        keyboardBehavior={"extend"}
+                        keyboardBlurBehavior={"restore"}
+                        backgroundStyle={"ViewStyle"}
+                        style={{
+                            shadowColor: "#000",
+                            shadowOffset: {
+                                width: 0,
+                                height: 6,
+                            },
+                            shadowOpacity: 0.39,
+                            shadowRadius: 8.3,
+                            elevation: 13,
+                        }}
+                    >
+                        <DrawerView>
+                            <Tabs>
+                                <IndividualTab
+                                    onPress={() => {
+                                        setTabState("Overview");
+                                    }}
+                                    color={tabState == "Overview"}
+                                >
+                                    <TabItem color={tabState == "Overview"}>Overview</TabItem>
+                                </IndividualTab>
+                                <IndividualTab
+                                    onPress={() => {
+                                        setTabState("Events");
+                                    }}
+                                    color={tabState == "Events"}
+                                >
+                                    <TabItem color={tabState == "Events"}>Events Nearby</TabItem>
+                                </IndividualTab>
+                            </Tabs>
+                            {
+                                isLoading ?
+                                    <ActivityIndicator size={"small"}></ActivityIndicator>
+                                    :
+                                    isError ?
+                                        <Subtitle>An error occured fetching data. Please try again.</Subtitle>
+                                        :
+                                        <DrawerScroll>
+                                            {tabState == "Overview" ? (
+                                                "error" in results[0].data || "error" in results[1].data || "error" in results[2].data ?
+                                                    <View>
+                                                        {
+                                                            "error" in results[0].data && (
+                                                                <Text style={{ fontSize: 14 }}>{results[0].data.error.message}</Text>
+                                                            )
+                                                            ||
+                                                            "error" in results[0].data && (
+                                                                <Text style={{ fontSize: 14 }}>{results[0].data.error.message}</Text>
+                                                            )
+                                                            ||
+                                                            "error" in results[0].data && (
+                                                                <Text style={{ fontSize: 14 }}>{results[0].data.error.message}</Text>
+                                                            )
+                                                        }
+                                                    </View>
 
-  return (
-    // <Container>
-    // <DrawerScroll>
+                                                    :
+                                                    <View>
+                                                        <Subtitle>Order Details</Subtitle>
+                                                        <GrayWrapper>
+                                                            <DateWrapper>
+                                                                <TitleButtonWrapper>
+                                                                    <MiniSubtitle>Start Date</MiniSubtitle>
+                                                                </TitleButtonWrapper>
+                                                                <DateIconFlex>
+                                                                    <Ionicons
+                                                                        name={"calendar-outline"}
+                                                                        size={16}
+                                                                        color={"#3B414B"}
+                                                                    ></Ionicons>
+                                                                    <DateText>
+                                                                        {moment(results[2].data.booking.start_date).format("LLL")}
+                                                                    </DateText>
+                                                                </DateIconFlex>
+                                                            </DateWrapper>
+                                                            <DateWrapper>
+                                                                <TitleButtonWrapper>
+                                                                    <MiniSubtitle>End Date</MiniSubtitle>
+                                                                </TitleButtonWrapper>
+                                                                <DateIconFlex>
+                                                                    <Ionicons
+                                                                        name={"calendar-outline"}
+                                                                        size={16}
+                                                                        color={"#3B414B"}
+                                                                    ></Ionicons>
+                                                                    <DateText>
+                                                                        {moment(results[2].data.booking.end_date).format("LLL")}
+                                                                    </DateText>
+                                                                </DateIconFlex>
+                                                            </DateWrapper>
+                                                            <DateWrapper>
+                                                                <MiniSubtitle>Vehicle</MiniSubtitle>
+                                                                <DateIconFlex>
+                                                                    <Ionicons
+                                                                        name={"car-outline"}
+                                                                        size={18}
+                                                                        color={"#3B414B"}
+                                                                    ></Ionicons>
+                                                                    <DateText>{results[1].data?.vehicle?.model}</DateText>
+                                                                </DateIconFlex>
+                                                            </DateWrapper>
+                                                            <DateWrapper>
+                                                                <MiniSubtitle>Hotel</MiniSubtitle>
+                                                                <DateIconFlex>
+                                                                    <Ionicons
+                                                                        name={"bed-outline"}
+                                                                        size={18}
+                                                                        color={"#3B414B"}
+                                                                    ></Ionicons>
+                                                                    <DateText>{results[0].data?.hotel?.name}</DateText>
+                                                                </DateIconFlex>
+                                                                <DateIconFlex>
+                                                                    <Ionicons
+                                                                        name={"map-outline"}
+                                                                        size={18}
+                                                                        color={"#3B414B"}
+                                                                    ></Ionicons>
+                                                                    <DateText>{results[0].data?.hotel?.address}</DateText>
+                                                                </DateIconFlex>
+                                                                <DateIconFlex>
+                                                                    <Ionicons
+                                                                        name={"call-outline"}
+                                                                        size={18}
+                                                                        color={"#3B414B"}
+                                                                    ></Ionicons>
+                                                                    <DateText>{results[0].data?.hotel?.phone}</DateText>
+                                                                </DateIconFlex>
+                                                            </DateWrapper>
+                                                        </GrayWrapper>
+                                                        <Subtitle>Support</Subtitle>
+                                                        <Text style={{ fontSize: 14 }}>Need help with your booking? Contact us at</Text>
+                                                        <Text style={{ fontSize: 14 }}>https://support.greenclick.app</Text>
+                                                    </View>
+                                            ) : (
+                                                <View>
+                                                    <Subtitle>Events Nearby</Subtitle>
+                                                </View>
+                                            )}
+                                        </DrawerScroll>
+                            }
 
-    //   <MapView
-    //     style={{ alignSelf: "stretch", height: 140 }}
-    //     userInterfaceStyle={"light"}
-    //     showsUserLocation={true}
-    //     region={mapRegion}
-    //   >
-    //     <Marker coordinate={{ latitude: 49.283832, longitude: -123.119333 }}>
-    //       <Image
-    //         source={require("../../../../assets/pin.png")}
-    //         style={{ flex: 1, width: 30 }}
-    //         resizeMode={"contain"}
-    //         resizeMethod="scale"
-    //       ></Image>
-    //     </Marker>
-    //     <Circle
-    //       strokeColor={"#abcaea"}
-    //       fillColor="#abcaea"
-    //       radius={7}
-    //       center={{ latitude: 49.283832, longitude: -123.119333 }}
-    //     ></Circle>
-    //   </MapView>
-    //   <BoxContainer>
-    //     {"recieved_key" in results[4].data.booking ?
-    //       "returned_key" in results[4].data.booking ?
-    //       <Title>Order is Active.</Title>
-    //       :
-    //       <Title>Order has Completed.</Title>
+                        </DrawerView>
+                    </BottomSheet>
+                </Container>
+        );
+        // main = <View></View>
+    }
 
-    //     :
-    //       <Title>Order Confirmed.</Title>
-    //     }
-
-    //     <MainIconFlex>
-    //       <OrderNumber>Order Number: #{results[4].data.booking.id}</OrderNumber>
-    //     </MainIconFlex>
-    //     <SeperatorFull></SeperatorFull>
-    //     <View>
-    //     <MainText>Return By: January 1st, 2022, 11:59pm</MainText>
-    //     <DisclaimerTextReturn>Orders returned late will be subject to late fees.</DisclaimerTextReturn>
-    //     <SeperatorFull></SeperatorFull>
-    //     </View>
-    //     {"recieved_key" in results[4].data.booking ?
-    //       "returned_key" in results[4].data.booking ?
-    //       <GreenBox>
-    //         <Swiper containerStyle={{
-    //             height: 70
-    //         }}
-    //         paginationStyle={{
-    //             marginBottom: -35
-    //         }}
-    //         >
-    //             <GreenBoxItem>
-    //             <GreenBoxText>Please stand 5 meters near Greenclick Box vicinity.</GreenBoxText>
-    //             <Ionicons name="navigate-circle" size={45} color={'#fff'}></Ionicons>
-    //             </GreenBoxItem>
-    //             <GreenBoxItem>
-    //             <GreenBoxText>Tap "Return your Key" and wait for the box to open.</GreenBoxText>
-    //             <Ionicons name="phone-portrait" size={45} color={'#fff'}></Ionicons>
-    //             </GreenBoxItem>
-    //             <GreenBoxItem>
-    //             <GreenBoxText>Return your key and close the corrisponding latch.</GreenBoxText>
-    //             <Ionicons name="lock-closed" size={45} color={'#fff'}></Ionicons>
-    //             </GreenBoxItem>
-    //         </Swiper>
-
-    //     </GreenBox>
-    //       :
-    //       <></>
-
-    //     :
-    //     <GreenBox>
-    //     <Swiper containerStyle={{
-    //         height: 70
-    //     }}
-    //     paginationStyle={{
-    //         marginBottom: -35
-    //     }}
-    //     >
-    //         <GreenBoxItem>
-    //         <GreenBoxText>Please stand 5 meters near Greenclick Box vicinity.</GreenBoxText>
-    //         {/* <BoxImage source={require('../../../../assets/box.png')}></BoxImage> */}
-    //         <Ionicons name="navigate-circle" size={45} color={'#fff'}></Ionicons>
-    //         </GreenBoxItem>
-    //         <GreenBoxItem>
-    //         <GreenBoxText>Tap "Get your Key" and wait for the box to open.</GreenBoxText>
-    //         <Ionicons name="phone-portrait" size={45} color={'#fff'}></Ionicons>
-    //         </GreenBoxItem>
-    //         <GreenBoxItem>
-    //         <GreenBoxText>Obtain your key and close the corrisponding latch.</GreenBoxText>
-    //         <Ionicons name="lock-closed" size={45} color={'#fff'}></Ionicons>
-    //         </GreenBoxItem>
-    //     </Swiper>
-
-    // </GreenBox>
-    //     }
-
-    //     {"recieved_key" in results[4].data.booking ?
-    //       "returned_key" in results[4].data.booking ?
-    //       <AddBody reverse>
-    //         <BoxImageBody source={require('../../../../assets/boxrad.png')}>
-    //         </BoxImageBody>
-    //         <ItemContainerAdd>
-    //             <CustomButton
-    //             title={"Return your Key"}
-    //             bgcolor={"#4aaf6e"}
-    //             fcolor={"#fff"}
-    //             width={"100%"}
-    //             onPress={()=> handleReturnBox()}
-    //             ></CustomButton>
-    //             <DisclaimerText>By returning your key, you are ending your car rental period.</DisclaimerText>
-    //         </ItemContainerAdd>
-    //     </AddBody>
-    //       :
-    //       <></>
-    //     :
-    //     <AddBody>
-    //     <BoxImageBody source={require('../../../../assets/boxrad.png')}>
-    //     </BoxImageBody>
-    //     <ItemContainerAdd>
-    //         <CustomButton
-    //         onPress={()=> handleOpenBox()}
-    //         title={"Get your Key"}
-    //         bgcolor={"#4aaf6e"}
-    //         fcolor={"#fff"}
-    //         width={"100%"}
-    //         ></CustomButton>
-    //         <DisclaimerText>By obtaining your rental vehicle key, you are agreeing to our terms and conditions.</DisclaimerText>
-    //     </ItemContainerAdd>
-    // </AddBody>
-    //     }
-
-    //     <Spacer></Spacer>
-    //     {/* <Containing>
-    //         <BoxRadImg
-    //         source={require("../../../../assets/boxrad.png")}
-    //         >
-
-    //         </BoxRadImg>
-    //     </Containing> */}
-
-    //   </BoxContainer>
-    // </DrawerScroll>
-
-    //   <BottomSheet
-    //     ref={bottomSheetRef}
-    //     index={index}
-    //     animateOnMount={true}
-    //     snapPoints={snapPoints}
-    //     onChange={handleSheetChanges}
-    //     keyboardBehavior={"extend"}
-    //     keyboardBlurBehavior={"restore"}
-    //     backgroundStyle={"ViewStyle"}
-    //     style={{
-    //       shadowColor: "#000",
-    //       shadowOffset: {
-    //         width: 0,
-    //         height: 6,
-    //       },
-    //       shadowOpacity: 0.39,
-    //       shadowRadius: 8.3,
-    //       elevation: 13,
-    //     }}
-    //   >
-    //     <DrawerView>
-    //       <Tabs>
-    //         <IndividualTab
-    //           onPress={() => {
-    //             setTabState("Overview");
-    //           }}
-    //           color={tabState == "Overview"}
-    //         >
-    //           <TabItem color={tabState == "Overview"}>Overview</TabItem>
-    //         </IndividualTab>
-    //         <IndividualTab
-    //           onPress={() => {
-    //             setTabState("Events");
-    //           }}
-    //           color={tabState == "Events"}
-    //         >
-    //           <TabItem color={tabState == "Events"}>Events Nearby</TabItem>
-    //         </IndividualTab>
-    //       </Tabs>
-    //       <DrawerScroll>
-    //         {/* <Subtitle>How to Recieve your Rental Keys</Subtitle>
-    //         <TextElement>
-    //           To recieve your Rental keys, please stand within{" "}
-    //           <Bold>5 meters</Bold> of the greenclick box. Then, tap the{" "}
-    //           <Bold>Get Key</Bold> button above to open the latch.
-    //         </TextElement>
-    //         <Subtitle>How to Return your Vehicle Keys</Subtitle>
-    //         <TextElement>
-    //           To recieve your vehicle rentals keys, please stand within{" "}
-    //           <Bold>5 meters</Bold> of the greenclick box. Then, tap the{" "}
-    //           <Bold>Get Key</Bold> button above to open the latch.
-    //         </TextElement> */}
-    //         {tabState == "Overview" ? (
-    //           <View>
-    //             <Subtitle>Order Details</Subtitle>
-    //             <GrayWrapper>
-    //               <DateWrapper>
-    //                 <TitleButtonWrapper>
-    //                   <MiniSubtitle>Start Date</MiniSubtitle>
-    //                 </TitleButtonWrapper>
-    //                 <DateIconFlex>
-    //                   <Ionicons
-    //                     name={"calendar-outline"}
-    //                     size={16}
-    //                     color={"#3B414B"}
-    //                   ></Ionicons>
-    //                   <DateText>
-    //                     1234
-    //                     {/* {moment(route.params.startDate).toISOString()} */}
-    //                   </DateText>
-    //                 </DateIconFlex>
-    //               </DateWrapper>
-    //               <DateWrapper>
-    //                 <TitleButtonWrapper>
-    //                   <MiniSubtitle>End Date</MiniSubtitle>
-    //                 </TitleButtonWrapper>
-    //                 <DateIconFlex>
-    //                   <Ionicons
-    //                     name={"calendar-outline"}
-    //                     size={16}
-    //                     color={"#3B414B"}
-    //                   ></Ionicons>
-    //                   <DateText>
-    //                     1234
-    //                     {/* {moment(route.params.endDate).toISOString()} */}
-    //                   </DateText>
-    //                 </DateIconFlex>
-    //               </DateWrapper>
-    //               <DateWrapper>
-    //                 <MiniSubtitle>Vehicle</MiniSubtitle>
-    //                 <DateIconFlex>
-    //                   <Ionicons
-    //                     name={"car-outline"}
-    //                     size={18}
-    //                     color={"#3B414B"}
-    //                   ></Ionicons>
-    //                   <DateText>Model: Car</DateText>
-    //                 </DateIconFlex>
-    //                 <DateIconFlex>
-    //                   <Ionicons
-    //                     name={"information-circle-outline"}
-    //                     size={18}
-    //                     color={"#3B414B"}
-    //                   ></Ionicons>
-    //                   <DateText>Color: Blue</DateText>
-    //                 </DateIconFlex>
-    //               </DateWrapper>
-    //               <DateWrapper>
-    //                 <MiniSubtitle>Hotel</MiniSubtitle>
-    //                 <DateIconFlex>
-    //                   <Ionicons
-    //                     name={"bed-outline"}
-    //                     size={18}
-    //                     color={"#3B414B"}
-    //                   ></Ionicons>
-    //                   <DateText>Hotel Name</DateText>
-    //                 </DateIconFlex>
-    //                 <DateIconFlex>
-    //                   <Ionicons
-    //                     name={"map-outline"}
-    //                     size={18}
-    //                     color={"#3B414B"}
-    //                   ></Ionicons>
-    //                   <DateText>Hotel Address</DateText>
-    //                 </DateIconFlex>
-    //                 <DateIconFlex>
-    //                   <Ionicons
-    //                     name={"call-outline"}
-    //                     size={18}
-    //                     color={"#3B414B"}
-    //                   ></Ionicons>
-    //                   <DateText>+1778-952-6800</DateText>
-    //                 </DateIconFlex>
-    //               </DateWrapper>
-    //             </GrayWrapper>
-    //             <Subtitle>Support</Subtitle>
-    //           </View>
-    //         ) : (
-    //           <View>
-    //             <Subtitle>Events Nearby</Subtitle>
-    //           </View>
-    //         )}
-    //       </DrawerScroll>
-    //     </DrawerView>
-    //   </BottomSheet>
-    // </Container>
-
-    main
-  );
+    return main;
 };
 
 export default OrderConfirmation;

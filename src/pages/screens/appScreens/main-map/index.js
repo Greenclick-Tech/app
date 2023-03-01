@@ -221,6 +221,13 @@ const ModalContent = styled(Animated.createAnimatedComponent(TouchableOpacity))`
   flex: 1;
 `;
 
+const SubtitleTwo = styled.Text`
+  color: ${(props) => (props.white ? "#FFF" : "#494d52")};
+  font-weight: 300;
+  font-size: 13px;
+  margin-bottom: 10px;
+`;
+
 const TripTitle = styled.Text`
   color: #3b414b;
   font-weight: 600;
@@ -343,6 +350,9 @@ const HotelsFound = ({ hotels, onPress }) => {
             // SAHIL, HANDLE THIS
             // probably a 404 the hotel doesn't exist maybe
             //
+            if(res.error.status == 404) {
+                Alert.alert("An error has occured", "This hotel does not exist")
+            }
             return res;
         } else {
             return res;
@@ -380,7 +390,7 @@ const HotelsFound = ({ hotels, onPress }) => {
 
             {hotels?.map((item, index) => {
                 const matchingHotel = mapHotels?.find(
-                    (hotel) => hotel?.data?.hotel.id === item.id
+                    (hotel) => hotel.data.hotel && hotel?.data?.hotel.id === item.id
                 );
                 return (
                     matchingHotel &&
@@ -448,8 +458,8 @@ const VehicleList = ({
             endpoints.GET_VEHICLE_BOOKINGS(
                 hotelID,
                 vehicleID,
-                moment(startDate).toISOString(),
-                moment(endDate).toISOString()
+                moment(startDate).utc().toISOString(),
+                moment(endDate).utc().toISOString()
             ),
             undefined,
             undefined,
@@ -533,7 +543,7 @@ const VehicleList = ({
                     (booking) => booking.data?.id === item.id
                 ) ?? {};
                 return (
-                    <TouchWrap outline={matchingVehicle && matchingVehicle.data?.bookings.length > 0} key={item.id}>
+                    <TouchWrap outline={matchingVehicle.data?.bookings != null && matchingVehicle.data.bookings.length > 0} key={item.id}>
                         <TouchableCar
                             activeOpacity={1}
                             onPress={() => {
@@ -603,7 +613,7 @@ const VehicleList = ({
                                             ${5 * vehicleEndDate.diff(vehicleStartDate, "hours")}
                                             .00
                                         </PriceMain>
-                                        <PriceHour>est. total {item.id}</PriceHour>
+                                        <PriceHour>est. total</PriceHour>
                                     </PriceWrapper>
                                 ) : (
                                     <PriceWrapper>
@@ -631,7 +641,7 @@ const MapPage = ({ route, navigation, props }) => {
     const [vehicleStartDate, setVehicleStartDate] = useState();
     const [vehicleEndDate, setVehicleEndDate] = useState('');
     const [startVehicleTempDate, setVehicleTempStartDate] = useState();
-    const [endVehicleTempDate, setVehicleTempEndDate] = useState();
+    const [endVehicleTempDate, setVehicleTempEndDate] = useState("");
     const [microStartDate, setMicroStartDate] = useState();
     const [startMicroTempDate, setMicroTempStartDate] = useState();
     const [places, setPlaces] = useState();
@@ -714,7 +724,6 @@ const MapPage = ({ route, navigation, props }) => {
 
     const handleRegionChange = (region) => {
         handleSheetChanges(0)
-        console.log(region)
 
         // const topLeft = {
         //     latitude: region.latitude + (region.latitudeDelta / 2),
@@ -787,11 +796,17 @@ const MapPage = ({ route, navigation, props }) => {
 
     const handleTempConfirm = (date, type) => {
         if (selection == "vehicles") {
-            if (type == "END_DATE") {
-                setVehicleTempEndDate(moment(date));
-            } else {
-                setVehicleTempStartDate(moment(date));
-            }
+            if(type === "END_DATE" && date != null) {
+                setVehicleTempEndDate(moment(date))
+              } else if(type === "END_DATE" && date === null) {
+                setVehicleTempEndDate("")
+              }
+        
+              if(type === "START_DATE" && date != null) {
+                setVehicleTempStartDate(moment(date))
+              } else if (type === "START_DATE" && date === null) {
+                setVehicleTempStartDate("")
+              }
         } else {
             if (type == "END_DATE") {
                 setMicroTempEndDate(moment(date));
@@ -840,7 +855,7 @@ const MapPage = ({ route, navigation, props }) => {
 
     const filteredMarkers =
         hotelQueries.data &&
-        hotelQueries.data.hotels &&
+        hotelQueries.data?.hotels &&
         hotelQueries.data?.hotels.filter((e) => {
             const { latitude, longitude, latitudeDelta, longitudeDelta } = mapRegion;
             const markerLatitude = e.location.coordinates[1];
@@ -870,6 +885,7 @@ const MapPage = ({ route, navigation, props }) => {
             // SAHIL, HANDLE THIS
             // probably a 400, maybe the long/lat was malformed or server couldnt parse it, or something like that
             // React Query Handling Errors
+            return res
         } else {
             return res;
         }
@@ -891,6 +907,8 @@ const MapPage = ({ route, navigation, props }) => {
                 "Error Selecting Hotel",
                 "An unexpected error occured selecting this hotel, please try again."
             );
+            return res;
+            
         } else {
             return res;
         }
@@ -908,6 +926,7 @@ const MapPage = ({ route, navigation, props }) => {
             // SAHIL, HANDLE THIS
             // could be a 400, if the selectedHotel.id is malformed or something
             //
+            return res
         } else {
             return res;
         }
@@ -932,8 +951,8 @@ const MapPage = ({ route, navigation, props }) => {
     }, [selection]);
 
     useEffect(() => {
-        if (specificHotelQuery.data) {
-            setSelectedHotel(specificHotelQuery.data.hotel);
+        if (specificHotelQuery.data && "hotel" in specificHotelQuery.data) {
+            setSelectedHotel(specificHotelQuery.data?.hotel);
         }
     }, [specificHotelQuery.isFetched]);
 
@@ -945,7 +964,7 @@ const MapPage = ({ route, navigation, props }) => {
 
     useEffect(() => {
         if (startMicroTempDate) {
-            let current = moment(startMicroTempDate).utc().startOf("day");
+            let current = moment(startMicroTempDate).startOf("day");
             let end = moment(current).add(1, "day").endOf("day");
             let timeDates = [];
             let firstNextDayTimeSet = false;
@@ -978,7 +997,6 @@ const MapPage = ({ route, navigation, props }) => {
                     `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchPlaces}&&location=${location.coords.latitude}%2C${location.coords.longitude}&&radius=1000&key=${google_key}`
                 )
                 .then((res) => {
-                    console.log(res)
                     setPlaces(res.data.predictions);
                 });
             setIsSearching(false);
@@ -1365,8 +1383,22 @@ const MapPage = ({ route, navigation, props }) => {
                             {hotelQueries.isLoading ? (
                                 <ActivityIndicator size="small"></ActivityIndicator>
                             ) : (
+                                "error" in hotelQueries.data ?
+                                <SubtitleTwo>{hotelQueries.data.error.message}</SubtitleTwo>
+                                :
+
                                 <View
-                                    style={styles.inputContainer}
+                                    style={{
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        backgroundColor: "#e8e8e8",
+                                        paddingTop: 20,
+                                        paddingBottom: 20,
+                                        paddingLeft: 15,
+                                        paddingRight: 20,
+                                        width: "100%",
+                                        borderRadius: 20,
+                                    }}
                                 >
                                     <Ionicons
                                         name={"search"}
@@ -1377,14 +1409,15 @@ const MapPage = ({ route, navigation, props }) => {
                                         style={{
                                             fontSize: 16,
                                             lineHeight: 20,
-                                            flex: 1,
                                             height: "100%",
+                                            width: "100%",
                                             paddingLeft: 10,
                                             paddingRight: 10,
                                         }}
                                         placeholder={"Enter a hotel, airport, or address"}
                                         placeholderTextColor={"#494d5280"}
                                         accessibilityTraits
+                                        keyboardBehavior="fillParent"
                                         clearButtonMode="always"
                                         onClear={() => {
                                             setSearch("");
@@ -1392,7 +1425,7 @@ const MapPage = ({ route, navigation, props }) => {
                                         onChangeText={(e) => {
                                             setSearch(e);
                                         }}
-                                    ></BottomSheetTextInput>
+                                    />
                                     <View>
                                         {hotelQueries.isLoading ? (
                                             <ActivityIndicator size={"small"}></ActivityIndicator>
@@ -1441,6 +1474,9 @@ const MapPage = ({ route, navigation, props }) => {
                             {specificHotelQuery.isLoading ? (
                                 <ActivityIndicator size="small" />
                             ) : specificHotelQuery.data ? (
+                                "error" in specificHotelQuery.data ?
+                                <SubtitleTwo>An error has occured: {specificHotelQuery.data.error.message}</SubtitleTwo>
+                                :
                                 <View style={{ flex: 1 }}>
                                     <HotelContainer>
                                         <IconFlex>
@@ -1611,20 +1647,26 @@ const MapPage = ({ route, navigation, props }) => {
                                         <NoResults>
                                             An error occured searching vehicles, please try again
                                         </NoResults>
-                                    ) : carQueries.data?.vehicles && carsQuery ? (
-                                        <VehicleList
-                                            vehicles={carQueries.data.vehicles}
-                                            navigation={navigation}
-                                            masterEnd={masterEnd}
-                                            masterStart={masterStart}
-                                            selectedHotel={selectedHotel}
-                                            vehicleStartDate={vehicleStartDate}
-                                            vehicleEndDate={vehicleEndDate}
-                                            selection={selection}
-                                        ></VehicleList>
-                                    ) : (
-                                        <NoResults>No Vehicles Found</NoResults>
-                                    )}
+                                    ) : 
+                                    "error" in carQueries.data ?
+                                    <NoResults>{carQueries.data.error.message}</NoResults>
+                                    :
+                                        carQueries.data?.vehicles && carsQuery ? (
+                                            <VehicleList
+                                                vehicles={carQueries.data.vehicles}
+                                                navigation={navigation}
+                                                masterEnd={masterEnd}
+                                                masterStart={masterStart}
+                                                selectedHotel={selectedHotel}
+                                                vehicleStartDate={vehicleStartDate}
+                                                vehicleEndDate={vehicleEndDate}
+                                                selection={selection}
+                                            ></VehicleList>
+                                        ) : (
+                                            <NoResults>No Vehicles Found</NoResults>
+                                        )
+                                    
+                                    }
                                 </View>
                             ) : specificHotelQuery.isError ? (
                                 <NoResults>
@@ -1881,17 +1923,6 @@ const styles = StyleSheet.create({
       padding: 8,
       backgroundColor: 'rgba(151, 151, 151, 0.25)',
     },
-    inputContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#e8e8e8",
-        paddingTop: 20,
-        paddingBottom: 20,
-        paddingLeft: 15,
-        paddingRight: 15,
-        width: "100%",
-        borderRadius: 20,
-    }
   });
 
 export default MapPage;
