@@ -1,5 +1,5 @@
 import React, { useContext, useState, useLayoutEffect  } from "react";
-import { ActivityIndicator, Alert, View } from "react-native";
+import { ActivityIndicator, Alert, View, Text } from "react-native";
 import styled from "styled-components";
 import { SafeAreaView } from "react-native";
 import CustomButton from "../../../../components/custom-button";
@@ -97,7 +97,7 @@ const KeyRetrival = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
-      setError(res);
+      return res;
     } else {
       return res;
     }
@@ -107,8 +107,7 @@ const KeyRetrival = ({ route, navigation }) => {
     let res = await RequestHandler(
       "GET",
       endpoints.UNLOCK_VEHICLE_LATCH(
-        route.params.hotel_id,
-        route.params.vehicle_id
+        route.params.id
       ),
       undefined,
       undefined,
@@ -183,8 +182,11 @@ const KeyRetrival = ({ route, navigation }) => {
             </View>
           ) : nearbyBox.isFetched ? (
             nearbyBox.isError ? (
-              Alert.alert("An Error has Occured", error && error.error.message)
+              Alert.alert("An Error has Occured","An unidentified error occured, please try again.")
             ) : (
+              "error" in nearbyBox.data ?
+              <Text>{nearbyBox.data.error.message}</Text>
+              :
               locationSuccess()
             )
           ) : (

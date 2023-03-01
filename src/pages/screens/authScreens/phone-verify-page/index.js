@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { StyleSheet, Text, KeyboardAvoidingView, Alert } from "react-native";
 import styled from 'styled-components';
 import { Context } from '../../../../helpers/context/context';
@@ -7,6 +7,8 @@ import RequestHandler from '../../../../helpers/api/rest_handler';
 import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell } from 'react-native-confirmation-code-field';
 import CustomButton from '../../../../components/custom-button';
 import endpoints from '../../../../constants/endpoints';
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
 
 const Cont = styled.View`
     flex: 1;
@@ -71,7 +73,7 @@ const styles = StyleSheet.create({
 const PhoneVerifyPage = ({ navigation, route }) => {
 
     const CELL_COUNT = 6;
-    const { setUser, pushToken } = useContext(Context);
+    const { setUser, pushToken, setPushToken } = useContext(Context);
     const [value, setValue] = useState("");
     const [error, setError] = useState("");
     const ref = useBlurOnFulfill({ value, cellCount: CELL_COUNT });
@@ -80,6 +82,48 @@ const PhoneVerifyPage = ({ navigation, route }) => {
         value,
         setValue,
     });
+
+    const [notification, setNotification] = useState(false);
+    const [notificationStatus, setNotificationStatus] = useState()
+
+    async function registerForPushNotificationsAsync() {
+        let token;
+        if (Device.isDevice) {
+          const { status: existingStatus } = await Notifications.getPermissionsAsync();
+          let finalStatus = existingStatus;
+          if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+          }
+          if (finalStatus !== 'granted') {
+            return;
+          }
+          token = (await Notifications.getExpoPushTokenAsync()).data;
+        } else {
+            
+        }
+    
+        if (Platform.OS === 'android') {
+          Notifications.setNotificationChannelAsync('default', {
+            name: 'default',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+          });
+        }
+        return token;
+    }
+
+    useEffect(()=> {
+        if(!pushToken) {
+            registerForPushNotificationsAsync().then(token => {
+                setPushToken(token)
+            });
+        }
+        
+    }, [])
+
+
     //Phone number from previous page
     const phone = route.params.phone;
 
@@ -91,7 +135,7 @@ const PhoneVerifyPage = ({ navigation, route }) => {
             "application/x-www-form-urlencoded",
         )
         if (res == 'OK') {
-            
+            console.log(res)
         } else {
             Alert.alert("An error has occured", res.error.message);
         }
@@ -99,54 +143,31 @@ const PhoneVerifyPage = ({ navigation, route }) => {
 
     //Verify User. Request returns accessToken
     const handleVerify = async () => {
-
         let res;
-
-        if (route.params.signup) {
-            res = await RequestHandler(
-                "post",
-                endpoints.REGISTER(),
-                {
-                    "phone": phone,
-                    "code": value,
-                    "push_token": pushToken,
-                    "first_name": route.params.firstname,
-                    "last_name": route.params.lastname,
-                    "email": route.params.email,
-                    "address": route.params.address,
-                    "date_of_birth": route.params.date_of_birth.toISOString()
-                },
-                "application/x-www-form-urlencoded"
-            );
-        } else {
-            res = await RequestHandler(
-                "post",
-                endpoints.LOGIN(),
-                {
-                    "phone": phone,
-                    "code": value,
-                    "push_token": pushToken
-                },
-                "application/x-www-form-urlencoded"
-            );
-        }
+        console.log(pushToken)
+        res = await RequestHandler(
+            "post",
+            endpoints.LOGIN(),
+            !pushToken ? {
+                "phone": phone,
+                "code": value
+            } :
+            {
+                "phone": phone,
+                "code": value,
+                "push_token": pushToken
+            },
+            "application/x-www-form-urlencoded"
+        );
 
         if ("error" in res) {
             setError(res.error.message)
-            if(res.error.message == 'User already exists with that phone number.') {
-                Alert.alert(
-                    "Issue Signing you Up",
-                    "An account already exists with this phone number, please log in instead.",
-                    [
-                      {
-                        text: "No",
-                      },
-                      { text: "Log In", onPress: () => {
-                        navigation.navigate('Start')
-                      }
-                    }
-                    ]
-                  );
+            if(res.error.status == 404) {
+                setError('')
+                navigation.navigate('Signup', {
+                    phone: phone,
+                    code: value
+                })
             }
             
         } else {

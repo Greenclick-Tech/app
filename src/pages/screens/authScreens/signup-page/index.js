@@ -1,5 +1,5 @@
-import React, { useContext, useLayoutEffect, useState } from "react";
-import { View } from "react-native";
+import React, { useContext, useLayoutEffect, useEffect, useState } from "react";
+import { View, Text, Alert } from "react-native";
 import styled from "styled-components";
 import CustomButton from "../../../../components/custom-button";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -8,7 +8,12 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from "moment";
 import * as Location from "expo-location";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
 import { Context } from '../../../../helpers/context/context';
+import endpoints from "../../../../constants/endpoints";
+import RequestHandler from "../../../../helpers/api/rest_handler";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Constants from "expo-constants";
 
@@ -21,9 +26,15 @@ const Subtitle = styled.Text`
 
 const Body = styled.Text`
   color: #1f2226;
-  line-height: 21px;
   font-size: 14px;
-  padding-bottom: 10px;
+  padding-bottom: 5px;
+`;
+
+const Disclaimer = styled.Text`
+  color: #1f222690;
+  font-size: 12px;
+  padding-bottom: 10px; 
+  text-align: center;
 `;
 
 const ButtonContainer = styled.View`
@@ -52,7 +63,7 @@ const PseudoTextPlaceholder = styled.Text`
 `;
 
 const ButtonWrapper = styled.View`
-  padding: 20px 0px;
+  padding: 10px 0px;
   flex: 1;
 `;
 
@@ -76,10 +87,11 @@ const ExtraInfo = ({ navigation, route }) => {
   const [firstname, setFirstName] = useState();
   const [lastname, setLastName] = useState();
   const [address, setAddress] = useState();
+  const [validateError, setValidateError] = useState()
   const [date_of_birth, setDateOfBirth] = useState(new Date());
   const today = new Date();
   const [show, setShow] = useState(false);
-  const { setLocation, setLocationStatus } = useContext(Context);
+  const { setLocation, setLocationStatus, pushToken, setPushToken, setUser } = useContext(Context);
   const key = "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w"
 
   const showDatepicker = () => {
@@ -106,10 +118,103 @@ const ExtraInfo = ({ navigation, route }) => {
     setLocationStatus(status);
 };
 
+async function registerForPushNotificationsAsync() {
+  let token;
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+      return;
+    }
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+  } else {
+      
+  }
+
+  if (Platform.OS === 'android') {
+    Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
+  }
+  return token;
+}
+
+useEffect(()=> {
+  if(!pushToken) {
+      registerForPushNotificationsAsync().then(token => {
+          setPushToken(token)
+      });
+  }
+  
+}, [])
+
+
 useLayoutEffect(() => {
     getLocation()
 }, [])
  
+  const validateUser = async () => {
+    console.log(
+      {
+        "first_name": firstname,
+        "last_name": lastname,
+        "email": email,
+        "address": address,
+        "date_of_birth": date_of_birth.toISOString(),
+        "phone": route.params.phone,
+        "code": route.params.code,
+        "push_token": pushToken
+    }
+    )
+    let res = await RequestHandler(
+      "post",
+      endpoints.REGISTER(),
+      pushToken ? {
+          "first_name": firstname,
+          "last_name": lastname,
+          "email": email,
+          "address": address,
+          "date_of_birth": date_of_birth.toISOString(),
+          "phone": route.params.phone,
+          "code": route.params.code,
+          "push_token": pushToken
+      }
+      :
+      {
+        "first_name": firstname,
+        "last_name": lastname,
+        "email": email,
+        "address": address,
+        "date_of_birth": date_of_birth.toISOString(),
+        "phone": route.params.phone,
+        "code": route.params.code,
+      },
+      "application/x-www-form-urlencoded"
+    )
+    if("error" in res) {
+      if(res.error.message == "Request body contains invalid code.") {
+        Alert.alert('Your session has expired', 'Your session has expired due to inactivity, please try again.')
+        navigation.navigate('Start')
+      }
+      setValidateError(res.error.message)
+
+    } else {
+      
+      Alert.alert("Success", "Your account has successfully been created, welcome to Greenclick.")
+      await AsyncStorage.setItem("access_token", res.access_token)
+      await AsyncStorage.setItem("refresh_token", res.refresh_token)
+      setUser({access_token: res.access_token, refresh_token: res.refresh_token})
+      
+    }
+    
+  }
 
   return (
     <SafeAreaView
@@ -131,7 +236,7 @@ useLayoutEffect(() => {
           In order to start your Greenclick car rental experience, we will need
           some information from you.
         </Body>
-
+        <Text style={{color: "#FF0000"}}>{validateError}</Text>
         <ButtonContainer>
           <InputTitle>Email Address</InputTitle>
           <InputMain
@@ -253,27 +358,21 @@ useLayoutEffect(() => {
             <CustomButton
               bgcolor={"#4aaf6e"}
               fcolor={"#fff"}
-              title={"Continue"}
+              title={"Signup"}
               onPress={() => {
-                navigation.navigate('Phone', {
-                    email: email,
-                    firstname: firstname,
-                    lastname: lastname,
-                    address: address,
-                    date_of_birth: date_of_birth,
-                    signup: route.params.signup
-                })
+                validateUser()
               }}
             ></CustomButton>
           ) : (
             <CustomButton
               bgcolor={"#4aaf6e66"}
               fcolor={"#fff"}
-              title={"Continue"}
+              title={"Signup"}
               opacity={40}
             ></CustomButton>
           )}
         </ButtonWrapper>
+        <Disclaimer>When you tap Signup, you agree to our terms and conditions & privacy policy. </Disclaimer>
         <DateTimePickerModal
         isVisible={show}
         mode="date"

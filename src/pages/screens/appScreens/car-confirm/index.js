@@ -5,6 +5,7 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  Text
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import styled from "styled-components";
@@ -251,7 +252,7 @@ const CarConfirm = ({ route, navigation }) => {
       // Set `allowsDelayedPaymentMethods` to true if your business can handle payment
       //methods that complete payment after a delay, like SEPA Debit and Sofort.
       allowsDelayedPaymentMethods: true,
-      
+
     });
     if (!error) {
     }
@@ -267,7 +268,7 @@ const CarConfirm = ({ route, navigation }) => {
         `Your order was successfully confirmed.`
       );
       setPurchaseConfirmed(true)
-      
+
     }
   };
 
@@ -283,6 +284,7 @@ const CarConfirm = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
+      return res;
     } else {
       return res;
     }
@@ -300,6 +302,7 @@ const CarConfirm = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
+      return res;
     } else {
       return res;
     }
@@ -310,8 +313,8 @@ const CarConfirm = ({ route, navigation }) => {
       "POST",
       endpoints.CREATE_PAYMENT_INTENT(hotelId, vehicleId),
       {
-        start_date: moment(route.params.startDate).toISOString(),
-        end_date: moment(route.params.endDate).toISOString(),
+        start_date: moment(route.params.startDate).utc().toISOString(),
+        end_date: moment(route.params.endDate).utc().toISOString(),
       },
       undefined,
       true
@@ -320,8 +323,7 @@ const CarConfirm = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
-      setErrorIntent(res.error.message);
-      console.log(res.error.message)
+      return res;
     } else {
       return res;
     }
@@ -332,8 +334,8 @@ const CarConfirm = ({ route, navigation }) => {
       "POST",
       endpoints.GET_ORDER_SUBTOTAL(hotelId, vehicleId),
       {
-        start_date: moment(startDate).toISOString(),
-        end_date: moment(endDate).toISOString(),
+        start_date: moment(startDate).utc().toISOString(),
+        end_date: moment(endDate).utc().toISOString(),
       },
       undefined,
       true
@@ -362,7 +364,7 @@ const CarConfirm = ({ route, navigation }) => {
       // OR the hotel doesnt even have a box yet
       // or u could receive 403, so show the error message to user
       //
-
+      return res;
     } else {
       // res.latch_id = Number
       // tell the user t expect their keys in "Latch #X"
@@ -391,12 +393,15 @@ const CarConfirm = ({ route, navigation }) => {
         cacheTime: 0,
       },
       {
-        queryKey: ["paymentProperties",route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate],
+        queryKey: ["paymentProperties", route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate],
         queryFn: () => fetchPaymentProperties(route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate),
       },
       {
         queryKey: ["pubKey"],
-        queryFn: () => getStripePub()
+        queryFn: () => getStripePub(),
+        onSuccess: (data) => {
+          "error" in data ? setPubKey() : setPubKey(data.pub_key)
+        }
       }
     ],
   });
@@ -406,17 +411,22 @@ const CarConfirm = ({ route, navigation }) => {
     queryFn: () => getActiveBooking(),
     enabled: false,
     onSuccess: (data) => {
-      navigation.navigate("Order", {
-        hotelId: route.params.hotelId,
-        vehicleId: route.params.vehicleId,
-        bookingId: data.booking.id,
-        active: true,
-      });
+      if("error" in data) {
+        Alert.alert('An error has occured', data.error.message)
+      } else {
+        navigation.navigate("Order", {
+          hotelId: route.params.hotelId,
+          vehicleId: route.params.vehicleId,
+          bookingId: data.bookings.id,
+          active: true,
+        });
+      }
+      
     }
   })
 
-  useEffect(()=> {
-    if(purchaseConfirmed) {
+  useEffect(() => {
+    if (purchaseConfirmed) {
       activeBooking.refetch()
     }
   }, [purchaseConfirmed])
@@ -431,12 +441,6 @@ const CarConfirm = ({ route, navigation }) => {
       true
     );
   }
-
-  useEffect(() => {
-    if(results[4].isSuccess) {
-      setPubKey(results[4].data.pub_key)
-    }
-  }, [results[4].data]);
 
   const isLoading = results.some((result) => result.isLoading);
   const isError = results.some((result) => result.isError);
@@ -460,268 +464,210 @@ const CarConfirm = ({ route, navigation }) => {
     );
   } else if (isError) {
     main = (
-      <View style={{ flex: 1 }}>
-        <View style={{ flex: 1, padding: 20}}>
-          <Title>An Error has Occured</Title>
-          {errorIntent == 'User already has an active booking.' ?
-          <Subtitle>You already have an active booking on your account. Users can only rent 1 vehicle at a time.</Subtitle>
-            :
-          <Subtitle>{errorIntent}</Subtitle>
-
-          }
-        </View>
+      <View>
+        <Text>An Error has occured, please try again.</Text>
       </View>
-    );
+    )
   } else {
     main = (
       <StripeProvider publishableKey={pubKey}>
-      <View style={{ flex: 1 }}>
-        {results[2].data.client_secret ? (
-          <View style={{ flex: 1 }}>
-            {/* <ModalView
-              visible={isPaymentVisible}
-              transparent={true}
-              animationType="slide"
-              swipeDirection="down"
-              onSwipeComplete={hidePaymentPicker}
-            >
-              <ModalContent activeOpacity={1} onPress={hidePaymentPicker}>
-                <ModalMargin activeOpacity={1}>
-                  
-                  <PaddingContent>
-                    <MiniSubtitle>Payment Information</MiniSubtitle>
-                    <CardField
-                      postalCodeEnabled={true}
-                      placeholders={{
-                        number: "4242 4242 4242 4242",
-                      }}
-                      cardStyle={{
-                        backgroundColor: "#f5f6f7",
-                        textColor: "#000000",
-                        borderRadius: 10,
-                        borderWidth: 1,
-                        borderColor: "#dee1e3",
-                      }}
-                      style={{
-                        width: "100%",
-                        height: 60,
-                        marginVertical: 10,
-                        marginBottom: 20,
-                      }}
-                      onCardChange={(cardDetails) => {
-                        setCard(cardDetails);
-                      }}
-                      onFocus={(focusedField) => {}}
-                    />
-                    <WrapperCheckbox>
-                      <Checkbox
-                        style={styles.checkbox}
-                        value={isChecked}
-                        onValueChange={setChecked}
-                        color={isChecked ? "#4630EB" : undefined}
-                      />
+        {
+          pubKey ?
 
-                      <CheckboxText>Save this Card for Future Use</CheckboxText>
-                    </WrapperCheckbox>
+            <View style={{ flex: 1 }}>
+              {
+                "error" in results[2].data ?
+                  <Text>{results[2].data.error.message}</Text>
+                  :
+                  <View style={{ flex: 1 }}>
+                    {"error" in results[1].data ? (
+                      <Text>{results[1].data.error.message}</Text>
+                    ) : (
+                      <SafeAreaView style={{ flex: 1 }}>
+                        <ScrollView>
+                          <Container>
+                            <Title>{results[1].data.vehicle.model}</Title>
+                            <WrapperImage>
+                              <Swiper
+                                showsPagination={true}
+                                dotColor="#fff"
+                                activeDotColor="#4aaf6e"
+                              >
+                                {results[1].data.vehicle.image_urls.map((e) => {
+                                  return (
+                                    <View style={{ flex: 1, borderRadius: 5 }}>
+                                      <ImageCars
+                                        resizeMode="cover"
+                                        source={{ uri: e }}
+                                      ></ImageCars>
+                                    </View>
+                                  );
+                                })}
+                              </Swiper>
+                            </WrapperImage>
+                            <GeneralWrapper>
+                              {
+                                "error" in results[0].data ?
+                                  <Text>{results[0].data.error.message}</Text>
+                                  :
+                                  <GrayWrapper>
+                                    <DateWrapper>
+                                      <TitleButtonWrapper>
+                                        <MiniSubtitle>Start Date</MiniSubtitle>
+                                        <ButtonEdit
+                                          onPress={() => {
+                                            navigation.navigate("Details", {
+                                              vehicleId: route.params.vehicleId,
+                                              hotelId: route.params.hotelId,
+                                            });
+                                          }}
+                                        >
+                                          <ButtonText>Edit</ButtonText>
+                                        </ButtonEdit>
+                                      </TitleButtonWrapper>
+                                      <DateIconFlex>
+                                        <Ionicons
+                                          name={"calendar-outline"}
+                                          size={16}
+                                          color={"#3B414B"}
+                                        ></Ionicons>
+                                        <DateText>
+                                          {moment(route.params.startDate).format("LLL")}
+                                        </DateText>
+                                      </DateIconFlex>
+                                    </DateWrapper>
+                                    <DateWrapper>
+                                      <TitleButtonWrapper>
+                                        <MiniSubtitle>End Date</MiniSubtitle>
+                                      </TitleButtonWrapper>
+                                      <DateIconFlex>
+                                        <Ionicons
+                                          name={"calendar-outline"}
+                                          size={16}
+                                          color={"#3B414B"}
+                                        ></Ionicons>
+                                        <DateText>
+                                          {moment(route.params.endDate).format("LLL")}
+                                        </DateText>
+                                      </DateIconFlex>
+                                    </DateWrapper>
+                                    <DateWrapper>
+                                      <MiniSubtitle>Vehicle</MiniSubtitle>
+                                      <DateIconFlex>
+                                        <Ionicons
+                                          name={"car-outline"}
+                                          size={18}
+                                          color={"#3B414B"}
+                                        ></Ionicons>
+                                        <DateText>
+                                          Model: {results[1].data.vehicle.model}
+                                        </DateText>
+                                      </DateIconFlex>
+                                      <DateIconFlex>
+                                        <Ionicons
+                                          name={"information-circle-outline"}
+                                          size={18}
+                                          color={"#3B414B"}
+                                        ></Ionicons>
+                                        <DateText>Color: Blue</DateText>
+                                      </DateIconFlex>
+                                    </DateWrapper>
+                                    <DateWrapper>
+                                      <MiniSubtitle>Hotel</MiniSubtitle>
+                                      <DateIconFlex>
+                                        <Ionicons
+                                          name={"bed-outline"}
+                                          size={18}
+                                          color={"#3B414B"}
+                                        ></Ionicons>
+                                        <DateText>{results[0].data.hotel.name}</DateText>
+                                      </DateIconFlex>
+                                      <DateIconFlex>
+                                        <Ionicons
+                                          name={"map-outline"}
+                                          size={18}
+                                          color={"#3B414B"}
+                                        ></Ionicons>
+                                        <DateText>{results[0].data.hotel.address}</DateText>
+                                      </DateIconFlex>
+                                      <DateIconFlex>
+                                        <Ionicons
+                                          name={"call-outline"}
+                                          size={18}
+                                          color={"#3B414B"}
+                                        ></Ionicons>
+                                        <DateText>{results[0].data.hotel.phone}</DateText>
+                                      </DateIconFlex>
+                                    </DateWrapper>
+                                  </GrayWrapper>
+                              }
 
-                    <WrapperFlex>
-                      <ConfirmButton color={card.complete}>
-                        <ConfirmText>Pay Now</ConfirmText>
-                      </ConfirmButton>
-                    </WrapperFlex>
-                    <Disclaimer>
-                      By clicking "Pay Now", you agree to our{" "}
-                      <HighlightedText>Lorem Ipsum</HighlightedText> & our{" "}
-                      <HighlightedText>Lorem Ipsum</HighlightedText>.
-                    </Disclaimer>
-                  </PaddingContent>
-                </ModalMargin>
-              </ModalContent>
-            </ModalView> */}
-            {results[1].data.vehicle && results[0].data.hotel ? (
-              <SafeAreaView style={{ flex: 1 }}>
-                <ScrollView>
-                  <Container>
-                    <Title>{results[1].data.vehicle.model}</Title>
-                    <WrapperImage>
-                      <Swiper
-                        showsPagination={true}
-                        dotColor="#fff"
-                        activeDotColor="#4aaf6e"
-                      >
-                        {results[1].data.vehicle.image_urls.map((e) => {
-                          return (
-                            <View style={{ flex: 1, borderRadius: 5 }}>
-                              <ImageCars
-                                resizeMode="cover"
-                                source={{ uri: e }}
-                              ></ImageCars>
-                            </View>
-                          );
-                        })}
-                      </Swiper>
-                    </WrapperImage>
-                    <GeneralWrapper>
-                      <GrayWrapper>
-                        <DateWrapper>
-                          <TitleButtonWrapper>
-                            <MiniSubtitle>Start Date</MiniSubtitle>
-                            <ButtonEdit
-                              onPress={() => {
-                                navigation.navigate("Details", {
-                                  vehicleId: route.params.vehicleId,
-                                  hotelId: route.params.hotelId,
-                                });
-                              }}
-                            >
-                              <ButtonText>Edit</ButtonText>
-                            </ButtonEdit>
-                          </TitleButtonWrapper>
-                          <DateIconFlex>
-                            <Ionicons
-                              name={"calendar-outline"}
-                              size={16}
-                              color={"#3B414B"}
-                            ></Ionicons>
-                            <DateText>
-                              {moment(route.params.startDate).utc().format("LLL")}
-                            </DateText>
-                          </DateIconFlex>
-                        </DateWrapper>
-                        <DateWrapper>
-                          <TitleButtonWrapper>
-                            <MiniSubtitle>End Date</MiniSubtitle>
-                          </TitleButtonWrapper>
-                          <DateIconFlex>
-                            <Ionicons
-                              name={"calendar-outline"}
-                              size={16}
-                              color={"#3B414B"}
-                            ></Ionicons>
-                            <DateText>
-                              {moment(route.params.endDate).utc().format("LLL")}
-                            </DateText>
-                          </DateIconFlex>
-                        </DateWrapper>
-                        <DateWrapper>
-                          <MiniSubtitle>Vehicle</MiniSubtitle>
-                          <DateIconFlex>
-                            <Ionicons
-                              name={"car-outline"}
-                              size={18}
-                              color={"#3B414B"}
-                            ></Ionicons>
-                            <DateText>
-                              Model: {results[1].data.vehicle.model}
-                            </DateText>
-                          </DateIconFlex>
-                          <DateIconFlex>
-                            <Ionicons
-                              name={"information-circle-outline"}
-                              size={18}
-                              color={"#3B414B"}
-                            ></Ionicons>
-                            <DateText>Color: Blue</DateText>
-                          </DateIconFlex>
-                        </DateWrapper>
-                        <DateWrapper>
-                          <MiniSubtitle>Hotel</MiniSubtitle>
-                          <DateIconFlex>
-                            <Ionicons
-                              name={"bed-outline"}
-                              size={18}
-                              color={"#3B414B"}
-                            ></Ionicons>
-                            <DateText>{results[0].data.hotel.name}</DateText>
-                          </DateIconFlex>
-                          <DateIconFlex>
-                            <Ionicons
-                              name={"map-outline"}
-                              size={18}
-                              color={"#3B414B"}
-                            ></Ionicons>
-                            <DateText>{results[0].data.hotel.address}</DateText>
-                          </DateIconFlex>
-                          <DateIconFlex>
-                            <Ionicons
-                              name={"call-outline"}
-                              size={18}
-                              color={"#3B414B"}
-                            ></Ionicons>
-                            <DateText>{results[0].data.hotel.phone}</DateText>
-                          </DateIconFlex>
-                        </DateWrapper>
-                      </GrayWrapper>
+                              {
 
-                      {results[3].data.receipt.map((e) => {
-                        return (
-                          <TitleButtonWrapperTwo>
-                            <AdditionText>{e[0]}</AdditionText>
-                            <AdditionText>
-                              ${parseInt(e[1]).toFixed(2)}
-                            </AdditionText>
-                          </TitleButtonWrapperTwo>
-                        );
-                      })}
+                                "error" in results[3].data ?
+                                  <Text>{results[3].data.error.message}</Text>
+                                  :
+                                  results[3].data.receipt.map((e) => {
+                                    return (
+                                      <TitleButtonWrapperTwo>
+                                        <AdditionText>{e[0]}</AdditionText>
+                                        <AdditionText>
+                                          ${parseInt(e[1]).toFixed(2)}
+                                        </AdditionText>
+                                      </TitleButtonWrapperTwo>
+                                    );
+                                  })
 
-                      <WhiteWrapperTotal>
-                        <TitleButtonWrapper>
-                          <TotalText>Total</TotalText>
-                          <TotalText color>
-                            ${parseInt(results[3].data.subtotal).toFixed(2)}
-                          </TotalText>
-                        </TitleButtonWrapper>
-                      </WhiteWrapperTotal>
-                    </GeneralWrapper>
-                  </Container>
-                </ScrollView>
-                <Footer>
-                  <ContainerPrice>
-                    <CustomButton
-                      onPress={openPaymentSheet}
-                      title={"Checkout"}
-                      bgcolor={"#4aaf6e"}
-                      fcolor={"#fff"}
-                      width="100%"
-                    ></CustomButton>
-                    {/* <Button
-                  title="test"
-                  onPress={() => {
-                    navigation.navigate("Order");
-                  }}
-                ></Button> */}
-                  </ContainerPrice>
-                </Footer>
-              </SafeAreaView>
-            ) : (
-              <></>
-            )}
-          </View>
-        ) : (
-          <View></View>
-        )}
-      </View>
+                              }
+
+                              {
+                                "error" in results[3].data ?
+                                  <></>
+                                  :
+                                  <WhiteWrapperTotal>
+                                    <TitleButtonWrapper>
+                                      <TotalText>Total</TotalText>
+                                      <TotalText color>
+                                        ${parseInt(results[3].data.subtotal).toFixed(2)}
+                                      </TotalText>
+                                    </TitleButtonWrapper>
+                                  </WhiteWrapperTotal>
+
+                              }
+                            </GeneralWrapper>
+                          </Container>
+                        </ScrollView>
+                        <Footer>
+                          <ContainerPrice>
+                            <CustomButton
+                              onPress={openPaymentSheet}
+                              title={"Checkout"}
+                              bgcolor={"#4aaf6e"}
+                              fcolor={"#fff"}
+                              width="100%"
+                            ></CustomButton>
+                            {/* <Button
+                    title="test"
+                    onPress={() => {
+                      navigation.navigate("Order");
+                    }}
+                  ></Button> */}
+                          </ContainerPrice>
+                        </Footer>
+                      </SafeAreaView>
+                    )}
+                  </View>
+              }
+            </View>
+            :
+            <Text>{results[4].data.error.message}</Text>
+
+        }
       </StripeProvider>
-    );
+    )
   }
-
   return main;
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginHorizontal: 16,
-    marginVertical: 32,
-  },
-  section: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  paragraph: {
-    fontSize: 15,
-  },
-  checkbox: {},
-});
 
 export default CarConfirm;

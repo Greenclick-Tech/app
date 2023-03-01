@@ -218,6 +218,7 @@ const HomePage = ({ navigation, route }) => {
     },
     extraColorStopsPerTransition: 16,
   });
+
   const animation = useRef(null);
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -281,11 +282,11 @@ const HomePage = ({ navigation, route }) => {
     }, 1000)
   }, [])
 
-  async function fetchData() {
+  async function fetchNearbyHotel() {
     let res = await RequestHandler(
       "GET",
       endpoints.SEARCH_HOTELS({
-        q: "nearest",
+        q: "nearby",
         long: location.coords.longitude,
         lat: location.coords.latitude,
       }),
@@ -294,7 +295,7 @@ const HomePage = ({ navigation, route }) => {
       true
     );
     if ("error" in res) {
-
+      return res
     } else {
       return res;
     }
@@ -308,22 +309,20 @@ const HomePage = ({ navigation, route }) => {
       undefined,
       true
     );
-
     if ("error" in res) {
-
-      return res;
+      return res
     } else {
-
       return res;
     }
+
   }
 
   async function fetchVehicle() {
     let res = await RequestHandler(
       "GET",
       endpoints.GET_VEHICLE(
-        activeBooking.data.booking.hotel_id,
-        activeBooking.data.booking.vehicle_id
+        activeBooking.data.bookings.hotel_id,
+        activeBooking.data.bookings.vehicle_id
       ),
       undefined,
       undefined,
@@ -331,7 +330,7 @@ const HomePage = ({ navigation, route }) => {
     );
 
     if ("error" in res) {
-
+      return res;
     } else {
       return res;
     }
@@ -373,14 +372,14 @@ const HomePage = ({ navigation, route }) => {
   async function fetchHotel() {
     let res = await RequestHandler(
       "GET",
-      endpoints.GET_HOTEL(activeBooking.data.booking.hotel_id),
+      endpoints.GET_HOTEL(activeBooking.data.bookings.hotel_id),
       undefined,
       undefined,
       true
     );
 
     if ("error" in res) {
-
+      return res;
     } else {
       return res;
     }
@@ -388,7 +387,7 @@ const HomePage = ({ navigation, route }) => {
 
   const { isLoading, isError, data } = useQuery({
     queryKey: ["hotels"],
-    queryFn: fetchData,
+    queryFn: fetchNearbyHotel,
     enabled: !!location,
     retry: false,
   });
@@ -397,6 +396,12 @@ const HomePage = ({ navigation, route }) => {
     queryKey: ["active"],
     queryFn: () => getActiveBooking(),
     onSuccess: (data) => {
+      console.log(data)
+      setTimeout(() => {
+        setRefreshing(false)
+      }, 500)
+    },
+    onError: (data) => {
       setTimeout(() => {
         setRefreshing(false)
       }, 500)
@@ -407,13 +412,13 @@ const HomePage = ({ navigation, route }) => {
   const getVehicle = useQuery({
     queryKey: ["vehicle"],
     queryFn: () => fetchVehicle(),
-    enabled: activeBooking.isSuccess && "booking" in activeBooking.data,
+    enabled: activeBooking.isSuccess && "bookings" in activeBooking.data,
   });
 
   const getHotel = useQuery({
     queryKey: ["hotel"],
     queryFn: () => fetchHotel(),
-    enabled: activeBooking.isSuccess && "booking" in activeBooking.data,
+    enabled: activeBooking.isSuccess && "bookings" in activeBooking.data,
   });
 
   useFocusEffect(
@@ -509,7 +514,12 @@ const HomePage = ({ navigation, route }) => {
                 support for assitance at https://support.greenclick.app/
               </SubtitleTwo>
             ) : "error" in activeBooking.data ? (
-              <></>
+                activeBooking.data.error.status == 404 ?
+                <></>
+                :
+                <SubtitleTwo>
+                  {activeBooking.data.error.message}
+                </SubtitleTwo>
             ) : (
               <ActiveBookingContainer>
                 <Subtitle color>Your Active Booking</Subtitle>
@@ -540,12 +550,18 @@ const HomePage = ({ navigation, route }) => {
                       https://support.greenclick.app
                     </SubtitleTwo>
                   ) : (
+                    "error" in getHotel.data || "error" in getVehicle.data ?
+                      <SubtitleTwo>
+                      Error loading your active booking. Please contact support at
+                      https://support.greenclick.app
+                    </SubtitleTwo>
+                    :
                     <ActiveBookingTab
                       onPress={() =>
                         navigation.navigate("Order", {
-                          hotelId: activeBooking.data.booking.hotel_id,
-                          vehicleId: activeBooking.data.booking.vehicle_id,
-                          bookingId: activeBooking.data.booking.id,
+                          hotelId: activeBooking.data.bookings.hotel_id,
+                          vehicleId: activeBooking.data.bookings.vehicle_id,
+                          bookingId: activeBooking.data.bookings.id,
                           active: true,
                         })
                       }
@@ -602,7 +618,7 @@ const HomePage = ({ navigation, route }) => {
                           </View>
 
                           <ActiveBookingTextContainer margin={"12px"}>
-                            {moment(activeBooking.data.booking.start_date).utc().format(
+                            {moment(activeBooking.data.bookings.start_date).format(
                               "LLL"
                             )}
                           </ActiveBookingTextContainer>
@@ -624,41 +640,70 @@ const HomePage = ({ navigation, route }) => {
                             </ActiveBookingTextContainer>
                           </View>
                           <ActiveBookingTextContainer margin={"10px"}>
-                            {moment(activeBooking.data.booking.end_date).utc().format(
+                            {moment(activeBooking.data.bookings.end_date).format(
                               "LLL"
                             )}
                           </ActiveBookingTextContainer>
-                          {moment(currentDate).utc().isAfter(
-                            moment(activeBooking.data.booking.end_date).utc()
-                          ) ? (
-                            <ActiveBookingTextContainer bold color={"#f05157"}>
-                              Your booking is{" "}
-                              {moment(currentDate).utc().diff(
-                                moment(activeBooking.data.booking.end_date).utc(),
-                                "hours"
-                              )}{" "}
-                              hours overdue, please return your keys as soon as
-                              possible.
-                            </ActiveBookingTextContainer>
-                          ) : moment(activeBooking.data.booking.end_date).utc().isSame(
-                            moment(currentDate).utc(),
-                            "day"
-                          ) ? (
-                            <ActiveBookingTextContainer bold color={"#eba910"}>
-                              Your booking ends today, please return as soon as
-                              possible.
-                            </ActiveBookingTextContainer>
-                          ) : "recieved_keys" in activeBooking.data.booking ? (
-                            <ActiveBookingTextContainer bold color={"#42ad56"}>
-                              Click here to see your rental information and return
-                              your keys.
-                            </ActiveBookingTextContainer>
-                          ) : (
-                            <ActiveBookingTextContainer bold color={"#42ad56"}>
-                              Click here to see your rental information and recieve
-                              your keys.
-                            </ActiveBookingTextContainer>
-                          )}
+                          {
+                            // Check if Rental Period has Started or Not
+                            moment(currentDate).isBefore(moment(activeBooking.data.bookings.start_date)) ?
+                              //Has Not Started
+                              <ActiveBookingTextContainer bold color={"#42ad56"}>
+                                Your booking period has not started just yet.
+                              </ActiveBookingTextContainer>
+                            :
+                              moment(currentDate).isBefore(moment(activeBooking.data.bookings.end_date)) ?
+                                //Has Started
+                                "recieved_key" in activeBooking.data.bookings ?
+                                <ActiveBookingTextContainer bold color={"#42ad56"}>
+                                  Your booking period is activated.
+                                </ActiveBookingTextContainer>
+                                :
+                                <ActiveBookingTextContainer bold color={"#42ad56"}>
+                                  Your booking period is ready to be activated.
+                                </ActiveBookingTextContainer>
+                              :
+                              //Has Ended
+                              <ActiveBookingTextContainer bold color={"#42ad56"}>
+                                  Your booking period is overdue. Please return your vehicles keys immediately.
+                              </ActiveBookingTextContainer>
+                          }
+
+                          {
+                          
+                          // moment(currentDate).utc().isAfter(
+                          //   moment(activeBooking.data.bookings.end_date).utc()
+                          // ) ? (
+                          //   <ActiveBookingTextContainer bold color={"#f05157"}>
+                          //     Your booking is{" "}
+                          //     {moment(currentDate).utc().diff(
+                          //       moment(activeBooking.data.bookings.end_date).utc(),
+                          //       "hours"
+                          //     )}{" "}
+                          //     hours overdue, please return your keys as soon as
+                          //     possible.
+                          //   </ActiveBookingTextContainer>
+                          // ) : moment(activeBooking.data.bookings.end_date).utc().isSame(
+                          //   moment(currentDate).utc(),
+                          //   "day"
+                          // ) ? (
+                          //   <ActiveBookingTextContainer bold color={"#eba910"}>
+                          //     Your booking ends today, please return as soon as
+                          //     possible.
+                          //   </ActiveBookingTextContainer>
+                          // ) : "recieved_keys" in activeBooking.data.bookings ? (
+                          //   <ActiveBookingTextContainer bold color={"#42ad56"}>
+                          //     Click here to see your rental information and return
+                          //     your keys.
+                          //   </ActiveBookingTextContainer>
+                          // ) : (
+                          //   <ActiveBookingTextContainer bold color={"#42ad56"}>
+                          //     Click here to see your rental information and recieve
+                          //     your keys.
+                          //   </ActiveBookingTextContainer>
+                          // )
+                          
+                          }
                         </View>
                       </View>
                     </ActiveBookingTab>
@@ -734,7 +779,15 @@ const HomePage = ({ navigation, route }) => {
           location ?
             <StaticContainer>
               {!isLoading && data ? (
-                //Data Exists and is not loading
+                //Data Exists and is not loadin
+                "error" in data ?
+                <View>
+                  <Subtitle>Nearest Hotels with Greenclick</Subtitle>
+                  <HotelSubTitle>
+                  {data.error.message}
+                  </HotelSubTitle>
+                </View>
+                :
                 <NearbyHotel>
                   {data.hotels && data.hotels.length == 1 ? (
                     <Subtitle>Nearest Hotel with Greenclick</Subtitle>
@@ -809,7 +862,7 @@ const HomePage = ({ navigation, route }) => {
                   </HotelSubTitle>
                 </View>
               ) : (
-                <AnimatedSkeleton width={"100%"} height={"150px"}></AnimatedSkeleton>
+                <ActivityIndicator size={'small'}></ActivityIndicator>
               )}
             </StaticContainer>
             :
