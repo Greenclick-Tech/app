@@ -347,7 +347,6 @@ const OrderConfirmation = ({ route, navigation }) => {
                 queryKey: ["booking", route.params.bookingId],
                 queryFn: () => getBooking(route.params.bookingId),
                 onSuccess: (data) => {
-                    console.log(data)
                     setTimeout(() => {
                         setRefreshing(false)
                     }, 500)

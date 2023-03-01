@@ -365,6 +365,8 @@ const HotelsFound = ({ hotels, onPress }) => {
                 return {
                     queryKey: ["hotel", item.id],
                     queryFn: () => getSpecificHotel(item.id),
+                    staleTime: 10 * (60 * 1000),
+                    cacheTime: 15 * (60 * 1000)
                 };
             }) ?? [],
     });
@@ -700,6 +702,8 @@ const MapPage = ({ route, navigation, props }) => {
         retry: false,
         keepPreviousData: true,
         enabled: !!location,
+        staleTime: 10 * (60 * 1000),
+        cacheTime: 15 * (60 * 1000)
     });
 
     const carQueries = useQuery({
@@ -709,6 +713,8 @@ const MapPage = ({ route, navigation, props }) => {
         retry: false,
         keepPreviousData: true,
         onSuccess: (data) => setCarQueries(data.vehicles),
+        staleTime: 10 * (60 * 1000),
+        cacheTime: 15 * (60 * 1000)
     });
 
     const specificHotelQuery = useQuery({
@@ -716,6 +722,8 @@ const MapPage = ({ route, navigation, props }) => {
         queryFn: () => getSpecificHotel(selectedHotelID),
         enabled: !!selectedHotelID,
         retry: false,
+        staleTime: 10 * (60 * 1000),
+        cacheTime: 15 * (60 * 1000)
     });
 
     //   Functions

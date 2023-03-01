@@ -461,8 +461,6 @@ const CarDetails = ({ route, navigation }) => {
         moment(currentMonth).endOf("month")
       ),
     enabled: vehicle,
-    onSuccess: (data) => console.log(data),
-    onError: (data) => console.log(data)
   });
 
   const activeBooking = useQuery({
