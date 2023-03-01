@@ -542,7 +542,6 @@ const VehicleList = ({
                 const matchingVehicle = vehicleCalendar.find(
                     (booking) => booking.data?.id === item.id
                 ) ?? {};
-                console.log(vehicleCalendar[0].data)
                 return (
                     <TouchWrap outline={matchingVehicle.data?.bookings != null && matchingVehicle.data.bookings.length > 0} key={item.id}>
                         <TouchableCar
@@ -642,7 +641,7 @@ const MapPage = ({ route, navigation, props }) => {
     const [vehicleStartDate, setVehicleStartDate] = useState();
     const [vehicleEndDate, setVehicleEndDate] = useState('');
     const [startVehicleTempDate, setVehicleTempStartDate] = useState();
-    const [endVehicleTempDate, setVehicleTempEndDate] = useState();
+    const [endVehicleTempDate, setVehicleTempEndDate] = useState("");
     const [microStartDate, setMicroStartDate] = useState();
     const [startMicroTempDate, setMicroTempStartDate] = useState();
     const [places, setPlaces] = useState();
@@ -797,11 +796,17 @@ const MapPage = ({ route, navigation, props }) => {
 
     const handleTempConfirm = (date, type) => {
         if (selection == "vehicles") {
-            if (type == "END_DATE") {
-                setVehicleTempEndDate(moment(date));
-            } else {
-                setVehicleTempStartDate(moment(date));
-            }
+            if(type === "END_DATE" && date != null) {
+                setVehicleTempEndDate(moment(date))
+              } else if(type === "END_DATE" && date === null) {
+                setVehicleTempEndDate("")
+              }
+        
+              if(type === "START_DATE" && date != null) {
+                setVehicleTempStartDate(moment(date))
+              } else if (type === "START_DATE" && date === null) {
+                setVehicleTempStartDate("")
+              }
         } else {
             if (type == "END_DATE") {
                 setMicroTempEndDate(moment(date));

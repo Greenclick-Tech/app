@@ -335,13 +335,22 @@ const CarDetails = ({ route, navigation }) => {
 
   const handleTempConfirm = (date, type) => {
     if (route.params.type == "vehicle") {
-      if (type == "END_DATE") {
+
+
+      if(type === "END_DATE" && date != null) {
         setCheckedDates("");
-        setVehicleTempEndDate(moment(date));
-      } else {
-        setCheckedDates("");
-        setVehicleTempStartDate(moment(date));
+        setVehicleTempEndDate(moment(date))
+      } else if(type === "END_DATE" && date === null) {
+        setVehicleTempEndDate("")
       }
+
+      if(type === "START_DATE" && date != null) {
+        setCheckedDates("");
+        setVehicleTempStartDate(moment(date))
+      } else if (type === "START_DATE" && date === null) {
+        setVehicleTempStartDate("")
+      }
+      
     } else {
       setMicroTempStartDate(moment(date));
     }
@@ -857,9 +866,6 @@ const CarDetails = ({ route, navigation }) => {
                         }}
                         selectedStartDate={startDate}
                         selectedEndDate={endDate}
-                        enableDateChange={
-                          (startVehicleTempDate && endVehicleTempDate) == false || (startDate && endDate) == false
-                        }
                         disabledDates={unavailableDates}
                         selectedDisabledDatesTextStyle={{
                           color: "#FF0000",
