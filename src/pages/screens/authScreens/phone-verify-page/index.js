@@ -135,7 +135,6 @@ const PhoneVerifyPage = ({ navigation, route }) => {
             "application/x-www-form-urlencoded",
         )
         if (res == 'OK') {
-            console.log(res)
         } else {
             Alert.alert("An error has occured", res.error.message);
         }
@@ -144,7 +143,6 @@ const PhoneVerifyPage = ({ navigation, route }) => {
     //Verify User. Request returns accessToken
     const handleVerify = async () => {
         let res;
-        console.log(pushToken)
         res = await RequestHandler(
             "post",
             endpoints.LOGIN(),

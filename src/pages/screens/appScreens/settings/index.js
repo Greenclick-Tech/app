@@ -58,7 +58,6 @@ const SettingsMain = ( { navigation }) => {
                 {text: 'Ok'},
             ]);
           } else {
-            console.log(res)
             return res;
           }
     }

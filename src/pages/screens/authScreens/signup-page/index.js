@@ -161,18 +161,7 @@ useLayoutEffect(() => {
 }, [])
  
   const validateUser = async () => {
-    console.log(
-      {
-        "first_name": firstname,
-        "last_name": lastname,
-        "email": email,
-        "address": address,
-        "date_of_birth": date_of_birth.toISOString(),
-        "phone": route.params.phone,
-        "code": route.params.code,
-        "push_token": pushToken
-    }
-    )
+    
     let res = await RequestHandler(
       "post",
       endpoints.REGISTER(),
