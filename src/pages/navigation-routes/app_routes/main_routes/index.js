@@ -85,10 +85,10 @@ const AppRoutes = () => {
 
             {/* Notification management, user managing all extra notifications that are not related to user experience */}
 
-            <Stack.Screen
+            {/* <Stack.Screen
                 name="Notifications"
                 component={PageNotifications}
-            />
+            /> */}
 
             {/* Privacy and Security, privacy policy text scroll */}
 
