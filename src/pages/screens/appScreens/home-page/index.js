@@ -396,7 +396,6 @@ const HomePage = ({ navigation, route }) => {
     queryKey: ["active"],
     queryFn: () => getActiveBooking(),
     onSuccess: (data) => {
-      console.log(data)
       setTimeout(() => {
         setRefreshing(false)
       }, 500)

@@ -200,7 +200,7 @@ useLayoutEffect(() => {
       await AsyncStorage.setItem("access_token", res.access_token)
       await AsyncStorage.setItem("refresh_token", res.refresh_token)
       setUser({access_token: res.access_token, refresh_token: res.refresh_token})
-      
+      navigation.navigate('Home')
     }
     
   }

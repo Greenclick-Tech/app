@@ -737,7 +737,6 @@ const MapPage = ({ route, navigation, props }) => {
         retry: false,
         keepPreviousData: true,
         onSuccess: (data) => {
-            console.log(data)
             setCarQueries(data.vehicles)
             if(!data.vehicles) {
                 setNoVehicles(true)
