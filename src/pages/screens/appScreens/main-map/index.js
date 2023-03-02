@@ -313,6 +313,7 @@ const Tab = styled.TouchableOpacity`
   border-bottom-width: 3px;
   border-bottom-color: ${(props) => (props.color ? "#4aaf6e" : "#AAAAAA80")};
   flex-direction: row;
+  display: ${props=>props.display ? "none" : "block"};
 `;
 
 const TabText = styled.Text`
@@ -653,6 +654,7 @@ const VehicleList = ({
     );
 };
 
+
 const MapPage = ({ route, navigation, props }) => {
     const isFocused = useIsFocused();
     const [selectedHotel, setSelectedHotel] = useState();
@@ -675,6 +677,8 @@ const MapPage = ({ route, navigation, props }) => {
     const [selectedHotelID, setSelectedHotelID] = useState("");
     const [selection, setSelection] = useState("vehicles");
     const [modalView, setModalView] = useState(0);
+    const [noVehicles, setNoVehicles] = useState(false);
+    const [changedItem, setChangedItem] = useState(false)
     const [mapRegion, setmapRegion] = useState({
         latitude: 48.166666,
         longitude: -100.166666,
@@ -732,11 +736,19 @@ const MapPage = ({ route, navigation, props }) => {
         enabled: !!selectedHotelID,
         retry: false,
         keepPreviousData: true,
-        onSuccess: (data) => setCarQueries(data.vehicles),
+        onSuccess: (data) => {
+            console.log(data)
+            setCarQueries(data.vehicles)
+            if(!data.vehicles) {
+                setNoVehicles(true)
+                setSelection('micro_mobility')
+            }
+        },
         staleTime: 10 * (60 * 1000),
         cacheTime: 15 * (60 * 1000),
-        onSuccess: (data) => console.log(data)
     });
+
+
 
     const specificHotelQuery = useQuery({
         queryKey: ["hotel", selectedHotelID],
@@ -1533,8 +1545,9 @@ const MapPage = ({ route, navigation, props }) => {
                                                 color={"#3B414B"}
                                             ></Ionicons>
                                         </TouchableOpacity>
-                                        <TabContainer>
+                                        <TabContainer >
                                             <Tab
+                                                display={noVehicles}
                                                 onPress={() => {
                                                     setVehicleStartDate('')
                                                     setVehicleEndDate('')

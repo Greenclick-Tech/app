@@ -396,6 +396,7 @@ const HomePage = ({ navigation, route }) => {
     queryKey: ["active"],
     queryFn: () => getActiveBooking(),
     onSuccess: (data) => {
+      console.log(data)
       setTimeout(() => {
         setRefreshing(false)
       }, 500)
@@ -653,7 +654,7 @@ const HomePage = ({ navigation, route }) => {
                             :
                               moment(currentDate).isBefore(moment(activeBooking.data.bookings.end_date)) ?
                                 //Has Started
-                                "recieved_key" in activeBooking.data.bookings ?
+                                "received_keys" in activeBooking.data.bookings ?
                                 <ActiveBookingTextContainer bold color={"#42ad56"}>
                                   Your booking period is activated.
                                 </ActiveBookingTextContainer>
@@ -733,7 +734,9 @@ const HomePage = ({ navigation, route }) => {
           </SearchBar>
           <ItemContainer>
             <ItemWrapper right>
-              <ItemMenu color>
+              <ItemMenu color onPress={()=> {
+                navigation.navigate('Map')
+              }}>
                 <Ionicons
                   color={"#fff"}
                   size={38}
@@ -743,7 +746,9 @@ const HomePage = ({ navigation, route }) => {
               <TextItem>Vehicles</TextItem>
             </ItemWrapper>
             <ItemWrapper left right>
-              <ItemMenu>
+              <ItemMenu onPress={()=> {
+                navigation.navigate('Map')
+              }}>
                 <Ionicons
                   color={"#4aaf6e"}
                   size={38}
@@ -753,7 +758,9 @@ const HomePage = ({ navigation, route }) => {
               <TextItem>E-Bikes</TextItem>
             </ItemWrapper>
             <ItemWrapper right left>
-              <ItemMenu>
+              <ItemMenu onPress={()=> {
+                Alert.alert('Coming Soon', "Events currently in construction and is coming soon to greenclick.")
+              }}>
                 <Ionicons
                   color={"#4aaf6e"}
                   size={38}
@@ -763,7 +770,9 @@ const HomePage = ({ navigation, route }) => {
               <TextItem>Events</TextItem>
             </ItemWrapper>
             <ItemWrapper left>
-              <ItemMenu>
+              <ItemMenu onPress={()=> {
+                navigation.navigate('Support')
+              }}>
                 <Ionicons
                   color={"#4aaf6e"}
                   size={38}

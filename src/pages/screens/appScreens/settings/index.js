@@ -89,6 +89,16 @@ const SettingsMain = ( { navigation }) => {
                         route: "PrivacySecurity",
                         icon: "lock-closed-outline"
                     },
+                    {
+                        name: "Support",
+                        route: "Support",
+                        icon: "information-circle-outline"
+                    },
+                    {
+                        name: "Frequently Asked Questions",
+                        route: "Faq",
+                        icon: "help-circle-outline"
+                    },
                     // {
                     //     name: "Help & Support",
                     //     route: "HelpSupport",
@@ -121,6 +131,10 @@ const SettingsMain = ( { navigation }) => {
                                     break;
                                     case 'PrivacySecurity':
                                     navigation.push('PrivacySecurity')
+                                    case 'Faq':
+                                    navigation.push('Faq')
+                                    case 'Support':
+                                    navigation.push('Support')
                                     break;
                                     case 'HelpSupport':
                                     navigation.push('HelpSupport')

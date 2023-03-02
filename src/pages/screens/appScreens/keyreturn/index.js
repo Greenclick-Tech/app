@@ -92,12 +92,11 @@ const KeyReturn = ({ route, navigation }) => {
     }
   }
 
-  async function funcUnlockBox() {
+    async function funcUnlockBox() {
     let res = await RequestHandler(
       "GET",
       endpoints.UNLOCK_VEHICLE_LATCH(
-        route.params.hotel_id,
-        route.params.vehicle_id,
+        route.params.id,
         true
       ),
       undefined,
@@ -111,14 +110,14 @@ const KeyReturn = ({ route, navigation }) => {
       // OR the hotel doesnt even have a box yet
       // or u could receive 403, so show the error message to user
       //
-
-      Alert.alert("An Error has Occured", res.error.message);
+      return res;
     } else {
       // res.latch_id = Number
       // tell the user t expect their keys in "Latch #X"
       return res;
     }
   }
+
 
   const nearbyBox = useQuery({
     queryKey: ["nearbyBox"],
@@ -135,7 +134,7 @@ const KeyReturn = ({ route, navigation }) => {
     cacheTime: 0,
     retry: false,
     refetchOnWindowFocus: false,
-    onSuccess: ()=> setPage(2)
+    onSuccess: (data)=> "error" in data ? Alert.alert("An Error has Occured", data.error.message) : setPage(2)
   });
 
   return (

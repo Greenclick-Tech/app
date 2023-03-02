@@ -108,6 +108,9 @@ const MainText = styled.Text`
   font-size: 16px;
   font-weight: ${(props) => (props.bold ? "600" : "400")};
   color: ${(props) => (props.color ? props.color : "#000")};
+  line-height: 22px;
+
+  
 `;
 
 const OrderNumber = styled.Text`
@@ -355,7 +358,8 @@ const OrderConfirmation = ({ route, navigation }) => {
                     setTimeout(() => {
                         setRefreshing(false)
                     }, 500)
-                }
+                },
+                refetchOnWindowFocus: 'always'
             }
             // {
             //   queryKey: ["nearbyBox"],
@@ -407,10 +411,10 @@ const OrderConfirmation = ({ route, navigation }) => {
                 </Text>
                 :
                 <Container>
-                    <DrawerScroll refreshControl= {
+                    <DrawerScroll refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                     }>
-                    
+
                         {/* <MapView
                             style={{ alignSelf: "stretch", height: 140 }}
                             userInterfaceStyle={"light"}
@@ -437,19 +441,7 @@ const OrderConfirmation = ({ route, navigation }) => {
                         <BoxContainer>
                             {
                                 route.params.active ? (
-
-
-                                    results[2].data && "recieved_key" in results[2].data.booking ? (
-                                        results[2].data && "returned_key" in results[2].data.booking ? (
-                                            <Title>Order is Active</Title>
-                                        ) : (
-                                            <Title>Order has Completed</Title>
-                                        )
-                                    ) : (
-                                        <Title>Order Confirmed</Title>
-                                    )
-
-
+                                    <Title>Order Summary</Title>
                                 ) : (
                                     <Title>Your Order</Title>
                                 )
@@ -483,7 +475,7 @@ const OrderConfirmation = ({ route, navigation }) => {
                                         :
                                         moment(currentDate).isBefore(moment(results[2].data.booking.end_date)) ?
                                             //Has Started
-                                            "recieved_key" in results[2].data.booking ?
+                                            "received_keys" in results[2].data.booking ?
                                                 <View
                                                     style={{
                                                         alignItems: "flex-start",
@@ -580,7 +572,7 @@ const OrderConfirmation = ({ route, navigation }) => {
                                         :
                                         moment(currentDate).isBefore(moment(results[2].data.booking.end_date)) ?
                                             //Has Started
-                                            "recieved_key" in results[2].data.booking ?
+                                            "received_keys" in results[2].data.booking ?
                                                 <MainText bold color={"#42ad56"}>
                                                     Your rental period is active. Enjoy your trip! Please make sure to return your vehicle keys before the rental period is over.
                                                 </MainText>
@@ -687,8 +679,63 @@ const OrderConfirmation = ({ route, navigation }) => {
                   </GreenBoxItem>
                 </Swiper>
               </GreenBox>
-            )} */}
-                            {route.params.active ? (
+            )} */}          
+                            {
+                            results[2].data.booking.active ?
+                            <View>
+                                
+                                <View
+                                    style={{
+                                        borderWidth: 1,
+                                        padding: 15,
+                                        borderRadius: 10,
+                                        borderColor: "#00000020",
+                                        marginBottom: 20
+                                    }}
+                                >
+                                    <AddBody>
+                                        <BoxImageBody
+                                            source={require("../../../../assets/boxrad.png")}
+                                        ></BoxImageBody>
+                                        <ItemContainerAdd>
+                                            {
+                                                moment(currentDate).isBefore(moment(results[2].data.booking.start_date)) ?
+                                                    <CustomButton
+
+                                                        title={"Get your Key"}
+                                                        bgcolor={"#878787"}
+                                                        fcolor={"#fff"}
+                                                        width={"100%"}
+                                                    ></CustomButton>
+                                                    :
+                                                    <CustomButton
+                                                        onPress={() =>
+                                                            navigation.navigate("Key Retrival", {
+                                                                hotel_id: results[2].data.booking.hotel_id,
+                                                                id: results[2].data.booking.id,
+                                                                vehicle_id: results[2].data.booking.vehicle_id,
+                                                            })
+                                                        }
+                                                        title={"received_keys" in results[2].data.booking ? "Open Lock Box" : "Get your Key"}
+                                                        bgcolor={"#4aaf6e"}
+                                                        fcolor={"#fff"}
+                                                        width={"100%"}
+                                                    ></CustomButton>
+                                            }
+                                        
+                                                {
+                                                    "received_keys" in results[2].data.booking ?
+                                                    <DisclaimerText>Access your vehicle lock box at any time during your rental period.</DisclaimerText> 
+                                                    :
+                                                    <DisclaimerText>By obtaining your rental vehicle key, you are agreeing
+                                                    to our terms and conditions.</DisclaimerText>
+                                                }
+                                                
+                                            
+                                        </ItemContainerAdd>
+                                    </AddBody>
+                                </View>
+                                {"received_keys" in results[2].data.booking ?
                                 <View
                                     style={{
                                         borderWidth: 1,
@@ -697,86 +744,40 @@ const OrderConfirmation = ({ route, navigation }) => {
                                         borderColor: "#00000020",
                                     }}
                                 >
-                                    {results[2].data &&
-                                        "received_keys" in results[2].data.booking ? (
-                                        "returned_keys" in results[2].data.booking ? (
-                                            <MainText>Vehicle Successfully Returned</MainText>
-                                        ) : (
-                                            <AddBody reverse>
-                                                <BoxImageBody
-                                                    source={require("../../../../assets/boxrad.png")}
-                                                ></BoxImageBody>
-                                                <ItemContainerAdd>
-                                                    <CustomButton
-                                                        title={"Return Key"}
-                                                        bgcolor={"#4aaf6e"}
-                                                        fcolor={"#fff"}
-                                                        width={"100%"}
-                                                        onPress={() =>
-                                                            navigation.navigate("Key Return", {
-                                                                hotel_id: results[2].data.booking.hotel_id,
-                                                                id: results[2].data.booking.id,
-                                                                vehicle_id: results[2].data.booking.vehicle_id,
-                                                            })
-                                                        }
-                                                    ></CustomButton>
-                                                    <DisclaimerText>
-                                                        By returning your key, you are ending your car rental
-                                                        period.
-                                                    </DisclaimerText>
-                                                </ItemContainerAdd>
-                                            </AddBody>
-                                        )
-                                    ) : (
-                                        <AddBody>
-                                            <BoxImageBody
-                                                source={require("../../../../assets/boxrad.png")}
-                                            ></BoxImageBody>
-                                            <ItemContainerAdd>
-                                                {
-                                                    moment(currentDate).isBefore(moment(results[2].data.booking.start_date)) ?
-                                                        <CustomButton
-
-                                                            title={"Get your Key"}
-                                                            bgcolor={"#878787"}
-                                                            fcolor={"#fff"}
-                                                            width={"100%"}
-                                                        ></CustomButton>
-                                                        :
-                                                        <CustomButton
-                                                            onPress={() =>
-                                                                navigation.navigate("Key Retrival", {
-                                                                    hotel_id: results[2].data.booking.hotel_id,
-                                                                    id: results[2].data.booking.id,
-                                                                    vehicle_id: results[2].data.booking.vehicle_id,
-                                                                })
-                                                            }
-                                                            title={"Get your Key"}
-                                                            bgcolor={"#4aaf6e"}
-                                                            fcolor={"#fff"}
-                                                            width={"100%"}
-                                                        ></CustomButton>
+                                    <AddBody reverse>
+                                        <BoxImageBody
+                                            source={require("../../../../assets/boxrad.png")}
+                                        ></BoxImageBody>
+                                        <ItemContainerAdd>
+                                            <CustomButton
+                                                title={"Return Key"}
+                                                bgcolor={"#4aaf6e"}
+                                                fcolor={"#fff"}
+                                                width={"100%"}
+                                                onPress={() =>
+                                                    navigation.navigate("Key Return", {
+                                                        hotel_id: results[2].data.booking.hotel_id,
+                                                        id: results[2].data.booking.id,
+                                                        vehicle_id: results[2].data.booking.vehicle_id,
+                                                    })
                                                 }
-                                                <DisclaimerText>
-                                                    By obtaining your rental vehicle key, you are agreeing
-                                                    to our terms and conditions.
-                                                </DisclaimerText>
-                                            </ItemContainerAdd>
-                                        </AddBody>
-                                    )}
+                                            ></CustomButton>
+                                            <DisclaimerText>
+                                                By returning your key, you are ending your car rental
+                                                period.
+                                            </DisclaimerText>
+                                        </ItemContainerAdd>
+                                    </AddBody>
                                 </View>
-                            ) : (
+                                :
                                 <></>
-                            )}
-
+                                }
+                            </View>
+                            :
+                            <></>
+                            }
                             <Spacer></Spacer>
-                            {/* <Containing>
-            <BoxRadImg
-            source={require("../../../../assets/boxrad.png")}
-            >
-
-            </BoxRadImg>
-        </Containing> */}
+                            
                         </BoxContainer>
                     </DrawerScroll>
                     <BottomSheet
