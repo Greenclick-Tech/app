@@ -69,7 +69,7 @@ const StartPage = ({ navigation }) => {
                     </FullPage>
                     <ButtonContainer>
                         <CustomButton
-                            title={"Continue"}
+                            title={"Get Started"}
                             color={'#ffffff'}
                             onPress={() => {
                                 navigation.navigate('Phone')

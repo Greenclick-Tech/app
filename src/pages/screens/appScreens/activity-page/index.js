@@ -272,6 +272,8 @@ const ItemComponent = ({ bookings, navigation }) => {
                   <ActiveBookingTab
                     onPress={() => {
                       navigation.navigate("Order", {
+                        vehicleId: item.vehicle_id,
+                        hotelId: item.hotel_id,
                         bookingId: item.id,
                         active: false,
                       });

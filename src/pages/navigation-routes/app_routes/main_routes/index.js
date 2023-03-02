@@ -14,6 +14,8 @@ import PageAccount from "../../../screens/appScreens/settings/nested-settings/ac
 // import PageHelp from "./pages/pages-app/settings/nested-settings/help";
 import PageNotifications from "../../../screens/appScreens/settings/nested-settings/notifications";
 import PagePrivacy from "../../../screens/appScreens/settings/nested-settings/privacy";
+import Faq from "../../../screens/appScreens/settings/nested-settings/faq";
+import Support from "../../../screens/appScreens/settings/nested-settings/support";
 
 // import Activity from "./pages/pages-app/activity";
 // import PaymentMethods from "./pages/pages-app/payment-methods";
@@ -50,16 +52,21 @@ const AppRoutes = () => {
 
             {/* Settings page, all settings */}
 
-            <Stack.Screen 
-                name="Settings" 
-                component={SettingsMain} 
+            <Stack.Screen
+                name="Settings"
+                component={SettingsMain}
             />
 
             {/* Account settings page, all user account settings */}
 
-            <Stack.Screen 
-                name="Account-Page" 
-                component={PageAccount} 
+            <Stack.Screen
+                name="Account-Page"
+                component={PageAccount}
+            />
+
+            <Stack.Screen
+                name="Support"
+                component={Support}
             />
 
             {/* Application Appearance, no use for page at the moment */}
@@ -78,18 +85,26 @@ const AppRoutes = () => {
 
             {/* Notification management, user managing all extra notifications that are not related to user experience */}
 
-            <Stack.Screen 
-                name="Notifications" 
+            <Stack.Screen
+                name="Notifications"
                 component={PageNotifications}
             />
 
             {/* Privacy and Security, privacy policy text scroll */}
 
-            <Stack.Screen 
-                name="PrivacySecurity" 
+            <Stack.Screen
+                name="PrivacySecurity"
                 component={PagePrivacy}
                 options={{
                     headerTitle: "Privacy & Security"
+                }}
+            />
+
+            <Stack.Screen
+                name="Faq"
+                component={Faq}
+                options={{
+                    headerTitle: "FAQ"
                 }}
             />
 
