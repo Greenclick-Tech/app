@@ -1036,7 +1036,7 @@ const MapPage = ({ route, navigation, props }) => {
                 .get(
                     `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchPlaces}&&location=${location.coords.latitude}%2C${location.coords.longitude}&&radius=1000&key=${google_key}`, {
                         headers: {
-                            'X-Ios-Bundle-Identifier': Constants.expoConfig.ios.bundleIdentifier
+                            'X-Ios-Bundle-Identifier': "org.name.greenclick"
                         }
                     }
                 )
@@ -1845,11 +1845,12 @@ const MapPage = ({ route, navigation, props }) => {
                                                                         .get(
                                                                             `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=${google_key}`, {
                                                                                 headers: {
-                                                                                    'X-Ios-Bundle-Identifier': Constants.expoConfig.ios.bundleIdentifier
+                                                                                    'X-Ios-Bundle-Identifier': "org.name.greenclick"
                                                                                 }
                                                                             }
                                                                         )
                                                                         .then((res) => {
+                                                                            console.log()
                                                                             handleSheetChanges(0);
                                                                             setmapRegion({
                                                                                 latitude:

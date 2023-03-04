@@ -147,7 +147,7 @@ const KeyRetrival = ({ route, navigation }) => {
   });
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#4aaf6d" }}>
       {
         location ?
       <View style={{flex: 1}}>
