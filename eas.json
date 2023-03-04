@@ -7,8 +7,7 @@
       "ios": {
         "resourceClass": "m1-medium"
       },
-      "channel": "production",
-      "autoIncrement": true
+      "channel": "production"
     },
     "development": {
       "developmentClient": true,
