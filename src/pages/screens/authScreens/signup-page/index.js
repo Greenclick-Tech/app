@@ -1,5 +1,5 @@
 import React, { useContext, useLayoutEffect, useEffect, useState } from "react";
-import { View, Text, Alert } from "react-native";
+import { View, Text, Alert, Platform } from "react-native";
 import styled from "styled-components";
 import CustomButton from "../../../../components/custom-button";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -94,6 +94,7 @@ const ExtraInfo = ({ navigation, route }) => {
   const { setLocation, setLocationStatus, pushToken, setPushToken, setUser } = useContext(Context);
   const key = "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w"
 
+  console.log(Constants.expoConfig.ios.bundleIdentifier)
   const showDatepicker = () => {
     setShow(true)
   };
@@ -328,6 +329,15 @@ useLayoutEffect(() => {
             query={{
               key: key,
               language: "en",
+            }}
+            requestUrl={{
+              useOnPlatform: 'all',
+              url: 'https://maps.googleapis.com/maps/api',
+              headers: Platform.select({
+                ios: {
+                  'X-Ios-Bundle-Identifier': Constants.expoConfig.ios.bundleIdentifier,
+                }
+              })
             }}
           />
         </ButtonContainer>

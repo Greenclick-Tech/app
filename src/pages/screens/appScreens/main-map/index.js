@@ -1034,7 +1034,11 @@ const MapPage = ({ route, navigation, props }) => {
         const delaySearch = setTimeout(() => {
             axios
                 .get(
-                    `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchPlaces}&&location=${location.coords.latitude}%2C${location.coords.longitude}&&radius=1000&key=${google_key}`
+                    `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchPlaces}&&location=${location.coords.latitude}%2C${location.coords.longitude}&&radius=1000&key=${google_key}`, {
+                        headers: {
+                            'X-Ios-Bundle-Identifier': Constants.expoConfig.ios.bundleIdentifier
+                        }
+                    }
                 )
                 .then((res) => {
                     setPlaces(res.data.predictions);
@@ -1839,7 +1843,11 @@ const MapPage = ({ route, navigation, props }) => {
                                                                     Keyboard.dismiss();
                                                                     await axios
                                                                         .get(
-                                                                            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=${google_key}`
+                                                                            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=${google_key}`, {
+                                                                                headers: {
+                                                                                    'X-Ios-Bundle-Identifier': Constants.expoConfig.ios.bundleIdentifier
+                                                                                }
+                                                                            }
                                                                         )
                                                                         .then((res) => {
                                                                             handleSheetChanges(0);
