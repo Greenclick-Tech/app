@@ -6,21 +6,24 @@
     "production": {
       "ios": {
         "resourceClass": "m1-medium"
-      }
+      },
+      "channel": "production"
     },
     "development": {
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
         "resourceClass": "m1-medium"
-      }
+      },
+      "channel": "development"
     },
     "staging": {
       "distribution": "internal",
       "ios": {
         "resourceClass": "m1-medium"
       },
-      "extends": "production"
+      "extends": "production",
+      "channel": "staging"
     }
   },
   "submit": {
