@@ -332,9 +332,9 @@ useLayoutEffect(() => {
             requestUrl={{
               useOnPlatform: 'all',
               url: 'https://maps.googleapis.com/maps/api',
-              headers: Platform.select({
+              headers: {
                 'X-Ios-Bundle-Identifier': "org.name.greenclick"
-              })
+              }
             }}
           />
         </ButtonContainer>
