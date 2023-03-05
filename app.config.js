@@ -4,7 +4,7 @@ export default () => ({
   expo: {
     name: "Greenclick",
     slug: "greenclick",
-    version: "1.0.3",
+    version: "1.0.4",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "light",
