@@ -94,7 +94,6 @@ const ExtraInfo = ({ navigation, route }) => {
   const { setLocation, setLocationStatus, pushToken, setPushToken, setUser } = useContext(Context);
   const key = "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w"
 
-  console.log(Constants.expoConfig.ios.bundleIdentifier)
   const showDatepicker = () => {
     setShow(true)
   };
@@ -334,9 +333,7 @@ useLayoutEffect(() => {
               useOnPlatform: 'all',
               url: 'https://maps.googleapis.com/maps/api',
               headers: Platform.select({
-                ios: {
-                  'X-Ios-Bundle-Identifier': "org.name.greenclick",
-                }
+                'X-Ios-Bundle-Identifier': "org.name.greenclick"
               })
             }}
           />
