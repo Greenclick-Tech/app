@@ -37,146 +37,120 @@ const Text = styled.Text`
     padding-left: 18px;
 `;
 
-const SettingsMain = ( { navigation }) => {
+const SettingsMain = ({ navigation }) => {
     const { setUser } = useContext(Context);
 
-    const DeleteAccount = async() => {
+    const DeleteAccount = async () => {
         let res = await RequestHandler(
             "DELETE",
             endpoints.DELETE(),
             undefined,
             undefined,
             true
-          );
+        );
         console.log(res)
-          if (res == 'OK') {
+        if (res == 'OK') {
             AsyncStorage.multiRemove(["access_token", "refresh_token"]).catch((err) => Alert.alert("Error Logging out. There was an error preventing you from logging out, please try again."))
             setUser()
-            
-          } else {
+
+        } else {
             Alert.alert('Error deleting your account', 'Please contact support@greenclicktechnologies.com for assistance in deleting your account', [
                 {
                     text: 'Cancel',
                     style: 'cancel',
                 },
-                {text: 'Ok'},
+                { text: 'Ok' },
             ]);
-          }
+        }
     }
 
     return (
-        <SafeAreaView tyle={{ flex: 1, justifyContent: 'space-between', alignItems: 'center',   }}  edges={['top', 'left', 'right']}>
+        <SafeAreaView tyle={{ flex: 1, justifyContent: 'space-between', alignItems: 'center', }} edges={['top', 'left', 'right']}>
             <FAD>
-                <FlatList
-                data={[
-                    {
-                        name: "Account",
-                        route: "Account-Page",
-                        icon: "people-outline"
-                    },
-                    // {
-                    //     name: "Notifications",
-                    //     route: "Notifications",
-                    //     icon: "notifications-outline"
-                    // },
-                    // {
-                    //     name: "Appearance",
-                    //     route: "Appearance",
-                    //     icon: "eye-outline"
-                    // },
-                    {
-                        name: "Privacy & Security",
-                        route: "PrivacySecurity",
-                        icon: "lock-closed-outline"
-                    },
-                    {
-                        name: "Support",
-                        route: "Support",
-                        icon: "information-circle-outline"
-                    },
-                    {
-                        name: "Frequently Asked Questions",
-                        route: "Faq",
-                        icon: "help-circle-outline"
-                    },
-                    // {
-                    //     name: "Help & Support",
-                    //     route: "HelpSupport",
-                    //     icon: "help-circle-outline"
-                    // },
-                    {
-                        name: "Logout",
-                        route: "Logout",
-                        icon: "log-out-outline"
-                    },
-                    {
-                        name: "Delete Account",
-                        route: "Delete",
-                        icon: "alert-circle-outline"
-                    }
-                ]}
-                renderItem={(e)=> {
-                    return (
-                        <Container>
-                            <Touchable onPress={()=> {
-                                switch(e.item.route) {
-                                    case 'Account-Page':
-                                    navigation.push('Account-Page')
-                                    break;
-                                    case 'Notifications':
-                                    navigation.push('Notifications')
-                                    break;
-                                    case 'Appearance':
-                                    navigation.push('Appearance')
-                                    break;
-                                    case 'PrivacySecurity':
-                                    navigation.push('PrivacySecurity')
-                                    case 'Faq':
-                                    navigation.push('Faq')
-                                    case 'Support':
-                                    navigation.push('Support')
-                                    break;
-                                    case 'HelpSupport':
-                                    navigation.push('HelpSupport')
-                                    break;
-                                    case 'Logout':
-                                    Alert.alert('You are about to Log Out', 'You must log back in to continue.', [
-                                        {
-                                            text: 'Cancel',
-                                            style: 'cancel',
-                                        },
-                                        {text: 'Log Out', onPress: () =>  {
+                
+                <Container>
 
-                                            AsyncStorage.multiRemove(["access_token", "refresh_token"]).catch((err) => Alert.alert("Error Logging out. There was an error preventing you from logging out, please try again."))
-                                            
-                                            setUser()
-                                        }},
-                                        ]);
-                                    break;
-                                    case 'Delete':
-                                        Alert.alert('You are about to Delete your Account', 'Deleting your account will remove all of your account data from our servers. You will have to sign up to use the greenclick app again. Are you sure you want to continue?', [
-                                            {
-                                                text: 'Cancel',
-                                                style: 'cancel',
-                                            },
-                                            {text: 'Delete Account', onPress: () =>  {
-                                                DeleteAccount()
-                                            }},
-                                        ]);
+                    <Touchable onPress={() => {
+                        navigation.navigate('Account-Page')
+                    }}>
+                        <View style={{ flexDirection: "row", alignItems: "center" }}>
+                            <Ionicons size={18} name={"people-outline"}></Ionicons>
+                            <Text>Account</Text>
+                        </View>
+                        <Ionicons size={18} name={"chevron-forward-outline"} />
+                    </Touchable>
+
+                    <Touchable onPress={() => {
+                        navigation.navigate('PrivacySecurity')
+                    }}>
+                        <View style={{ flexDirection: "row", alignItems: "center" }}>
+                            <Ionicons size={18} name={"lock-closed-outline"}></Ionicons>
+                            <Text>Privacy & Security</Text>
+                        </View>
+                        <Ionicons size={18} name={"chevron-forward-outline"} />
+                    </Touchable>
+
+                    <Touchable onPress={() => {
+                        navigation.navigate('Support')
+                    }}>
+                        <View style={{ flexDirection: "row", alignItems: "center" }}>
+                            <Ionicons size={18} name={"information-circle-outline"}></Ionicons>
+                            <Text>Support</Text>
+                        </View>
+                        <Ionicons size={18} name={"chevron-forward-outline"} />
+                    </Touchable>
+
+                    <Touchable onPress={() => {
+                        navigation.navigate('Faq')
+                    }}>
+                        <View style={{ flexDirection: "row", alignItems: "center" }}>
+                            <Ionicons size={18} name={"help-circle-outline"}></Ionicons>
+                            <Text>Frequently Asked Questions</Text>
+                        </View>
+                        <Ionicons size={18} name={"chevron-forward-outline"} />
+                    </Touchable>
+
+                    <Touchable onPress={() => {
+                        Alert.alert('You are about to Log Out', 'You must log back in to continue.', [
+                            {
+                                text: 'Cancel',
+                                style: 'cancel',
+                            },
+                            {
+                                text: 'Log Out', onPress: () => {
+
+                                    AsyncStorage.multiRemove(["access_token", "refresh_token"]).catch((err) => Alert.alert("Error Logging out. There was an error preventing you from logging out, please try again."))
+
+                                    setUser()
                                 }
-                            }}>
-                                <View style={{flexDirection: "row", alignItems: "center"}}>
-                                <Ionicons size={18} name={e.item.icon}></Ionicons>
-                                <Text>{e.item.name}</Text>
-                                </View>
-                                <Ionicons size={18} name={"chevron-forward-outline"} />
-                            </Touchable>
-                        </Container>
-                    )
-                }}
-                >
+                            },
+                        ]);
+                    }}>
+                        <View style={{ flexDirection: "row", alignItems: "center" }}>
+                            <Ionicons size={18} name={"log-out-outline"}></Ionicons>
+                            <Text>Logout</Text>
+                        </View>
+                        <Ionicons size={18} name={"chevron-forward-outline"} />
+                    </Touchable>
 
-                </FlatList>
+                    <Touchable onPress={() => {
+                        Alert.alert('You are about to Delete your Account', 'Deleting your account will remove all of your account data from our servers. You will have to sign up to use the greenclick app again. Are you sure you want to continue?', [
+                            {
+                                text: 'Cancel',
+                                style: 'cancel',
+                            },
+                            {text: 'Delete Account', onPress: () =>  {
+                                DeleteAccount()
+                            }},
+                        ]);
+                    }}>
+                        <View style={{ flexDirection: "row", alignItems: "center" }}>
+                            <Ionicons size={18} name={"alert-circle-outline"}></Ionicons>
+                            <Text>Delete Account</Text>
+                        </View>
+                        <Ionicons size={18} name={"chevron-forward-outline"} />
+                    </Touchable>
+                </Container>
             </FAD>
         </SafeAreaView>
     )

@@ -724,7 +724,7 @@ const MapPage = ({ route, navigation, props }) => {
         setLocationLoad(false)
     };
 
-    useLayoutEffect(() => {
+    useLayoutEffect(()=> {
         getLocation()
     }, [])
 
@@ -1429,6 +1429,7 @@ const MapPage = ({ route, navigation, props }) => {
             keyboardBehavior={"extend"}
             keyboardBlurBehavior={"restore"}
             backgroundStyle={"ViewStyle"}
+            
         >
             {location ?
                 <DrawerContainer>
@@ -1946,6 +1947,8 @@ const MapPage = ({ route, navigation, props }) => {
                     )}
                 </DrawerContainer>
                 :
+                <DrawerContainer>
+                {
                 locationLoad ?
                     <ActivityIndicator size={'small'}></ActivityIndicator>
                     :
@@ -1955,16 +1958,20 @@ const MapPage = ({ route, navigation, props }) => {
                         <View style={{
                             paddingLeft: 15,
                             paddingRight: 15,
-                            paddingTop: 20
+                            paddingTop: 20,
+                            flex: 1
                         }}>
                             <Subtitle>Your Location was not found.</Subtitle>
-                            <SubtitleTwo>In order to use the greenclick app, please allow location permissions located in your devices settings.</SubtitleTwo>
+                            <SubtitleTwo>In order to use the greenclick app, please allow location permissions located in your devices settings. If you have enabled location permissions, please restart the app.</SubtitleTwo>
                             <TouchableOpacity onPress={() => {
                                 Linking.openSettings()
                             }}>
                             <Text style={{ color: "#4aaf6e", fontSize: "16px"}}>Open Location Permissions</Text>
                         </TouchableOpacity>
                         </View>
+                }
+                </DrawerContainer>
+                
 
             }
         </BottomSheet>

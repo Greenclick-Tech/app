@@ -890,7 +890,7 @@ const HomePage = ({ navigation, route }) => {
                   paddingTop: 20
                 }}>
                   <Subtitle>Nearest Hotels with Greenclick</Subtitle>
-                  <SubtitleTwo>In order to use the greenclick app, please allow location permissions located in your devices settings.</SubtitleTwo>
+                  <SubtitleTwo>In order to use the greenclick app, please allow location permissions located in your devices settings. If you have enabled location permissions, please restart the app.</SubtitleTwo>
                   <TouchableOpacity onPress={() => {
                                 Linking.openSettings()
                             }}>
