@@ -323,7 +323,7 @@ const Tab = styled.TouchableOpacity`
   border-bottom-width: 3px;
   border-bottom-color: ${(props) => (props.color ? "#4aaf6e" : "#AAAAAA80")};
   flex-direction: row;
-  display: ${props=>props.display ? "none" : "block"};
+  display: ${props => props.display ? "none" : "block"};
 `;
 
 const TabText = styled.Text`
@@ -361,7 +361,7 @@ const HotelsFound = ({ hotels, onPress }) => {
             // SAHIL, HANDLE THIS
             // probably a 404 the hotel doesn't exist maybe
             //
-            if(res.error.status == 404) {
+            if (res.error.status == 404) {
                 Alert.alert("An error has occured", "This hotel does not exist")
             }
             return res;
@@ -398,56 +398,56 @@ const HotelsFound = ({ hotels, onPress }) => {
         <Text>Error getting hotels in your radius.</Text>
     ) : (
 
-        <View style={{paddingBottom: 50}}>
-        <ScrollView >
+        <View style={{ paddingBottom: 50 }}>
+            <ScrollView >
 
-            {hotels?.map((item, index) => {
-                const matchingHotel = mapHotels?.find(
-                    (hotel) => hotel.data.hotel && hotel?.data?.hotel.id === item.id
-                );
-                return (
-                    matchingHotel &&
-                    ("error" in matchingHotel.data ? (
-                        <Text>Error Retriving this hotel.</Text>
-                    ) : (
+                {hotels?.map((item, index) => {
+                    const matchingHotel = mapHotels?.find(
+                        (hotel) => hotel.data.hotel && hotel?.data?.hotel.id === item.id
+                    );
+                    return (
+                        matchingHotel &&
+                        ("error" in matchingHotel.data ? (
+                            <Text>Error Retriving this hotel.</Text>
+                        ) : (
 
-                        <TouchableOpacity
-                            onPress={() =>
-                                onPress(matchingHotel.data.hotel.id, matchingHotel.data.hotel)
-                            }
-                            key={matchingHotel.data.hotel.id}
-                            style={{
-                                paddingTop: 20,
-                                paddingBottom: 20,
-                                alignItems: "center",
-                                flexDirection: "row",
-                                borderBottomColor: "#00000010",
-                                borderBottomWidth: 1,
-                            }}
-                        >
-                            <Image
-                                style={{ width: 50, height: 50, borderRadius: 40 }}
-                                resizeMethod={"resize"}
-                                resizeMode={"cover"}
-                                source={{
-                                    uri: matchingHotel.data.hotel.image_urls[0]
-                                  }}
-                            ></Image>
-                            <View style={{ paddingLeft: 15 }}>
-                                <Text style={{ fontSize: 17, paddingBottom: 5 }}>
-                                    {matchingHotel.data.hotel.name}
-                                </Text>
-                                <Text style={{ fontSize: 13, width: '100%', color: "#00000090"  }}>
-                                    {matchingHotel.data.hotel.address.slice(0, 40) + "..."}
-                                </Text>
-                            </View>
+                            <TouchableOpacity
+                                onPress={() =>
+                                    onPress(matchingHotel.data.hotel.id, matchingHotel.data.hotel)
+                                }
+                                key={matchingHotel.data.hotel.id}
+                                style={{
+                                    paddingTop: 20,
+                                    paddingBottom: 20,
+                                    alignItems: "center",
+                                    flexDirection: "row",
+                                    borderBottomColor: "#00000010",
+                                    borderBottomWidth: 1,
+                                }}
+                            >
+                                <Image
+                                    style={{ width: 50, height: 50, borderRadius: 40 }}
+                                    resizeMethod={"resize"}
+                                    resizeMode={"cover"}
+                                    source={{
+                                        uri: matchingHotel.data.hotel.image_urls[0]
+                                    }}
+                                ></Image>
+                                <View style={{ paddingLeft: 15 }}>
+                                    <Text style={{ fontSize: 17, paddingBottom: 5 }}>
+                                        {matchingHotel.data.hotel.name}
+                                    </Text>
+                                    <Text style={{ fontSize: 13, width: '100%', color: "#00000090" }}>
+                                        {matchingHotel.data.hotel.address.slice(0, 40) + "..."}
+                                    </Text>
+                                </View>
 
-                        </TouchableOpacity>
+                            </TouchableOpacity>
 
-                    ))
-                );
-            })}
-        </ScrollView>
+                        ))
+                    );
+                })}
+            </ScrollView>
 
         </View>
 
@@ -620,40 +620,40 @@ const VehicleList = ({
                             </WrapperImageTwo>
                             {item.micro_mobility ?
                                 <View style={{ flex: 3, padding: 15 }}>
-                                <CarTitle>{item.model}</CarTitle>
-                                {masterStart ? (
-                                    <PriceWrapper>
-                                        <PriceMain>
-                                            ${item.rate * masterEnd.diff(masterStart, "hours").toFixed(2)}
-                                            .00
-                                        </PriceMain>
-                                        <PriceHour>est. total</PriceHour>
-                                    </PriceWrapper>
-                                ) : (
-                                    <PriceWrapper>
-                                        <PriceMain>${item.rate.toFixed(2)}</PriceMain>
-                                        <PriceHour>/ per hour</PriceHour>
-                                    </PriceWrapper>
-                                )}
-                            </View>
-                            :
-                            <View style={{ flex: 3, padding: 15 }}>
-                                <CarTitle>{item.model}</CarTitle>
-                                {vehicleStartDate && vehicleEndDate ? (
-                                    <PriceWrapper>
-                                        <PriceMain>
-                                            ${item.rate * vehicleEndDate.diff(vehicleStartDate, "days").toFixed(2)}
-                                            
-                                        </PriceMain>
-                                        <PriceHour>est. total</PriceHour>
-                                    </PriceWrapper>
-                                ) : (
-                                    <PriceWrapper>
-                                        <PriceMain>${item.rate.toFixed(2)}</PriceMain>
-                                        <PriceHour>/ per day</PriceHour>
-                                    </PriceWrapper>
-                                )}
-                            </View>
+                                    <CarTitle>{item.model}</CarTitle>
+                                    {masterStart ? (
+                                        <PriceWrapper>
+                                            <PriceMain>
+                                                ${item.rate * masterEnd.diff(masterStart, "hours").toFixed(2)}
+                                                .00
+                                            </PriceMain>
+                                            <PriceHour>est. total</PriceHour>
+                                        </PriceWrapper>
+                                    ) : (
+                                        <PriceWrapper>
+                                            <PriceMain>${item.rate.toFixed(2)}</PriceMain>
+                                            <PriceHour>/ per hour</PriceHour>
+                                        </PriceWrapper>
+                                    )}
+                                </View>
+                                :
+                                <View style={{ flex: 3, padding: 15 }}>
+                                    <CarTitle>{item.model}</CarTitle>
+                                    {vehicleStartDate && vehicleEndDate ? (
+                                        <PriceWrapper>
+                                            <PriceMain>
+                                                ${item.rate * vehicleEndDate.diff(vehicleStartDate, "days").toFixed(2)}
+
+                                            </PriceMain>
+                                            <PriceHour>est. total</PriceHour>
+                                        </PriceWrapper>
+                                    ) : (
+                                        <PriceWrapper>
+                                            <PriceMain>${item.rate.toFixed(2)}</PriceMain>
+                                            <PriceHour>/ per day</PriceHour>
+                                        </PriceWrapper>
+                                    )}
+                                </View>
                             }
                         </TouchableCar>
                     </TouchWrap>
@@ -719,13 +719,13 @@ const MapPage = ({ route, navigation, props }) => {
             return;
         }
         //obtaining the users location
-        let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Lowest});
+        let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Lowest });
         setLocation(location);
         setLocationStatus(status);
         setLocationLoad(false)
     };
 
-    useLayoutEffect(()=> {
+    useLayoutEffect(() => {
         getLocation()
     }, [])
 
@@ -751,7 +751,7 @@ const MapPage = ({ route, navigation, props }) => {
         keepPreviousData: true,
         onSuccess: (data) => {
             setCarQueries(data.vehicles)
-            if(!data.vehicles) {
+            if (!data.vehicles) {
                 setNoVehicles(true)
                 setSelection('micro_mobility')
             }
@@ -783,12 +783,12 @@ const MapPage = ({ route, navigation, props }) => {
         //     longitude: region.longitude - (region.longitudeDelta / 2),
         // hi haste
         // };
-          
+
         // const bottomRight = {
         // latitude: region.latitude - (region.latitudeDelta / 2),
         // longitude: region.longitude + (region.longitudeDelta / 2),
         // };
-          
+
         setmapRegion({
             latitude: region.latitude,
             longitude: region.longitude,
@@ -797,7 +797,7 @@ const MapPage = ({ route, navigation, props }) => {
         });
     };
 
-    useEffect(()=> {
+    useEffect(() => {
         setLoadIn(true)
     }, [])
 
@@ -853,17 +853,17 @@ const MapPage = ({ route, navigation, props }) => {
 
     const handleTempConfirm = (date, type) => {
         if (selection == "vehicles") {
-            if(type === "END_DATE" && date != null) {
+            if (type === "END_DATE" && date != null) {
                 setVehicleTempEndDate(moment(date))
-              } else if(type === "END_DATE" && date === null) {
+            } else if (type === "END_DATE" && date === null) {
                 setVehicleTempEndDate("")
-              }
-        
-              if(type === "START_DATE" && date != null) {
+            }
+
+            if (type === "START_DATE" && date != null) {
                 setVehicleTempStartDate(moment(date))
-              } else if (type === "START_DATE" && date === null) {
+            } else if (type === "START_DATE" && date === null) {
                 setVehicleTempStartDate("")
-              }
+            }
         } else {
             if (type == "END_DATE") {
                 setMicroTempEndDate(moment(date));
@@ -965,7 +965,7 @@ const MapPage = ({ route, navigation, props }) => {
                 "An unexpected error occured selecting this hotel, please try again."
             );
             return res;
-            
+
         } else {
             return res;
         }
@@ -1052,10 +1052,10 @@ const MapPage = ({ route, navigation, props }) => {
             axios
                 .get(
                     `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchPlaces}&&location=${location.coords.latitude}%2C${location.coords.longitude}&&radius=1000&key=${google_key}`, {
-                        headers: {
-                            'X-Ios-Bundle-Identifier': Constants.expoConfig.ios.bundleIdentifier
-                        }
+                    headers: {
+                        'X-Ios-Bundle-Identifier': Constants.expoConfig.ios.bundleIdentifier
                     }
+                }
                 )
                 .then((res) => {
                     setPlaces(res.data.predictions);
@@ -1425,572 +1425,543 @@ const MapPage = ({ route, navigation, props }) => {
             })}
         </MapView>
         {
-        loadIn ?
-        <BottomSheet
-            ref={bottomSheetRef}
-            index={index}
-            animateOnMount={true}
-            snapPoints={snapPoints}
-            onChange={handleSheetChanges}
-            keyboardBehavior={"extend"}
-            keyboardBlurBehavior={"restore"}
-            backgroundStyle={"ViewStyle"}
-            
-        >
-            {location ?
-                <DrawerContainer>
-                    {selectedHotel ? (
-                        <></>
-                    ) : (
-                        <View style={{ paddingLeft: 15, paddingRight: 15 }}>
-                            {hotelQueries.isLoading ? (
-                                <ActivityIndicator size="small"></ActivityIndicator>
-                            ) : (
-                                "error" in hotelQueries.data ?
-                                <SubtitleTwo>{hotelQueries.data.error.message}</SubtitleTwo>
-                                :
+            loadIn ?
+                <BottomSheet
+                    ref={bottomSheetRef}
+                    index={index}
+                    animateOnMount={true}
+                    snapPoints={snapPoints}
+                    onChange={handleSheetChanges}
+                    keyboardBehavior={"extend"}
+                    keyboardBlurBehavior={"restore"}
+                    backgroundStyle={"ViewStyle"}
 
-                                <View
-                                    style={{
-                                        flexDirection: "row",
-                                        alignItems: "center",
-                                        backgroundColor: "#e8e8e8",
-                                        borderRadius: 20,
-                                        padding: 20
-                                    }}
-                                >
-                                    {/* <Ionicons
-                                        name={"search"}
-                                        size={20}
-                                        color={"#3B414B80"}
-                                        style={{
-                                            paddingLeft: 20,
-                                        }}
-                                    ></Ionicons> */}
-                                    <BottomSheetTextInput
-                                        style={styles.input}
-                                        placeholder={"Enter a hotel, airport, or address"}
-                                        placeholderTextColor={"#494d5280"}
-                                        clearButtonMode="always"
-                                        onClear={() => {
-                                            setSearch("");
-                                        }}
-                                        onChangeText={(e) => {
-                                            setSearch(e);
-                                        }}
-                                    />
-                                    {/* <View>
-                                        {hotelQueries.isLoading ? (
-                                            <ActivityIndicator size={"small"}></ActivityIndicator>
-                                        ) : hotelQueries.isError ? (
-                                            <Ionicons
-                                                name={"alert"}
-                                                size={20}
-                                                color={"#FF0000"}
-                                            ></Ionicons>
-                                        ) : (
-                                            <></>
-                                        )}
-                                    </View> */}
+                >
+                    {location ?
+                        <DrawerContainer>
+                            {selectedHotel ? (
+                                <></>
+                            ) : (
+                                <View style={{ paddingLeft: 15, paddingRight: 15 }}>
+                                    {hotelQueries.isLoading ? (
+                                        <ActivityIndicator size="small"></ActivityIndicator>
+                                    ) : (
+                                        "error" in hotelQueries.data ?
+                                            <SubtitleTwo>{hotelQueries.data.error.message}</SubtitleTwo>
+                                            :
+                                            <BottomSheetTextInput
+                                                style={styles.input}
+                                                placeholder={"Enter a hotel, airport, or address"}
+                                                placeholderTextColor={"#494d5280"}
+                                                clearButtonMode="always"
+                                                onClear={() => {
+                                                    setSearch("");
+                                                }}
+                                                onChangeText={(e) => {
+                                                    setSearch(e);
+                                                }}
+                                            />
+                                    )}
                                 </View>
                             )}
-                        </View>
-                    )}
-                    {hotelQueries.isError ? (
-                        <View>
-                            <Text
-                                style={{
-                                    paddingLeft: 20,
-                                    paddingTop: 20,
-                                    paddingBottom: 10,
-                                    fontSize: 18,
-                                }}
-                            >
-                                Error Finding Hotels
-                            </Text>
-                            <Text
-                                style={{
-                                    paddingLeft: 20,
-                                    paddingRight: 20,
-                                    fontSize: 14,
-                                }}
-                            >
-                                An issue occured searching for hotels. Please contact our
-                                support at {"\n"}https://support.greenclick.app/
-                            </Text>
-                        </View>
-                    ) : (
-                        <></>
-                    )}
-                    {selectedHotel ? (
-                        <View style={{ flex: 1 }}>
-                            {specificHotelQuery.isLoading ? (
-                                <ActivityIndicator size="small" />
-                            ) : specificHotelQuery.data ? (
-                                "error" in specificHotelQuery.data ?
-                                <SubtitleTwo>An error has occured: {specificHotelQuery.data.error.message}</SubtitleTwo>
-                                :
+                            {hotelQueries.isError ? (
+                                <View>
+                                    <Text
+                                        style={{
+                                            paddingLeft: 20,
+                                            paddingTop: 20,
+                                            paddingBottom: 10,
+                                            fontSize: 18,
+                                        }}
+                                    >
+                                        Error Finding Hotels
+                                    </Text>
+                                    <Text
+                                        style={{
+                                            paddingLeft: 20,
+                                            paddingRight: 20,
+                                            fontSize: 14,
+                                        }}
+                                    >
+                                        An issue occured searching for hotels. Please contact our
+                                        support at {"\n"}https://support.greenclick.app/
+                                    </Text>
+                                </View>
+                            ) : (
+                                <></>
+                            )}
+                            {selectedHotel ? (
                                 <View style={{ flex: 1 }}>
-                                    <HotelContainer>
-                                        <IconFlex>
-                                            <Ionicons
-                                                style={{ marginRight: 10 }}
-                                                name={"bed-outline"}
-                                                size={22}
-                                                color={"#3B414B"}
-                                            ></Ionicons>
-                                            <HotelTitle>{specificHotelQuery.data.hotel.name}</HotelTitle>
-                                        </IconFlex>
-                                        <Address>{specificHotelQuery.data.hotel.address}</Address>
-
-                                        <TouchableOpacity
-                                            style={{ position: "absolute", top: 0, right: 20 }}
-                                            onPress={() => {
-                                                setSelectedHotel();
-                                                setSelectedHotelID();
-                                                handleSheetChanges(0);
-                                            }}
-                                        >
-                                            <Ionicons
-                                                name={"close-circle"}
-                                                size={24}
-                                                color={"#3B414B"}
-                                            ></Ionicons>
-                                        </TouchableOpacity>
-                                        <TabContainer >
-                                            <Tab
-                                                display={noVehicles}
-                                                onPress={() => {
-                                                    setVehicleStartDate('')
-                                                    setVehicleEndDate('')
-                                                    setMasterStart('')
-                                                    setMasterEnd('')
-                                                    setSelectedTimeSlots([])
-                                                    setSelection("vehicles");
-                                                }}
-                                                color={selection == "vehicles"}
-                                            >
-                                                <Ionicons
-                                                    name={"car-sport"}
-                                                    size={20}
-                                                    color={
-                                                        selection == "vehicles" ? "#4aaf6e" : "#AAAAAA80"
-                                                    }
-                                                    style={{ paddingRight: 5 }}
-                                                ></Ionicons>
-                                                <TabText color={selection == "vehicles"}>
-                                                    Vehicles
-                                                </TabText>
-                                            </Tab>
-                                            <Tab
-                                                onPress={() => {
-                                                    setVehicleStartDate('');
-                                                    setVehicleEndDate('');
-                                                    setSelection("micro_mobility");
-                                                }}
-                                                color={selection == "micro_mobility"}
-                                            >
-                                                <Ionicons
-                                                    name={"bicycle"}
-                                                    size={20}
-                                                    style={{ paddingRight: 5 }}
-                                                    color={
-                                                        selection == "micro_mobility"
-                                                            ? "#4aaf6e"
-                                                            : "#AAAAAA80"
-                                                    }
-                                                ></Ionicons>
-                                                <TabText color={selection == "micro_mobility"}>
-                                                    Micro Mobility
-                                                </TabText>
-                                            </Tab>
-                                        </TabContainer>
-
-                                        <TimeWrapper onPress={showDatePicker}>
-                                            <TextWrapper>
-                                                {selection == "vehicles" ? (
-                                                    vehicleStartDate && vehicleEndDate ? (
-                                                        <Dates>
-                                                            <Ionicons
-                                                                name="search"
-                                                                size={12}
-                                                                color={"#fff"}
-                                                                style={{ marginRight: 5 }}
-                                                            ></Ionicons>
-                                                            <DateTile>
-                                                                {vehicleStartDate.format("MMMM Do")}
-                                                            </DateTile>
-                                                            <DateTile> to </DateTile>
-                                                            <DateTile>
-                                                                {vehicleEndDate.format("MMMM Do")}
-                                                            </DateTile>
-                                                        </Dates>
-                                                    ) : (
-                                                        <Dates>
-                                                            <Ionicons
-                                                                name="search"
-                                                                size={12}
-                                                                color={"#fff"}
-                                                                style={{ marginRight: 5 }}
-                                                            ></Ionicons>
-                                                            <DateTile>
-                                                                Searching all {selection.replace("_", " ")}
-                                                            </DateTile>
-                                                        </Dates>
-                                                    )
-                                                ) : masterStart ? (
-                                                    <Dates>
+                                    {specificHotelQuery.isLoading ? (
+                                        <ActivityIndicator size="small" />
+                                    ) : specificHotelQuery.data ? (
+                                        "error" in specificHotelQuery.data ?
+                                            <SubtitleTwo>An error has occured: {specificHotelQuery.data.error.message}</SubtitleTwo>
+                                            :
+                                            <View style={{ flex: 1 }}>
+                                                <HotelContainer>
+                                                    <IconFlex>
                                                         <Ionicons
-                                                            name="search"
-                                                            size={12}
-                                                            color={"#fff"}
-                                                            style={{ marginRight: 5 }}
+                                                            style={{ marginRight: 10 }}
+                                                            name={"bed-outline"}
+                                                            size={22}
+                                                            color={"#3B414B"}
                                                         ></Ionicons>
-                                                        <DateTile>
-                                                            {masterStart.format("MMM Do") + " "}
-                                                        </DateTile>
-                                                        <DateTile>
-                                                            {moment(masterStart).format("LT")}
-                                                        </DateTile>
-                                                        <DateTile> - </DateTile>
-                                                        <DateTile>
-                                                            {moment(masterEnd).format("LT")}
-                                                        </DateTile>
-                                                    </Dates>
-                                                ) : (
-                                                    <Dates>
-                                                        <Ionicons
-                                                            name="search"
-                                                            size={12}
-                                                            color={"#fff"}
-                                                            style={{ marginRight: 5 }}
-                                                        ></Ionicons>
-                                                        <DateTile>
-                                                            Searching all {selection.replace("_", " ")}
-                                                        </DateTile>
-                                                    </Dates>
-                                                )}
-                                                <LocationTitle>Edit</LocationTitle>
-                                            </TextWrapper>
-                                        </TimeWrapper>
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                setVehicleEndDate('');
-                                                setVehicleStartDate('');
-                                                setMasterStart('')
-                                                setMasterEnd('')
-                                                setSelectedTimeSlots([])
-                                            }}
-                                        >
-                                            <Text
-                                                style={{
-                                                    paddingTop: 10,
-                                                    color: "#f26755",
-                                                    textAlign: "left",
-                                                }}
-                                            >
-                                                Reset Filters
-                                            </Text>
-                                        </TouchableOpacity>
+                                                        <HotelTitle>{specificHotelQuery.data.hotel.name}</HotelTitle>
+                                                    </IconFlex>
+                                                    <Address>{specificHotelQuery.data.hotel.address}</Address>
 
-                                        {/* <Results>{cars ? cars.length : 0} results found</Results> */}
-                                    </HotelContainer>
-                                    {carQueries.isLoading ? (
-                                        <ActivityIndicator size={"small"}></ActivityIndicator>
-                                    ) : carQueries.isError ? (
+                                                    <TouchableOpacity
+                                                        style={{ position: "absolute", top: 0, right: 20 }}
+                                                        onPress={() => {
+                                                            setSelectedHotel();
+                                                            setSelectedHotelID();
+                                                            handleSheetChanges(0);
+                                                        }}
+                                                    >
+                                                        <Ionicons
+                                                            name={"close-circle"}
+                                                            size={24}
+                                                            color={"#3B414B"}
+                                                        ></Ionicons>
+                                                    </TouchableOpacity>
+                                                    <TabContainer >
+                                                        <Tab
+                                                            display={noVehicles}
+                                                            onPress={() => {
+                                                                setVehicleStartDate('')
+                                                                setVehicleEndDate('')
+                                                                setMasterStart('')
+                                                                setMasterEnd('')
+                                                                setSelectedTimeSlots([])
+                                                                setSelection("vehicles");
+                                                            }}
+                                                            color={selection == "vehicles"}
+                                                        >
+                                                            <Ionicons
+                                                                name={"car-sport"}
+                                                                size={20}
+                                                                color={
+                                                                    selection == "vehicles" ? "#4aaf6e" : "#AAAAAA80"
+                                                                }
+                                                                style={{ paddingRight: 5 }}
+                                                            ></Ionicons>
+                                                            <TabText color={selection == "vehicles"}>
+                                                                Vehicles
+                                                            </TabText>
+                                                        </Tab>
+                                                        <Tab
+                                                            onPress={() => {
+                                                                setVehicleStartDate('');
+                                                                setVehicleEndDate('');
+                                                                setSelection("micro_mobility");
+                                                            }}
+                                                            color={selection == "micro_mobility"}
+                                                        >
+                                                            <Ionicons
+                                                                name={"bicycle"}
+                                                                size={20}
+                                                                style={{ paddingRight: 5 }}
+                                                                color={
+                                                                    selection == "micro_mobility"
+                                                                        ? "#4aaf6e"
+                                                                        : "#AAAAAA80"
+                                                                }
+                                                            ></Ionicons>
+                                                            <TabText color={selection == "micro_mobility"}>
+                                                                Micro Mobility
+                                                            </TabText>
+                                                        </Tab>
+                                                    </TabContainer>
+
+                                                    <TimeWrapper onPress={showDatePicker}>
+                                                        <TextWrapper>
+                                                            {selection == "vehicles" ? (
+                                                                vehicleStartDate && vehicleEndDate ? (
+                                                                    <Dates>
+                                                                        <Ionicons
+                                                                            name="search"
+                                                                            size={12}
+                                                                            color={"#fff"}
+                                                                            style={{ marginRight: 5 }}
+                                                                        ></Ionicons>
+                                                                        <DateTile>
+                                                                            {vehicleStartDate.format("MMMM Do")}
+                                                                        </DateTile>
+                                                                        <DateTile> to </DateTile>
+                                                                        <DateTile>
+                                                                            {vehicleEndDate.format("MMMM Do")}
+                                                                        </DateTile>
+                                                                    </Dates>
+                                                                ) : (
+                                                                    <Dates>
+                                                                        <Ionicons
+                                                                            name="search"
+                                                                            size={12}
+                                                                            color={"#fff"}
+                                                                            style={{ marginRight: 5 }}
+                                                                        ></Ionicons>
+                                                                        <DateTile>
+                                                                            Searching all {selection.replace("_", " ")}
+                                                                        </DateTile>
+                                                                    </Dates>
+                                                                )
+                                                            ) : masterStart ? (
+                                                                <Dates>
+                                                                    <Ionicons
+                                                                        name="search"
+                                                                        size={12}
+                                                                        color={"#fff"}
+                                                                        style={{ marginRight: 5 }}
+                                                                    ></Ionicons>
+                                                                    <DateTile>
+                                                                        {masterStart.format("MMM Do") + " "}
+                                                                    </DateTile>
+                                                                    <DateTile>
+                                                                        {moment(masterStart).format("LT")}
+                                                                    </DateTile>
+                                                                    <DateTile> - </DateTile>
+                                                                    <DateTile>
+                                                                        {moment(masterEnd).format("LT")}
+                                                                    </DateTile>
+                                                                </Dates>
+                                                            ) : (
+                                                                <Dates>
+                                                                    <Ionicons
+                                                                        name="search"
+                                                                        size={12}
+                                                                        color={"#fff"}
+                                                                        style={{ marginRight: 5 }}
+                                                                    ></Ionicons>
+                                                                    <DateTile>
+                                                                        Searching all {selection.replace("_", " ")}
+                                                                    </DateTile>
+                                                                </Dates>
+                                                            )}
+                                                            <LocationTitle>Edit</LocationTitle>
+                                                        </TextWrapper>
+                                                    </TimeWrapper>
+                                                    <TouchableOpacity
+                                                        onPress={() => {
+                                                            setVehicleEndDate('');
+                                                            setVehicleStartDate('');
+                                                            setMasterStart('')
+                                                            setMasterEnd('')
+                                                            setSelectedTimeSlots([])
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            style={{
+                                                                paddingTop: 10,
+                                                                color: "#f26755",
+                                                                textAlign: "left",
+                                                            }}
+                                                        >
+                                                            Reset Filters
+                                                        </Text>
+                                                    </TouchableOpacity>
+
+                                                    {/* <Results>{cars ? cars.length : 0} results found</Results> */}
+                                                </HotelContainer>
+                                                {carQueries.isLoading ? (
+                                                    <ActivityIndicator size={"small"}></ActivityIndicator>
+                                                ) : carQueries.isError ? (
+                                                    <NoResults>
+                                                        An error occured searching vehicles, please try again
+                                                    </NoResults>
+                                                ) :
+                                                    "error" in carQueries.data ?
+                                                        <NoResults>{carQueries.data.error.message}</NoResults>
+                                                        :
+                                                        carQueries.data?.vehicles && carsQuery ? (
+                                                            <VehicleList
+                                                                vehicles={carQueries.data.vehicles}
+                                                                navigation={navigation}
+                                                                masterEnd={masterEnd}
+                                                                masterStart={masterStart}
+                                                                selectedHotel={selectedHotel}
+                                                                vehicleStartDate={vehicleStartDate}
+                                                                vehicleEndDate={vehicleEndDate}
+                                                                selection={selection}
+                                                            ></VehicleList>
+                                                        ) : (
+                                                            <NoResults>No Vehicles Found</NoResults>
+                                                        )
+
+                                                }
+                                            </View>
+                                    ) : specificHotelQuery.isError ? (
                                         <NoResults>
                                             An error occured searching vehicles, please try again
                                         </NoResults>
-                                    ) : 
-                                    "error" in carQueries.data ?
-                                    <NoResults>{carQueries.data.error.message}</NoResults>
-                                    :
-                                        carQueries.data?.vehicles && carsQuery ? (
-                                            <VehicleList
-                                                vehicles={carQueries.data.vehicles}
-                                                navigation={navigation}
-                                                masterEnd={masterEnd}
-                                                masterStart={masterStart}
-                                                selectedHotel={selectedHotel}
-                                                vehicleStartDate={vehicleStartDate}
-                                                vehicleEndDate={vehicleEndDate}
-                                                selection={selection}
-                                            ></VehicleList>
-                                        ) : (
-                                            <NoResults>No Vehicles Found</NoResults>
-                                        )
-                                    
-                                    }
+                                    ) : (
+                                        <NoResults>No Results Found</NoResults>
+                                    )}
                                 </View>
-                            ) : specificHotelQuery.isError ? (
-                                <NoResults>
-                                    An error occured searching vehicles, please try again
-                                </NoResults>
                             ) : (
-                                <NoResults>No Results Found</NoResults>
-                            )}
-                        </View>
-                    ) : (
-                        
-                        <View style={{ flex: 1 }}>
 
-                            <MenuContainer>
-                                {places ? (
-                                    <FlexRowConJustify>
-                                        <TitleDrawer>Search Hotels</TitleDrawer>
-                                        {/* <Text
+                                <View style={{ flex: 1 }}>
+
+                                    <MenuContainer>
+                                        {places ? (
+                                            <FlexRowConJustify>
+                                                <TitleDrawer>Search Hotels</TitleDrawer>
+                                                {/* <Text
                     style={{
                     color: "#00000050",
                     }}
                 >
                     {hotelQueries.data.hotels ? hotelQueries.data.hotels.length : 0} Hotels Found
                 </Text> */}
-                                    </FlexRowConJustify>
-                                ) : (
-                                    <View>
-                                        <HotelTitle>Hotels Found</HotelTitle>
-                                        {filteredMarkers ? (
-                                            <HotelsFound
-                                                onPress={handleHotelPress}
-                                                hotels={filteredMarkers}
-                                            ></HotelsFound>
+                                            </FlexRowConJustify>
                                         ) : (
-                                            <Text>No hotels found in your radius.</Text>
+                                            <View>
+                                                <HotelTitle>Hotels Found</HotelTitle>
+                                                {filteredMarkers ? (
+                                                    <HotelsFound
+                                                        onPress={handleHotelPress}
+                                                        hotels={filteredMarkers}
+                                                    ></HotelsFound>
+                                                ) : (
+                                                    <Text>No hotels found in your radius.</Text>
+                                                )}
+                                            </View>
                                         )}
-                                    </View>
-                                )}
-                            </MenuContainer>
-                            {isSearching ? (
-                                <PlaceCenter>
-                                    <ActivityIndicator size="small"></ActivityIndicator>
-                                </PlaceCenter>
-                            ) : (
-                                <BottomSheetFlatList
-                                    style={{
-                                        backgroundColor: "none",
-                                    }}
-                                    scrollEnabled={true}
-                                    renderItem={({ item }) => {
-                                        return (
-                                            <TouchWrap>
-                                                {places ? (
-                                                    <View>
-                                                        {hotelQueries.isFetched &&
-                                                            hotelQueries.data.hotels?.find(
-                                                                (e) =>
-                                                                    e.address ===
-                                                                    item.structured_formatting.secondary_text
-                                                            ) ? (
-                                                            // <TouchablePlace
-                                                            //   onPress={() => {
-                                                            //     setSelectedHotel(
-                                                            //       hotelQueries.data.hotels.find(
-                                                            //         (e) =>
-                                                            //           e.address ===
-                                                            //           item.structured_formatting
-                                                            //             .secondary_text
-                                                            //       )
-                                                            //     );
-                                                            //     handleSheetChanges(1);
-                                                            //     setmapRegion({
-                                                            //       latitude: hotelQueries.data.hotels.find(
-                                                            //         (e) =>
-                                                            //           e.address ===
-                                                            //           item.structured_formatting
-                                                            //             .secondary_text
-                                                            //       ).coordinates.latitude,
-                                                            //       longitude: hotelQueries.data.hotels.find(
-                                                            //         (e) =>
-                                                            //           e.address ===
-                                                            //           item.structured_formatting
-                                                            //             .secondary_text
-                                                            //       ).coordinates.longitude,
-                                                            //       latitudeDelta: 0.002,
-                                                            //       longitudeDelta: 0.002,
-                                                            //     });
-                                                            //   }}
-                                                            // >
-                                                            //   <Image
-                                                            //     style={{
-                                                            //       maxHeight: 40,
-                                                            //       maxWidth: 24,
-                                                            //       marginRight: 15,
-                                                            //     }}
-                                                            //     resizeMode="contain"
-                                                            //     source={require("../../../../assets/pin.png")}
-                                                            //   ></Image>
-                                                            //   <TextPlacesWrapper>
-                                                            //     <FlexRowCon>
-                                                            //       <PlacesTitle style={{ color: "#4aaf6e" }}>
-                                                            //         {item.structured_formatting.main_text}
-                                                            //       </PlacesTitle>
-                                                            //     </FlexRowCon>
-                                                            //     <PlaceDescription>
-                                                            //       {
-                                                            //         item.structured_formatting
-                                                            //           .secondary_text
-                                                            //       }
-                                                            //     </PlaceDescription>
-                                                            //     <PlaceDescription style={{ paddingTop: 5 }}>
-                                                            //       {
-                                                            //         hotelQueries.data.hotels.find(
-                                                            //           (e) =>
-                                                            //             e.address ===
-                                                            //             item.structured_formatting
-                                                            //               .secondary_text
-                                                            //         ).vehicles.length
-                                                            //       }{" "}
-                                                            //       Cars Available
-                                                            //     </PlaceDescription>
-                                                            //   </TextPlacesWrapper>
-                                                            // </TouchablePlace>
-                                                            <></>
-                                                        ) : (
-                                                            <TouchablePlace
-                                                                //Setting from Search
-                                                                onPress={async () => {
-                                                                    Keyboard.dismiss();
-                                                                    await axios
-                                                                        .get(
-                                                                            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=${google_key}`, {
-                                                                                headers: {
-                                                                                    'X-Ios-Bundle-Identifier': "org.name.greenclick"
+                                    </MenuContainer>
+                                    {isSearching ? (
+                                        <PlaceCenter>
+                                            <ActivityIndicator size="small"></ActivityIndicator>
+                                        </PlaceCenter>
+                                    ) : (
+                                        <BottomSheetFlatList
+                                            style={{
+                                                backgroundColor: "none",
+                                            }}
+                                            scrollEnabled={true}
+                                            renderItem={({ item }) => {
+                                                return (
+                                                    <TouchWrap>
+                                                        {places ? (
+                                                            <View>
+                                                                {hotelQueries.isFetched &&
+                                                                    hotelQueries.data.hotels?.find(
+                                                                        (e) =>
+                                                                            e.address ===
+                                                                            item.structured_formatting.secondary_text
+                                                                    ) ? (
+                                                                    // <TouchablePlace
+                                                                    //   onPress={() => {
+                                                                    //     setSelectedHotel(
+                                                                    //       hotelQueries.data.hotels.find(
+                                                                    //         (e) =>
+                                                                    //           e.address ===
+                                                                    //           item.structured_formatting
+                                                                    //             .secondary_text
+                                                                    //       )
+                                                                    //     );
+                                                                    //     handleSheetChanges(1);
+                                                                    //     setmapRegion({
+                                                                    //       latitude: hotelQueries.data.hotels.find(
+                                                                    //         (e) =>
+                                                                    //           e.address ===
+                                                                    //           item.structured_formatting
+                                                                    //             .secondary_text
+                                                                    //       ).coordinates.latitude,
+                                                                    //       longitude: hotelQueries.data.hotels.find(
+                                                                    //         (e) =>
+                                                                    //           e.address ===
+                                                                    //           item.structured_formatting
+                                                                    //             .secondary_text
+                                                                    //       ).coordinates.longitude,
+                                                                    //       latitudeDelta: 0.002,
+                                                                    //       longitudeDelta: 0.002,
+                                                                    //     });
+                                                                    //   }}
+                                                                    // >
+                                                                    //   <Image
+                                                                    //     style={{
+                                                                    //       maxHeight: 40,
+                                                                    //       maxWidth: 24,
+                                                                    //       marginRight: 15,
+                                                                    //     }}
+                                                                    //     resizeMode="contain"
+                                                                    //     source={require("../../../../assets/pin.png")}
+                                                                    //   ></Image>
+                                                                    //   <TextPlacesWrapper>
+                                                                    //     <FlexRowCon>
+                                                                    //       <PlacesTitle style={{ color: "#4aaf6e" }}>
+                                                                    //         {item.structured_formatting.main_text}
+                                                                    //       </PlacesTitle>
+                                                                    //     </FlexRowCon>
+                                                                    //     <PlaceDescription>
+                                                                    //       {
+                                                                    //         item.structured_formatting
+                                                                    //           .secondary_text
+                                                                    //       }
+                                                                    //     </PlaceDescription>
+                                                                    //     <PlaceDescription style={{ paddingTop: 5 }}>
+                                                                    //       {
+                                                                    //         hotelQueries.data.hotels.find(
+                                                                    //           (e) =>
+                                                                    //             e.address ===
+                                                                    //             item.structured_formatting
+                                                                    //               .secondary_text
+                                                                    //         ).vehicles.length
+                                                                    //       }{" "}
+                                                                    //       Cars Available
+                                                                    //     </PlaceDescription>
+                                                                    //   </TextPlacesWrapper>
+                                                                    // </TouchablePlace>
+                                                                    <></>
+                                                                ) : (
+                                                                    <TouchablePlace
+                                                                        //Setting from Search
+                                                                        onPress={async () => {
+                                                                            Keyboard.dismiss();
+                                                                            await axios
+                                                                                .get(
+                                                                                    `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=${google_key}`, {
+                                                                                    headers: {
+                                                                                        'X-Ios-Bundle-Identifier': "org.name.greenclick"
+                                                                                    }
                                                                                 }
-                                                                            }
-                                                                        )
-                                                                        .then((res) => {
-                                                                            console.log()
-                                                                            handleSheetChanges(0);
-                                                                            setmapRegion({
-                                                                                latitude:
-                                                                                    res.data.result.geometry.location
-                                                                                        .lat,
-                                                                                longitude:
-                                                                                    res.data.result.geometry.location
-                                                                                        .lng,
-                                                                                latitudeDelta: 0.1,
-                                                                                longitudeDelta: 0.1,
-                                                                            });
-                                                                        });
-                                                                    setSearch("");
-                                                                    //res.data.result.geometry.location.lat
-                                                                }}
-                                                            >
-                                                                <TextPlacesWrapper padding>
-                                                                    <PlaceDescription
-                                                                        style={{
-                                                                            color: "#3B414B570",
-                                                                            marginBottom: 4,
+                                                                                )
+                                                                                .then((res) => {
+                                                                                    console.log()
+                                                                                    handleSheetChanges(0);
+                                                                                    setmapRegion({
+                                                                                        latitude:
+                                                                                            res.data.result.geometry.location
+                                                                                                .lat,
+                                                                                        longitude:
+                                                                                            res.data.result.geometry.location
+                                                                                                .lng,
+                                                                                        latitudeDelta: 0.1,
+                                                                                        longitudeDelta: 0.1,
+                                                                                    });
+                                                                                });
+                                                                            setSearch("");
+                                                                            //res.data.result.geometry.location.lat
                                                                         }}
                                                                     >
-                                                                        Hotels Nearby
-                                                                    </PlaceDescription>
-                                                                    <PlacesTitle>
-                                                                        {item.structured_formatting.main_text}
-                                                                    </PlacesTitle>
+                                                                        <TextPlacesWrapper padding>
+                                                                            <PlaceDescription
+                                                                                style={{
+                                                                                    color: "#3B414B570",
+                                                                                    marginBottom: 4,
+                                                                                }}
+                                                                            >
+                                                                                Hotels Nearby
+                                                                            </PlaceDescription>
+                                                                            <PlacesTitle>
+                                                                                {item.structured_formatting.main_text}
+                                                                            </PlacesTitle>
+                                                                            <PlaceDescription>
+                                                                                {
+                                                                                    item.structured_formatting
+                                                                                        .secondary_text
+                                                                                }
+                                                                            </PlaceDescription>
+                                                                        </TextPlacesWrapper>
+                                                                    </TouchablePlace>
+                                                                )}
+                                                            </View>
+                                                        ) : (
+                                                            <TouchablePlace
+                                                                onPress={() => {
+                                                                    setSelectedHotelID(item.id);
+                                                                    setSelectedHotel(item);
+                                                                    handleSheetChanges(1);
+                                                                    Keyboard.dismiss();
+                                                                    setmapRegion({
+                                                                        latitude: item.location.coordinates[1],
+                                                                        longitude: item.location.coordinates[0],
+                                                                        latitudeDelta: 0.1,
+                                                                        longitudeDelta: 0.1,
+                                                                    });
+                                                                }}
+                                                            >
+                                                                <Image
+                                                                    style={{ maxHeight: 40, maxWidth: 24 }}
+                                                                    resizeMode="contain"
+                                                                    source={require("../../../../assets/pin.png")}
+                                                                ></Image>
+                                                                <TextPlacesWrapper>
+                                                                    <FlexRowCon>
+                                                                        <PlacesTitle style={{ color: "#4aaf6e" }}>
+                                                                            {item.name}
+                                                                        </PlacesTitle>
+                                                                    </FlexRowCon>
                                                                     <PlaceDescription>
-                                                                        {
-                                                                            item.structured_formatting
-                                                                                .secondary_text
-                                                                        }
+                                                                        {item.address}
+                                                                    </PlaceDescription>
+                                                                    <PlaceDescription style={{ paddingTop: 5 }}>
+                                                                        {item.vehicle_count} Cars Available
                                                                     </PlaceDescription>
                                                                 </TextPlacesWrapper>
                                                             </TouchablePlace>
                                                         )}
-                                                    </View>
-                                                ) : (
-                                                    <TouchablePlace
-                                                        onPress={() => {
-                                                            setSelectedHotelID(item.id);
-                                                            setSelectedHotel(item);
-                                                            handleSheetChanges(1);
-                                                            Keyboard.dismiss();
-                                                            setmapRegion({
-                                                                latitude: item.location.coordinates[1],
-                                                                longitude: item.location.coordinates[0],
-                                                                latitudeDelta: 0.1,
-                                                                longitudeDelta: 0.1,
-                                                            });
-                                                        }}
-                                                    >
-                                                        <Image
-                                                            style={{ maxHeight: 40, maxWidth: 24 }}
-                                                            resizeMode="contain"
-                                                            source={require("../../../../assets/pin.png")}
-                                                        ></Image>
-                                                        <TextPlacesWrapper>
-                                                            <FlexRowCon>
-                                                                <PlacesTitle style={{ color: "#4aaf6e" }}>
-                                                                    {item.name}
-                                                                </PlacesTitle>
-                                                            </FlexRowCon>
-                                                            <PlaceDescription>
-                                                                {item.address}
-                                                            </PlaceDescription>
-                                                            <PlaceDescription style={{ paddingTop: 5 }}>
-                                                                {item.vehicle_count} Cars Available
-                                                            </PlaceDescription>
-                                                        </TextPlacesWrapper>
-                                                    </TouchablePlace>
-                                                )}
-                                            </TouchWrap>
-                                        );
-                                    }}
-                                    data={places}
-                                ></BottomSheetFlatList>
+                                                    </TouchWrap>
+                                                );
+                                            }}
+                                            data={places}
+                                        ></BottomSheetFlatList>
+                                    )}
+                                </View>
                             )}
-                        </View>
-                    )}
-                </DrawerContainer>
-                :
-                <DrawerContainer>
-                {
-                locationLoad ?
-                    <ActivityIndicator size={'small'}></ActivityIndicator>
-                    :
-                    locationStatus == 'granted' ?
-                        <></>
+                        </DrawerContainer>
                         :
-                        <View style={{
-                            paddingLeft: 15,
-                            paddingRight: 15,
-                            paddingTop: 20,
-                            flex: 1
-                        }}>
-                            <Subtitle>Your Location was not found.</Subtitle>
-                            <SubtitleTwo>In order to use the greenclick app, please allow location permissions located in your devices settings. If you have enabled location permissions, please restart the app.</SubtitleTwo>
-                            <TouchableOpacity onPress={() => {
-                                Linking.openSettings()
-                            }}>
-                            <Text style={{ color: "#4aaf6e", fontSize: "16px"}}>Open Location Permissions</Text>
-                        </TouchableOpacity>
-                        </View>
-                }
-                </DrawerContainer>
-                
+                        <DrawerContainer>
+                            {
+                                locationLoad ?
+                                    <ActivityIndicator size={'small'}></ActivityIndicator>
+                                    :
+                                    locationStatus == 'granted' ?
+                                        <></>
+                                        :
+                                        <View style={{
+                                            paddingLeft: 15,
+                                            paddingRight: 15,
+                                            paddingTop: 20,
+                                            flex: 1
+                                        }}>
+                                            <Subtitle>Your Location was not found.</Subtitle>
+                                            <SubtitleTwo>In order to use the greenclick app, please allow location permissions located in your devices settings. If you have enabled location permissions, please restart the app.</SubtitleTwo>
+                                            <TouchableOpacity onPress={() => {
+                                                Linking.openSettings()
+                                            }}>
+                                                <Text style={{ color: "#4aaf6e", fontSize: "16px" }}>Open Location Permissions</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                            }
+                        </DrawerContainer>
 
-            }
-        </BottomSheet>
-        :
-        <></>
+
+                    }
+                </BottomSheet>
+                :
+                <></>
         }
     </MapContainer>
 };
 
 const styles = StyleSheet.create({
     container: {
-      flex: 1,
-      padding: 24,
-      backgroundColor: 'grey',
+        flex: 1,
+        padding: 24,
+        backgroundColor: 'grey',
     },
     contentContainer: {
-      flex: 1,
-      alignItems: 'center',
+        flex: 1,
+        alignItems: 'center',
     },
     input: {
-      fontSize: 16,
-      lineHeight: 20,
+        fontSize: 16,
+        lineHeight: 20,
+        backgroundColor: "#e8e8e8",
+        padding: 20,
+        borderRadius: 8
     },
-  });
+});
 
 export default MapPage;
