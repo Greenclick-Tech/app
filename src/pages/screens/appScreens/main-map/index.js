@@ -10,8 +10,7 @@ import React, {
 import styled from "styled-components";
 import MapView, { Marker } from "react-native-maps";
 import BottomSheet, {
-    BottomSheetFlatList,
-    BottomSheetTextInput,
+    BottomSheetFlatList
 } from "@gorhom/bottom-sheet";
 import {
     View,
@@ -43,6 +42,7 @@ import RequestHandler from "../../../../helpers/api/rest_handler";
 import Constants from "expo-constants";
 import CarLoad from "../../../../components/car-load";
 import useDebounce from "../../../../helpers/hooks/useDebounce";
+import { BottomSheetTextInput } from '@gorhom/bottom-sheet'
 
 const MapContainer = styled.View`
   flex: 1;
@@ -667,6 +667,7 @@ const VehicleList = ({
 
 const MapPage = ({ route, navigation, props }) => {
     const isFocused = useIsFocused();
+    const [loadIn, setLoadIn] = useState(false)
     const [selectedHotel, setSelectedHotel] = useState();
     const [index, setIndex] = useState(0);
     const [locationLoad, setLocationLoad] = useState(true);
@@ -795,6 +796,10 @@ const MapPage = ({ route, navigation, props }) => {
             longitudeDelta: region.longitudeDelta,
         });
     };
+
+    useEffect(()=> {
+        setLoadIn(true)
+    }, [])
 
     const onSelectTimeSlot = (markup, start, end) => {
         let updatedTimeSlots = [];
@@ -1419,7 +1424,8 @@ const MapPage = ({ route, navigation, props }) => {
                 );
             })}
         </MapView>
-
+        {
+        loadIn ?
         <BottomSheet
             ref={bottomSheetRef}
             index={index}
@@ -1449,32 +1455,22 @@ const MapPage = ({ route, navigation, props }) => {
                                         flexDirection: "row",
                                         alignItems: "center",
                                         backgroundColor: "#e8e8e8",
-                                        paddingTop: 20,
-                                        paddingBottom: 20,
-                                        paddingLeft: 15,
-                                        paddingRight: 20,
-                                        width: "100%",
                                         borderRadius: 20,
+                                        padding: 20
                                     }}
                                 >
-                                    <Ionicons
+                                    {/* <Ionicons
                                         name={"search"}
                                         size={20}
                                         color={"#3B414B80"}
-                                    ></Ionicons>
-                                    <BottomSheetTextInput
                                         style={{
-                                            fontSize: 16,
-                                            lineHeight: 20,
-                                            height: "100%",
-                                            width: "100%",
-                                            paddingLeft: 10,
-                                            paddingRight: 10,
+                                            paddingLeft: 20,
                                         }}
+                                    ></Ionicons> */}
+                                    <BottomSheetTextInput
+                                        style={styles.input}
                                         placeholder={"Enter a hotel, airport, or address"}
                                         placeholderTextColor={"#494d5280"}
-                                        accessibilityTraits
-                                        keyboardBehavior="fillParent"
                                         clearButtonMode="always"
                                         onClear={() => {
                                             setSearch("");
@@ -1483,7 +1479,7 @@ const MapPage = ({ route, navigation, props }) => {
                                             setSearch(e);
                                         }}
                                     />
-                                    <View>
+                                    {/* <View>
                                         {hotelQueries.isLoading ? (
                                             <ActivityIndicator size={"small"}></ActivityIndicator>
                                         ) : hotelQueries.isError ? (
@@ -1495,7 +1491,7 @@ const MapPage = ({ route, navigation, props }) => {
                                         ) : (
                                             <></>
                                         )}
-                                    </View>
+                                    </View> */}
                                 </View>
                             )}
                         </View>
@@ -1975,6 +1971,9 @@ const MapPage = ({ route, navigation, props }) => {
 
             }
         </BottomSheet>
+        :
+        <></>
+        }
     </MapContainer>
 };
 
@@ -1989,13 +1988,8 @@ const styles = StyleSheet.create({
       alignItems: 'center',
     },
     input: {
-      marginTop: 8,
-      marginBottom: 10,
-      borderRadius: 10,
       fontSize: 16,
       lineHeight: 20,
-      padding: 8,
-      backgroundColor: 'rgba(151, 151, 151, 0.25)',
     },
   });
 
