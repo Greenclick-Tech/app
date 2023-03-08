@@ -24,6 +24,7 @@ import {
     ActivityIndicator,
     Animated,
     ScrollView,
+    Linking,
     FlatList,
     Dimensions,
 } from "react-native";
@@ -291,6 +292,15 @@ const PriceMain = styled.Text`
   color: #3b414b;
   font-weight: 600;
   font-size: 16px;
+`;
+
+const Subtitle = styled.Text`
+  color: ${(props) => (props.color ? "#ffffff" : "#494d52")};
+  font-weight: 500;
+  font-size: 20px;
+  padding-bottom: ${(props) => (props.margin ? "5px" : "10px")};
+  margin-left: 0;
+  text-align: ${(props) => (props.alignCenter ? "center" : null)};
 `;
 
 const PriceHour = styled.Text`
@@ -703,6 +713,8 @@ const MapPage = ({ route, navigation, props }) => {
     const getLocation = async () => {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
+            setLocationLoad(false)
+            setLocationStatus(status)
             return;
         }
         //obtaining the users location
@@ -1036,7 +1048,7 @@ const MapPage = ({ route, navigation, props }) => {
                 .get(
                     `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchPlaces}&&location=${location.coords.latitude}%2C${location.coords.longitude}&&radius=1000&key=${google_key}`, {
                         headers: {
-                            'X-Ios-Bundle-Identifier': "org.name.greenclick"
+                            'X-Ios-Bundle-Identifier': Constants.expoConfig.ios.bundleIdentifier
                         }
                     }
                 )
@@ -1947,6 +1959,11 @@ const MapPage = ({ route, navigation, props }) => {
                         }}>
                             <Subtitle>Your Location was not found.</Subtitle>
                             <SubtitleTwo>In order to use the greenclick app, please allow location permissions located in your devices settings.</SubtitleTwo>
+                            <TouchableOpacity onPress={() => {
+                                Linking.openSettings()
+                            }}>
+                            <Text style={{ color: "#4aaf6e", fontSize: "16px"}}>Open Location Permissions</Text>
+                        </TouchableOpacity>
                         </View>
 
             }

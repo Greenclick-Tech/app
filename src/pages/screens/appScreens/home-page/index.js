@@ -8,7 +8,10 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   RefreshControl,
-  Alert
+  Alert,
+  Button,
+  Text,
+  Linking
 } from "react-native";
 import * as Location from "expo-location";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -261,6 +264,8 @@ const HomePage = ({ navigation, route }) => {
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
+      setLocationLoad(false)
+      setLocationStatus(status)
       return;
     }
     //obtaining the users location
@@ -884,8 +889,13 @@ const HomePage = ({ navigation, route }) => {
                   paddingRight: 15,
                   paddingTop: 20
                 }}>
-                  <Subtitle>Your Location was not found.</Subtitle>
+                  <Subtitle>Nearest Hotels with Greenclick</Subtitle>
                   <SubtitleTwo>In order to use the greenclick app, please allow location permissions located in your devices settings.</SubtitleTwo>
+                  <TouchableOpacity onPress={() => {
+                                Linking.openSettings()
+                            }}>
+                    <Text style={{ color: "#4aaf6e", fontSize: "16px"}}>Open Location Permissions</Text>
+                  </TouchableOpacity>
                 </View>
 
         }

@@ -133,7 +133,7 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
                             title={"Enable Notifications in App Settings"}
                             color={'#ffffff'}
                             onPress={() => {
-                                Linking.openSettings
+                                Linking.openSettings()
                             }}
                         >
                         </CustomButton>
