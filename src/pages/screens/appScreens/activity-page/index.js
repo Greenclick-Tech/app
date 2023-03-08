@@ -1,5 +1,5 @@
 import React, { useState, useContext, useLayoutEffect, useCallback, useEffect } from "react";
-import { ScrollView, View, ActivityIndicator, RefreshControl, } from "react-native";
+import { ScrollView, View, ActivityIndicator, RefreshControl, Linking, TouchableOpacity, Text } from "react-native";
 import styled from "styled-components";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useQuery, useQueries } from "@tanstack/react-query";
@@ -367,6 +367,8 @@ const ActivityPage = ({ navigation }) => {
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
+      setLocationLoad(false)
+      setLocationStatus(status)
       return;
     }
     //obtaining the users location
@@ -476,12 +478,15 @@ const ActivityPage = ({ navigation }) => {
                 <></>
                 :
                 <View style={{
-                  paddingLeft: 15,
-                  paddingRight: 15,
                   paddingTop: 20
                 }}>
                   <Subtitle>Your Location was not found.</Subtitle>
                   <SubtitleTwo>In order to use the greenclick app, please allow location permissions located in your devices settings.</SubtitleTwo>
+                  <TouchableOpacity onPress={() => {
+                                Linking.openSettings()
+                            }}>
+                    <Text style={{ color: "#4aaf6e", fontSize: "16px"}}>Open Location Permissions</Text>
+                  </TouchableOpacity>
                 </View>
         }
       </ScrollView>

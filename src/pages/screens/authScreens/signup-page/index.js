@@ -333,7 +333,7 @@ useLayoutEffect(() => {
               useOnPlatform: 'all',
               url: 'https://maps.googleapis.com/maps/api',
               headers: {
-                'X-Ios-Bundle-Identifier': "org.name.greenclick"
+                'X-Ios-Bundle-Identifier': Constants.expoConfig.ios.bundleIdentifier
               }
             }}
           />
