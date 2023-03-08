@@ -1959,8 +1959,10 @@ const styles = StyleSheet.create({
         fontSize: 16,
         lineHeight: 20,
         backgroundColor: "#e8e8e8",
-        padding: 20,
-        borderRadius: 8
+        borderRadius: 8,
+        height: 50,
+        paddingLeft: 10,
+        
     },
 });
 
