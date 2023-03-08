@@ -483,9 +483,9 @@ const ActivityPage = ({ navigation }) => {
                   <Subtitle>Your Location was not found.</Subtitle>
                   <SubtitleTwo>In order to use the greenclick app, please allow location permissions located in your devices settings.</SubtitleTwo>
                   <TouchableOpacity onPress={() => {
-                                Linking.openSettings()
-                            }}>
-                    <Text style={{ color: "#4aaf6e", fontSize: "16px"}}>Open Location Permissions</Text>
+                    Linking.openSettings()
+                  }}>
+                    <Text style={{ color: "#4aaf6e", fontSize: "16px" }}>Open Location Permissions</Text>
                   </TouchableOpacity>
                 </View>
         }
