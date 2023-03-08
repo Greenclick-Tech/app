@@ -15,7 +15,7 @@ import endpoints from "../../../../constants/endpoints";
 import RequestHandler from "../../../../helpers/api/rest_handler";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from "@expo/vector-icons/Ionicons";
-import Constants from "expo-constants";
+import Constants from 'expo-constants';
 
 const Subtitle = styled.Text`
   color: #3b414b;
@@ -333,7 +333,7 @@ useLayoutEffect(() => {
               useOnPlatform: 'all',
               url: 'https://maps.googleapis.com/maps/api',
               headers: {
-                'X-Ios-Bundle-Identifier': Constants.expoConfig.ios.bundleIdentifier
+                'X-Ios-Bundle-Identifier': "org.name.greenclick"
               }
             }}
           />

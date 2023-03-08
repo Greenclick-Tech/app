@@ -39,7 +39,7 @@ import CalendarPicker from "react-native-calendar-picker";
 import { useQuery, useQueries } from "@tanstack/react-query";
 import endpoints from "../../../../constants/endpoints";
 import RequestHandler from "../../../../helpers/api/rest_handler";
-import Constants from "expo-constants";
+import Constants from 'expo-constants';
 import CarLoad from "../../../../components/car-load";
 import useDebounce from "../../../../helpers/hooks/useDebounce";
 import { BottomSheetTextInput } from '@gorhom/bottom-sheet'
@@ -1053,7 +1053,7 @@ const MapPage = ({ route, navigation, props }) => {
                 .get(
                     `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchPlaces}&&location=${location.coords.latitude}%2C${location.coords.longitude}&&radius=1000&key=${google_key}`, {
                     headers: {
-                        'X-Ios-Bundle-Identifier': Constants.expoConfig.ios.bundleIdentifier
+                        'X-Ios-Bundle-Identifier': "org.name.greenclick"
                     }
                 }
                 )
@@ -1959,8 +1959,10 @@ const styles = StyleSheet.create({
         fontSize: 16,
         lineHeight: 20,
         backgroundColor: "#e8e8e8",
-        padding: 20,
-        borderRadius: 8
+        borderRadius: 8,
+        height: 50,
+        paddingLeft: 10,
+        
     },
 });
 
