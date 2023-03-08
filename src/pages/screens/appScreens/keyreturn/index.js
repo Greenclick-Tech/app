@@ -40,6 +40,13 @@ const Image = styled.Image`
   margin-bottom: 30px;
 `;
 
+const SubtitleTwo = styled.Text`
+  font-size: 15px;
+  text-align: center;
+  color: #fff;
+  padding-bottom: 30px;
+`;
+
 const KeyReturn = ({ route, navigation }) => {
   const { user, setLocation, setLocationStatus, location, locationStatus } = useContext(Context);
   const [page, setPage] = useState(0);
@@ -57,6 +64,8 @@ const KeyReturn = ({ route, navigation }) => {
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
+        setLocationLoad(false)
+        setLocationStatus(status)
         return;
     }
     //obtaining the users location
