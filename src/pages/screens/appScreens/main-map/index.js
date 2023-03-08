@@ -1435,7 +1435,6 @@ const MapPage = ({ route, navigation, props }) => {
                     keyboardBehavior={"extend"}
                     keyboardBlurBehavior={"restore"}
                     backgroundStyle={"ViewStyle"}
-
                 >
                     {location ?
                         <DrawerContainer>
@@ -1706,13 +1705,6 @@ const MapPage = ({ route, navigation, props }) => {
                                         {places ? (
                                             <FlexRowConJustify>
                                                 <TitleDrawer>Search Hotels</TitleDrawer>
-                                                {/* <Text
-                    style={{
-                    color: "#00000050",
-                    }}
-                >
-                    {hotelQueries.data.hotels ? hotelQueries.data.hotels.length : 0} Hotels Found
-                </Text> */}
                                             </FlexRowConJustify>
                                         ) : (
                                             <View>
@@ -1923,10 +1915,11 @@ const MapPage = ({ route, navigation, props }) => {
                                             paddingLeft: 15,
                                             paddingRight: 15,
                                             paddingTop: 20,
-                                            flex: 1
+                                            flex: 1,
+                                            height: "100%",
                                         }}>
-                                            <Subtitle>Your Location was not found.</Subtitle>
-                                            <SubtitleTwo>In order to use the greenclick app, please allow location permissions located in your devices settings. If you have enabled location permissions, please restart the app.</SubtitleTwo>
+                                            <Subtitle>Could not find location for Map.</Subtitle>
+                                            <SubtitleTwo>In order to use the greenclick map, please allow location permissions located in your devices settings. If you have enabled location permissions, please restart the app.</SubtitleTwo>
                                             <TouchableOpacity onPress={() => {
                                                 Linking.openSettings()
                                             }}>

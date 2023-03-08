@@ -64,6 +64,8 @@ const KeyRetrival = ({ route, navigation }) => {
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
+        setLocationLoad(false)
+        setLocationStatus(status)
         return;
     }
     //obtaining the users location
