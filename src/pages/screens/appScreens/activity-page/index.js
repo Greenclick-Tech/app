@@ -358,6 +358,7 @@ const ActivityPage = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(() => {
+    getLocation()
     setRefreshing(true);
     setTimeout(() => {
       setRefreshing(false);
@@ -432,10 +433,10 @@ const ActivityPage = ({ navigation }) => {
           <RefreshControl tintColor={"#00000040"} refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <Subtitle>Your Activity</Subtitle>
         {
           location ?
             <View>
+             <Subtitle>Your Activity</Subtitle>
               {userBookings.isLoading ? (
                 <ActivityIndicator size={"small"}></ActivityIndicator>
               ) : userBookings.isError ? (
