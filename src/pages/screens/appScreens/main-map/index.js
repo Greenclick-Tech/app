@@ -26,6 +26,7 @@ import {
     Linking,
     RefreshControl,
     FlatList,
+    Platform,
     Dimensions,
 } from "react-native";
 import * as Location from "expo-location";
@@ -711,7 +712,7 @@ const MapPage = ({ route, navigation, props }) => {
 
     const animateMapRegion = new Animated.Value(0);
 
-    const google_key = "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w"
+    const key = Platform.OS === 'ios' ? "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w" : "AIzaSyB-PDmtDDoiNi9BcD9Qfb8d5RpX5EficyE"
     //Location
 
     const getLocation = async () => {
@@ -1054,7 +1055,7 @@ const MapPage = ({ route, navigation, props }) => {
         const delaySearch = setTimeout(() => {
             axios
                 .get(
-                    `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchPlaces}&&location=${location.coords.latitude}%2C${location.coords.longitude}&&radius=1000&key=${google_key}`, {
+                    `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchPlaces}&&location=${location.coords.latitude}%2C${location.coords.longitude}&&radius=1000&key=${key}`, {
                     headers: {
                         'X-Ios-Bundle-Identifier': "org.name.greenclick"
                     }
@@ -1865,7 +1866,7 @@ const MapPage = ({ route, navigation, props }) => {
                                                                     Keyboard.dismiss();
                                                                     await axios
                                                                         .get(
-                                                                            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=${google_key}`, {
+                                                                            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=${key}`, {
                                                                             headers: {
                                                                                 'X-Ios-Bundle-Identifier': "org.name.greenclick"
                                                                             }
