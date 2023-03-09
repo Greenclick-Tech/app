@@ -92,7 +92,7 @@ const ExtraInfo = ({ navigation, route }) => {
   const today = new Date();
   const [show, setShow] = useState(false);
   const { setLocation, setLocationStatus, pushToken, setPushToken, setUser } = useContext(Context);
-  const key = "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w"
+  const key = Platform.OS === 'ios' ? "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w" : "AIzaSyB-PDmtDDoiNi9BcD9Qfb8d5RpX5EficyE"
 
   const showDatepicker = () => {
     setShow(true)
