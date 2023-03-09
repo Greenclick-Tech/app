@@ -258,6 +258,7 @@ const HomePage = ({ navigation, route }) => {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
+    getLocation()
     activeBooking.refetch()
   }, []);
 
