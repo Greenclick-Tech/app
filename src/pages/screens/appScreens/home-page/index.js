@@ -46,7 +46,7 @@ const Title = styled.Text`
   font-weight: 500;
   font-size: 26px;
   padding-left: 10px;
-  text-align: ${(props) => (props.alignCenter ? "center" : null)};
+  text-align: ${(props) => (props.alignCenter ? "center" : "left")};
 `;
 
 const Subtitle = styled.Text`
@@ -55,7 +55,7 @@ const Subtitle = styled.Text`
   font-size: 20px;
   padding-bottom: ${(props) => (props.margin ? "5px" : "10px")};
   margin-left: 0;
-  text-align: ${(props) => (props.alignCenter ? "center" : null)};
+  text-align: ${(props) => (props.alignCenter ? "center" : "left")};
 `;
 
 const SubtitleTwo = styled.Text`
