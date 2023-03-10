@@ -303,7 +303,7 @@ const Subtitle = styled.Text`
   font-size: 20px;
   padding-bottom: ${(props) => (props.margin ? "5px" : "10px")};
   margin-left: 0;
-  text-align: ${(props) => (props.alignCenter ? "center" : null)};
+  text-align: ${(props) => (props.alignCenter ? "center" : "left")};
 `;
 
 const PriceHour = styled.Text`
