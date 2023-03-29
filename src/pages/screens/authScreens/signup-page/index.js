@@ -214,7 +214,6 @@ useLayoutEffect(() => {
         alignItems: "center",
         backgroundColor: "#f7f7f7",
       }}
-      edges={["top", "left", "right"]}
     >
       <KeyboardAwareScrollView
         style={{ flex: 1, width: "100%", paddingLeft: 20, paddingRight: 20 }}
@@ -333,7 +332,9 @@ useLayoutEffect(() => {
               useOnPlatform: 'all',
               url: 'https://maps.googleapis.com/maps/api',
               headers: {
-                'X-Ios-Bundle-Identifier': "org.name.greenclick"
+                'X-Ios-Bundle-Identifier': "org.name.greenclick",
+                "X-Android-Package": "org.name.greenclick",
+                "X-Android-Cert": "1D:AE:C8:79:1F:A9:EA:E0:B0:45:CB:1D:AC:A6:2D:D1:6B:FE:58:DD"
               }
             }}
           />
