@@ -46,20 +46,20 @@ const Title = styled.Text`
   font-weight: 500;
   font-size: 26px;
   padding-left: 10px;
-  text-align: ${(props) => (props.alignCenter ? "center" : "left")};
+  text-align: ${(props) => (props.isAlignCenter ? "center" : "left")};
 `;
 
 const Subtitle = styled.Text`
   color: ${(props) => (props.color ? "#ffffff" : "#494d52")};
   font-weight: 500;
   font-size: 20px;
-  padding-bottom: ${(props) => (props.margin ? "5px" : "10px")};
+  padding-bottom: ${(props) => (props.isMargin ? "5px" : "10px")};
   margin-left: 0;
-  text-align: ${(props) => (props.alignCenter ? "center" : "left")};
+  text-align: ${(props) => (props.isAlignCenter ? "center" : "left")};
 `;
 
 const SubtitleTwo = styled.Text`
-  color: ${(props) => (props.white ? "#FFF" : "#494d52")};
+  color: ${(props) => (props.isWhite ? "#FFF" : "#494d52")};
   font-weight: 300;
   font-size: 13px;
   margin-bottom: 10px;
@@ -129,8 +129,8 @@ const NearbyHotel = styled.View`
 `;
 
 const ItemWrapper = styled.View`
-  margin-left: ${(props) => (props.left ? "5px" : "0px")};
-  margin-right: ${(props) => (props.right ? "5px" : "0px")};
+  margin-left: ${(props) => (props.isLeft ? "5px" : "0px")};
+  margin-right: ${(props) => (props.isRight ? "5px" : "0px")};
   flex: 1;
 `;
 
@@ -141,7 +141,7 @@ const ItemMenu = styled.TouchableOpacity`
   margin-bottom: 10px;
   padding: 20px;
   height: 80px;
-  background-color: ${(props) => (props.color ? "#4aaf6e" : "#4aaf6e20")};
+  background-color: ${(props) => (props.isColor ? "#4aaf6e" : "#4aaf6e20")};
 `;
 
 const TextItem = styled.Text`
@@ -179,10 +179,6 @@ const ActiveBookingTab = styled.TouchableOpacity`
   border-radius: 10px;
   background-color: #fff;
   overflow: hidden;
-  shadow-color: #000;
-  shadow-offset: {width: 0, height: 2};
-  shadow-opacity: 0.8;
-  elevation: 1;
 `;
 
 const ActiveBookingImage = styled.Image`
@@ -192,8 +188,8 @@ const ActiveBookingImage = styled.Image`
 `;
 
 const ActiveBookingTextContainer = styled.Text`
-  margin-bottom: ${(props) => (props.margin ? props.margin : "5px")};
-  color: ${(props) => (props.color ? props.color : "#494d52")};
+  margin-bottom: ${(props) => (props.isMargin ? props.isMargin : "5px")};
+  color: ${(props) => (props.isColor ? props.isColor : "#494d52")};
   font-weight: ${(props) => (props.bold ? "600" : "400")};
   font-size: ${(props) => (props.size ? "16px" : "14px")};
 `;
@@ -527,14 +523,14 @@ const HomePage = ({ navigation, route }) => {
                 </SubtitleTwo>
             ) : (
               <ActiveBookingContainer>
-                <Subtitle color>Your Active Booking</Subtitle>
+                <Subtitle isColor>Your Active Booking</Subtitle>
                 {activeBooking.isLoading ? (
                   <ActivityIndicator
                     style={{ paddingTop: 10, paddingBottom: 10 }}
                     size={"small"}
                   ></ActivityIndicator>
                 ) : activeBooking.isError ? (
-                  <SubtitleTwo white>
+                  <SubtitleTwo isWhite>
                     Error loading your active booking. Please contact support at
                     https://support.greenclick.app
                   </SubtitleTwo>
@@ -593,7 +589,7 @@ const HomePage = ({ navigation, route }) => {
                         <ActiveBookingTextContainer size bold>
                           {getVehicle.data.vehicle.model}
                         </ActiveBookingTextContainer>
-                        <ActiveBookingTextContainer size margin={"8px"}>
+                        <ActiveBookingTextContainer size isMargin={"8px"}>
                           {getHotel.data.hotel.name}
                         </ActiveBookingTextContainer>
                         <View
@@ -622,7 +618,7 @@ const HomePage = ({ navigation, route }) => {
                             </ActiveBookingTextContainer>
                           </View>
 
-                          <ActiveBookingTextContainer margin={"12px"}>
+                          <ActiveBookingTextContainer isMargin={"12px"}>
                             {moment(activeBooking.data.bookings.start_date).format(
                               "LLL"
                             )}
@@ -644,7 +640,7 @@ const HomePage = ({ navigation, route }) => {
                               End
                             </ActiveBookingTextContainer>
                           </View>
-                          <ActiveBookingTextContainer margin={"10px"}>
+                          <ActiveBookingTextContainer isMargin={"10px"}>
                             {moment(activeBooking.data.bookings.end_date).format(
                               "LLL"
                             )}
@@ -653,23 +649,23 @@ const HomePage = ({ navigation, route }) => {
                             // Check if Rental Period has Started or Not
                             moment(currentDate).isBefore(moment(activeBooking.data.bookings.start_date)) ?
                               //Has Not Started
-                              <ActiveBookingTextContainer bold color={"#42ad56"}>
+                              <ActiveBookingTextContainer bold isColor={"#42ad56"}>
                                 Your booking period has not started just yet.
                               </ActiveBookingTextContainer>
                             :
                               moment(currentDate).isBefore(moment(activeBooking.data.bookings.end_date)) ?
                                 //Has Started
                                 "received_keys" in activeBooking.data.bookings ?
-                                <ActiveBookingTextContainer bold color={"#42ad56"}>
+                                <ActiveBookingTextContainer bold isColor={"#42ad56"}>
                                   Your booking period is activated.
                                 </ActiveBookingTextContainer>
                                 :
-                                <ActiveBookingTextContainer bold color={"#42ad56"}>
+                                <ActiveBookingTextContainer bold isColor={"#42ad56"}>
                                   Your booking period is ready to be activated.
                                 </ActiveBookingTextContainer>
                               :
                               //Has Ended
-                              <ActiveBookingTextContainer bold color={"#42ad56"}>
+                              <ActiveBookingTextContainer bold isColor={"#42ad56"}>
                                   Your booking period is overdue. Please return your vehicles keys immediately.
                               </ActiveBookingTextContainer>
                           }
@@ -724,7 +720,7 @@ const HomePage = ({ navigation, route }) => {
           )
         }
         <StaticContainer>
-          <Subtitle margin>Rent a Car, E-Bike & More</Subtitle>
+          <Subtitle isMargin>Rent a Car, E-Bike & More</Subtitle>
           <SubtitleTwo>
             Rent a car, e-bike, or other mobility solutions at your hotel using
             greenclick.
@@ -738,8 +734,8 @@ const HomePage = ({ navigation, route }) => {
             <SearchBarPlaceholder>Search for Hotels</SearchBarPlaceholder>
           </SearchBar>
           <ItemContainer>
-            <ItemWrapper right>
-              <ItemMenu color onPress={()=> {
+            <ItemWrapper isRight>
+              <ItemMenu isColor onPress={()=> {
                 navigation.navigate('Map')
               }}>
                 <Ionicons
@@ -750,7 +746,7 @@ const HomePage = ({ navigation, route }) => {
               </ItemMenu>
               <TextItem>Vehicles</TextItem>
             </ItemWrapper>
-            <ItemWrapper left right>
+            <ItemWrapper isLeft isRight>
               <ItemMenu onPress={()=> {
                 navigation.navigate('Map')
               }}>
@@ -762,7 +758,7 @@ const HomePage = ({ navigation, route }) => {
               </ItemMenu>
               <TextItem>E-Bikes</TextItem>
             </ItemWrapper>
-            <ItemWrapper right left>
+            <ItemWrapper isRight isLeft>
               <ItemMenu onPress={()=> {
                 Alert.alert('Coming Soon', "Events currently in construction and is coming soon to greenclick.")
               }}>
@@ -774,7 +770,7 @@ const HomePage = ({ navigation, route }) => {
               </ItemMenu>
               <TextItem>Events</TextItem>
             </ItemWrapper>
-            <ItemWrapper left>
+            <ItemWrapper isLeft>
               <ItemMenu onPress={()=> {
                 navigation.navigate('Support')
               }}>

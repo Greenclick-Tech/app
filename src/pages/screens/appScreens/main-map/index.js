@@ -128,8 +128,8 @@ const TouchWrap = styled.View`
   padding: 5px 20px;
   background-color: #fff;
   margin-bottom: 15px;
-  display: ${(props) => (props.outline ? "none" : "flex")};
-  background-color: ${(props) => (props.outline ? "#fad" : "#fff")};
+  display: ${(props) => (props.isOutline ? "none" : "flex")};
+  background-color: ${(props) => (props.isOutline ? "#fad" : "#fff")};
 `;
 
 const TouchablePlace = styled.TouchableOpacity`
@@ -146,7 +146,7 @@ const TouchablePlace = styled.TouchableOpacity`
 const TextPlacesWrapper = styled.View`
   width: 100%;
   flex: 1;
-  padding-left: ${(props) => (props.padding ? "0px" : "20px")};
+  padding-left: ${(props) => (props.isPadding ? "0px" : "20px")};
 `;
 
 const PlacesTitle = styled.Text`
@@ -301,7 +301,7 @@ const Subtitle = styled.Text`
   color: ${(props) => (props.color ? "#ffffff" : "#494d52")};
   font-weight: 500;
   font-size: 20px;
-  padding-bottom: ${(props) => (props.margin ? "5px" : "10px")};
+  padding-bottom: ${(props) => (props.isMargin ? "5px" : "10px")};
   margin-left: 0;
   text-align: ${(props) => (props.alignCenter ? "center" : "left")};
 `;
@@ -326,7 +326,7 @@ const Tab = styled.TouchableOpacity`
   border-bottom-width: 3px;
   border-bottom-color: ${(props) => (props.color ? "#4aaf6e" : "#AAAAAA80")};
   flex-direction: row;
-  display: ${props => props.display ? "none" : "block"};
+  display: ${(props) => (props.isDisplay ? "none" : "flex")};
 `;
 
 const TabText = styled.Text`
@@ -342,7 +342,7 @@ const DateItem = styled.TouchableOpacity`
   background-color: ${(props) => (props.booked ? "#AAAAAA50" : "#FFFFFF")};
   border-color: ${(props) => (props.selected ? "#4aaf6e" : "#00000010")};
   margin-bottom: 10px;
-  display: ${(props) => (props.display ? "none" : "flex")};
+  display: ${(props) => (props.isDisplay ? "none" : "flex")};
 `;
 
 const DateText = styled.Text`
@@ -559,7 +559,7 @@ const VehicleList = ({
                     (booking) => booking.data?.id === item.id
                 ) ?? {};
                 return (
-                    <TouchWrap outline={matchingVehicle.data?.bookings != null && matchingVehicle.data.bookings.length > 0} key={item.id}>
+                    <TouchWrap isOutline={matchingVehicle.data?.bookings != null && matchingVehicle.data.bookings.length > 0} key={item.id}>
                         <TouchableCar
                             activeOpacity={1}
                             onPress={() => {
@@ -714,7 +714,7 @@ const MapPage = ({ route, navigation, props }) => {
 
     const key = Platform.OS === 'ios' ? "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w" : "AIzaSyB-PDmtDDoiNi9BcD9Qfb8d5RpX5EficyE"
     //Location
-
+    
     const getLocation = async () => {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
@@ -755,16 +755,14 @@ const MapPage = ({ route, navigation, props }) => {
         keepPreviousData: true,
         onSuccess: (data) => {
             setCarQueries(data.vehicles)
-            if (!data.vehicles) {
-                setNoVehicles(true)
-                setSelection('micro_mobility')
-            }
+            // if (!data.vehicles) {
+            //     setNoVehicles(true)
+            //     setSelection('micro_mobility')
+            // }
         },
         staleTime: 10 * (60 * 1000),
         cacheTime: 15 * (60 * 1000),
     });
-
-
 
     const specificHotelQuery = useQuery({
         queryKey: ["hotel", selectedHotelID],
@@ -1057,11 +1055,15 @@ const MapPage = ({ route, navigation, props }) => {
                 .get(
                     `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchPlaces}&&location=${location.coords.latitude}%2C${location.coords.longitude}&&radius=1000&key=${key}`, {
                     headers: {
-                        'X-Ios-Bundle-Identifier': "org.name.greenclick"
+                        'X-Ios-Bundle-Identifier': "org.name.greenclick",
+                        "X-Android-Package": "org.name.greenclick",
+                        "X-Android-Cert": "1D:AE:C8:79:1F:A9:EA:E0:B0:45:CB:1D:AC:A6:2D:D1:6B:FE:58:DD"
+
                     }
                 }
                 )
                 .then((res) => {
+                    console.log('error')
                     setPlaces(res.data.predictions);
                 });
             setIsSearching(false);
@@ -1537,7 +1539,7 @@ const MapPage = ({ route, navigation, props }) => {
                                 }}
                             >
                                 An issue occured searching for hotels. Please contact our
-                                support at {"\n"}https://support.greenclick.app/
+                                support at https://support.greenclick.app/
                             </Text>
                         </View>
                     ) : (
@@ -1580,7 +1582,7 @@ const MapPage = ({ route, navigation, props }) => {
                                             </TouchableOpacity>
                                             <TabContainer >
                                                 <Tab
-                                                    display={noVehicles}
+                                                    // isDisplay={noVehicles}
                                                     onPress={() => {
                                                         setVehicleStartDate('')
                                                         setVehicleEndDate('')
@@ -1782,6 +1784,7 @@ const MapPage = ({ route, navigation, props }) => {
                                 <BottomSheetFlatList
                                     style={{
                                         backgroundColor: "none",
+                                        paddingBottom: 10
                                     }}
                                     scrollEnabled={true}
                                     renderItem={({ item }) => {
@@ -1868,7 +1871,9 @@ const MapPage = ({ route, navigation, props }) => {
                                                                         .get(
                                                                             `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=${key}`, {
                                                                             headers: {
-                                                                                'X-Ios-Bundle-Identifier': "org.name.greenclick"
+                                                                                'X-Ios-Bundle-Identifier': "org.name.greenclick",
+                                                                                "X-Android-Package": "org.name.greenclick",
+                                                                                "X-Android-Cert": "1D:AE:C8:79:1F:A9:EA:E0:B0:45:CB:1D:AC:A6:2D:D1:6B:FE:58:DD"
                                                                             }
                                                                         }
                                                                         )
@@ -1890,7 +1895,7 @@ const MapPage = ({ route, navigation, props }) => {
                                                                     //res.data.result.geometry.location.lat
                                                                 }}
                                                             >
-                                                                <TextPlacesWrapper padding>
+                                                                <TextPlacesWrapper isPadding>
                                                                     <PlaceDescription
                                                                         style={{
                                                                             color: "#3B414B570",
