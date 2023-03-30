@@ -1,7 +1,7 @@
 {
   "name": "greenclick",
   "version": "1.0.0",
-  "main": "src/pages/entry-point/index.js",
+  "main": "./src/pages/entry-point/index.js",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
