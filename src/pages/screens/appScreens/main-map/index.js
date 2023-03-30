@@ -1063,7 +1063,6 @@ const MapPage = ({ route, navigation, props }) => {
                 }
                 )
                 .then((res) => {
-                    console.log('error')
                     setPlaces(res.data.predictions);
                 });
             setIsSearching(false);
@@ -1878,7 +1877,7 @@ const MapPage = ({ route, navigation, props }) => {
                                                                         }
                                                                         )
                                                                         .then((res) => {
-                                                                            console.log()
+                                                                            console.log(res)
                                                                             handleSheetChanges(0);
                                                                             setmapRegion({
                                                                                 latitude:
