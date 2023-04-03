@@ -113,7 +113,7 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.greenclick"
+    namespace "org.name.greenclick"
     defaultConfig {
         applicationId 'org.name.greenclick'
         minSdkVersion rootProject.ext.minSdkVersion
