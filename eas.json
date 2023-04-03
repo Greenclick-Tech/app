@@ -7,6 +7,9 @@
       "ios": {
         "resourceClass": "m1-medium"
       },
+      "android": {
+        "image" : "latest"
+      },
       "channel": "production"
     },
     "development": {
