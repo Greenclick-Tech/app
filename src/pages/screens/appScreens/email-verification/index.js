@@ -7,8 +7,7 @@ import RequestHandler from '../../../../helpers/api/rest_handler';
 import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell } from 'react-native-confirmation-code-field';
 import CustomButton from '../../../../components/custom-button';
 import endpoints from '../../../../constants/endpoints';
-import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
+import { useQuery } from "@tanstack/react-query";
 
 const Cont = styled.View`
     flex: 1;
@@ -18,7 +17,18 @@ const Cont = styled.View`
 const Subtitle = styled.Text`
     color: #3B414B;
     font-weight: bold;
-    font-size: 42px;362985
+    font-size: 32px;
+    margin-bottom: 5px;
+`;
+
+const EmailText = styled.Text`
+    color: #3B414B;
+    font-size: 14px;
+    line-height: 20px;
+`;
+
+const Bolding = styled.Text`
+    font-weight: 600;
 `;
 
 const Body = styled.Text`
@@ -70,7 +80,7 @@ const styles = StyleSheet.create({
     },
 });
 
-const PhoneVerifyPage = ({ navigation, route }) => {
+const EmailVerifyPage = ({ navigation, route }) => {
 
     const CELL_COUNT = 6;
     const { setUser, pushToken, setPushToken } = useContext(Context);
@@ -86,93 +96,46 @@ const PhoneVerifyPage = ({ navigation, route }) => {
     const [notification, setNotification] = useState(false);
     const [notificationStatus, setNotificationStatus] = useState()
 
-    async function registerForPushNotificationsAsync() {
-        let token;
-        if (Device.isDevice) {
-          const { status: existingStatus } = await Notifications.getPermissionsAsync();
-          let finalStatus = existingStatus;
-          if (existingStatus !== 'granted') {
-            const { status } = await Notifications.requestPermissionsAsync();
-            finalStatus = status;
-          }
-          if (finalStatus !== 'granted') {
-            return;
-          }
-          token = (await Notifications.getExpoPushTokenAsync()).data;
-        } else {
-            
-        }
-    
-        if (Platform.OS === 'android') {
-          Notifications.setNotificationChannelAsync('default', {
-            name: 'default',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
-          });
-        }
-        return token;
-    }
-
-    useEffect(()=> {
-        if(!pushToken) {
-            registerForPushNotificationsAsync().then(token => {
-                setPushToken(token)
-            });
-        }
-        
-    }, [])
-
 
     //Phone number from previous page
-    const phone = route.params.phone;
 
     const handleRetry = async () => {
         let res = await RequestHandler(
             "post",
             endpoints.VERIFY(),
-            { "phone_number": phone },
+            { "email_address": route.params.email },
             "application/x-www-form-urlencoded",
+            true
         )
-        if (res == 'OK') {
-        } else {
+        console.log(res)
+        if ("error" in res) {
             Alert.alert("An error has occured", res.error.message);
+        } else {
+            Alert.alert("Verifcation Code Sent", `A new verification code was sent to ${route.params.email}. Enter the 6 digit code you will recieve shortly to be verified.`)
         }
     }
 
-    //Verify User. Request returns accessToken
     const handleVerify = async () => {
         let res;
         res = await RequestHandler(
             "post",
-            endpoints.LOGIN(),
-            !pushToken ? {
-                "phone_number": phone,
-                "code": value
-            } :
+            endpoints.VERIFY_EMAIL(),
             {
-                "phone_number": phone,
-                "code": value,
-                "push_token": pushToken
+                "email_address": route.params.email,
+                "code": value
             },
-            "application/x-www-form-urlencoded"
+            "application/x-www-form-urlencoded",
+            true
         );
 
-        if ("error" in res) {
-            setError(res.error.message)
-            if(res.error.status == 404) {
-                setError('')
-                navigation.navigate('Signup', {
-                    phone: phone,
-                    code: value
-                })
-            }
-            
+        if(res == 'OK') {
+            Alert.alert("Your Email has Successfully been Verified.", "You are now able to access all of Greenclick's features")
+            navigation.navigate({
+                name: route.params.origin,
+                params: route.params,
+            })
         } else {
-            await AsyncStorage.setItem("access_token", res.access_token)
-            await AsyncStorage.setItem("refresh_token", res.refresh_token)
-            setUser({access_token: res.access_token, refresh_token: res.refresh_token})
-            navigation.navigate('Home')
+            setError(res.error.message)
         }
     }
 
@@ -183,7 +146,8 @@ const PhoneVerifyPage = ({ navigation, route }) => {
                 keyboardShouldPersistTaps='handled'
                 scrollEnabled={false}
             >
-                <Subtitle>Verify</Subtitle>
+                <Subtitle>Verify your Email</Subtitle>
+                <EmailText>Enter the 6 digit verification code sent to <Bolding>{route.params.email}</Bolding></EmailText>
                 <ButtonContainer>
                     <KeyboardAvoidingView>
                         <CodeField
@@ -209,7 +173,7 @@ const PhoneVerifyPage = ({ navigation, route }) => {
                 </ButtonContainer>
                 <TryAgain onPress={()=> {
                     handleRetry()
-                }}><Body>Didn't recieve a text? <UnderlineText>Tap here to retry.</UnderlineText></Body></TryAgain>
+                }}><Body>Didn't recieve an email? <UnderlineText>Tap here to retry.</UnderlineText></Body></TryAgain>
 
                 {value.length === 6 ?
                     <CustomButton
@@ -237,4 +201,4 @@ const PhoneVerifyPage = ({ navigation, route }) => {
     )
 };
 
-export default PhoneVerifyPage;
+export default EmailVerifyPage;

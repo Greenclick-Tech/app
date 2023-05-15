@@ -28,7 +28,6 @@ const RequestHandler = async (method, endpoint, body = null, contentType = "Appl
             break;
     }
 
-    // console.log(`[DEBUG] ${method.toUpperCase()} ${endpoint}`);
     const resp = await axios(options).catch(async (err) => { 
         if(!err.response) {
             Alert.alert("Error Connecting to Server", `There was an error connecting to our server. Please check our server status at status.greenclick.app.`)
@@ -51,7 +50,7 @@ const RequestHandler = async (method, endpoint, body = null, contentType = "Appl
                     }
                 }
 
-                await AsyncStorage.multiRemove(["access_token", "refresh_token"]).catch((err) => console.log(err))
+                await AsyncStorage.multiRemove(["access_token", "refresh_token"]).catch((err) => Alert.alert("Something went wrong", `An error has occurred unexpectedly, please try again.`))
                 break;
             case 500:
                 Alert.alert("Something went wrong", `An error has occurred unexpectedly, please try again.`);

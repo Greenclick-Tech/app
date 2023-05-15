@@ -380,8 +380,7 @@ const HotelsFound = ({ hotels, onPress }) => {
                     queryKey: ["hotel", item.id],
                     queryFn: () => getSpecificHotel(item.id),
                     staleTime: 10 * (60 * 1000),
-                    cacheTime: 15 * (60 * 1000)
-                };
+                    cacheTime: 15 * (60 * 1000)                };
             }) ?? [],
     });
 
@@ -395,7 +394,8 @@ const HotelsFound = ({ hotels, onPress }) => {
         mapHotels.every((result) => result.isError) &&
         mapHotels.every((result) => result.isError);
 
-    return isLoadHotels ? (
+    return mapHotels.length > 0 ? 
+    isLoadHotels ? (
         <ActivityIndicator size={"small"}></ActivityIndicator>
     ) : isErrHotels ? (
         <Text>Error getting hotels in your radius.</Text>
@@ -454,7 +454,9 @@ const HotelsFound = ({ hotels, onPress }) => {
 
         </View>
 
-    );
+    )
+    :
+    <Text>No hotels found in your radius.</Text>
 };
 
 const VehicleList = ({
@@ -1457,6 +1459,7 @@ const MapPage = ({ route, navigation, props }) => {
                 showsUserLocation={true}
                 showsMyLocationButton={true}
                 region={mapRegion}
+                minZoomLevel={10}
                 rotateEnabled={false}
                 ref={mapRef}
                 onRegionChangeComplete={(Region) => handleRegionChange(Region)}
@@ -1877,7 +1880,6 @@ const MapPage = ({ route, navigation, props }) => {
                                                                         }
                                                                         )
                                                                         .then((res) => {
-                                                                            console.log(res)
                                                                             handleSheetChanges(0);
                                                                             setmapRegion({
                                                                                 latitude:

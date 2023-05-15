@@ -64,7 +64,7 @@ const Support = () => {
                     Linking.openURL(`https://support.greenclick.app`)
                 }}>
                     <Ionicons name='chatbubble-ellipses-outline' size={24}></Ionicons>
-                    <Span>{`https://support.greenclick.app`}</Span>
+                    <Span>{`https://help.greenclick.app`}</Span>
                 </FlexContainer>
             </Container>
         </SafeAreaView>

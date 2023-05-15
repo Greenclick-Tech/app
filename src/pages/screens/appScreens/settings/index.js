@@ -48,7 +48,6 @@ const SettingsMain = ({ navigation }) => {
             undefined,
             true
         );
-        console.log(res)
         if (res == 'OK') {
             AsyncStorage.multiRemove(["access_token", "refresh_token"]).catch((err) => Alert.alert("Error Logging out. There was an error preventing you from logging out, please try again."))
             setUser()
@@ -145,10 +144,10 @@ const SettingsMain = ({ navigation }) => {
                         ]);
                     }}>
                         <View style={{ flexDirection: "row", alignItems: "center" }}>
-                            <Ionicons size={18} name={"alert-circle-outline"}></Ionicons>
-                            <Text>Delete Account</Text>
+                            <Ionicons color={"#FF0000"} size={18} name={"alert-circle-outline"}></Ionicons>
+                            <Text style={{color: "#FF0000"}}>Delete Account</Text>
                         </View>
-                        <Ionicons size={18} name={"chevron-forward-outline"} />
+                        <Ionicons color={"#FF0000"} size={18} name={"chevron-forward-outline"} />
                     </Touchable>
                 </Container>
             </FAD>
