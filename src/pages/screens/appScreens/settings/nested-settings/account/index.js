@@ -1,10 +1,11 @@
-import React from 'react'
+import React, {useCallback} from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import styled from 'styled-components'
 import { ActivityIndicator, Alert, Text } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import endpoints from "../../../../../../constants/endpoints";
 import RequestHandler from "../../../../../../helpers/api/rest_handler";
+import { useFocusEffect } from '@react-navigation/native';
 import moment from "moment";
 
 const Container = styled.ScrollView`

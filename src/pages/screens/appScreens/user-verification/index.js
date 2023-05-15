@@ -3,7 +3,7 @@ import { StyleSheet, Text, KeyboardAvoidingView, Alert, Image, ActivityIndicator
 import styled from 'styled-components';
 import { Context } from '../../../../helpers/context/context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-    import RequestHandler from '../../../../helpers/api/rest_handler';
+import RequestHandler from '../../../../helpers/api/rest_handler';
 import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell } from 'react-native-confirmation-code-field';
 import CustomButton from '../../../../components/custom-button';
 import endpoints from '../../../../constants/endpoints';
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
 
 const UserVerifyPage = ({ navigation, route }) => {
 
-      const fetchVerificationSessionParams = async () => {
+    const fetchVerificationSessionParams = async () => {
         const data = await RequestHandler(
             "post",
             endpoints.VERIFY_USER(),
@@ -95,53 +95,119 @@ const UserVerifyPage = ({ navigation, route }) => {
             true
         )
         return data;
-      };
-    
-      const fetchOptions = async () => {
+    };
+
+    const fetchOptions = async () => {
         const response = await fetchVerificationSessionParams();
         return {
-          sessionId: response.session_id,
-          ephemeralKeySecret: response.ek_secret,
-          brandLogo: Image.resolveAssetSource(logo),
+            sessionId: response.session_id,
+            ephemeralKeySecret: response.ek_secret,
+            brandLogo: Image.resolveAssetSource(logo),
         };
-      };
-    
-      const { status, present, loading } = useStripeIdentity(fetchOptions);
-    
-      const handlePress = useCallback(() => {
-        present();
-      }, [present]);
+    };
 
-      useEffect(() => {
-        console.log(status)
-      }, [status])
+    const { status, present, loading } = useStripeIdentity(fetchOptions);
+
+    const handlePress = useCallback(() => {
+        present();
+    }, [present]);
+
+    const getUser = useQuery({
+        queryKey: ["user"],
+        queryFn: () => fetchUser(),
+        refetchOnWindowFocus: 'always',
+        enabled: false
+      });
+
+      async function fetchUser() {
+        let res = await RequestHandler(
+          "GET",
+          endpoints.GET_CURRENT_USER(),
+          undefined,
+          undefined,
+          true
+        );
+    
+        if ("error" in res) {
+            Alert.alert('An error has occured', res.error.message)
+        } else {
+            if(res.user.identity_verified) {
+                navigation.navigate('Confirm', {
+                    hotelId: route.params.hotelId,
+                    vehicleId: route.params.vehicleId,
+                    startDate: route.params.startDate,
+                    endDate: route.params.endDate
+                })
+            }
+          return res;
+        }
+      }
 
     return (
         <Cont>
-            <SafeArea
-                contentContainerStyle={{ flexGrow: 1 }}
-                keyboardShouldPersistTaps='handled'
-                scrollEnabled={false}
-            >
-                <Subtitle>Verify your ID</Subtitle>
-                <EmailText>To increase trust and safety, Greenclick requires to verify your identification before rental purchases. Have your identification ready and tap "Verify" to start the verification process.<Bolding>{route.params.email}</Bolding></EmailText>
-                <ButtonContainer>
+            {
 
-                </ButtonContainer>
-                {
-                    loading ? 
-                    <ActivityIndicator size={'small'}></ActivityIndicator>
-                    :
-                    <CustomButton
-                    bgcolor={"#4aaf6e"}
-                    fcolor={"#fff"}
-                    title={"Verify"}
-                    onPress={handlePress}
+            status == "FlowCompleted" ?
+                <SafeArea
+                    contentContainerStyle={{ flexGrow: 1 }}
+                    keyboardShouldPersistTaps='handled'
+                    scrollEnabled={false}
                 >
-                </CustomButton>
-                }
-                
-            </SafeArea>
+                    <Subtitle>Your Verification is Processing</Subtitle>
+                    <EmailText>Your verification is currently processing. This process usually takes 1-3 minutes and we will notify you when it's done.</EmailText>
+                    <ButtonContainer>
+
+                    </ButtonContainer>
+                    {
+                        loading ?
+                            <ActivityIndicator size={'small'}></ActivityIndicator>
+                            :
+                            <CustomButton
+                                bgcolor={"#4aaf6e"}
+                                fcolor={"#fff"}
+                                title={"Check Status"}
+                                onPress={()=> {
+                                    getUser.refetch()
+                                }}
+                            >
+                            {!getUser.data.user.identity_verified && 
+                            <RedBody>Your identity is currently being verified, please check back in a few minutes.</RedBody>
+                            }
+                            </CustomButton>
+                    }
+
+
+                </SafeArea>
+            :
+                <SafeArea
+                    contentContainerStyle={{ flexGrow: 1 }}
+                    keyboardShouldPersistTaps='handled'
+                    scrollEnabled={false}
+                >
+                    <Subtitle>Verify your ID</Subtitle>
+                    <EmailText>To increase trust and safety, Greenclick requires to verify your identification before rental purchases. Have your identification ready and tap "Verify" to start the verification process.</EmailText>
+                    <ButtonContainer>
+
+                    </ButtonContainer>
+                    {
+                        loading ?
+                            <ActivityIndicator size={'small'}></ActivityIndicator>
+                            :
+                            <CustomButton
+                                bgcolor={"#4aaf6e"}
+                                fcolor={"#fff"}
+                                title={"Verify"}
+                                onPress={handlePress}
+                            >
+                            </CustomButton>
+                    }
+                    {
+                        status == "FlowFailed" &&
+                        <RedBody>Verification was cancelled by user. If this was a mistake, please tap Verify again.</RedBody>
+                    }
+
+                </SafeArea>
+            }
         </Cont>
     )
 };

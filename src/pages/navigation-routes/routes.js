@@ -7,6 +7,7 @@ import LoadingScreen from "../../components/loading";
 import * as Location from "expo-location";
 import RequestHandler from "../../helpers/api/rest_handler";
 import endpoints from "../../constants/endpoints";
+import { StatusBar } from 'expo-status-bar';
 
 //Defining a theme for react navigation to follow
 const MyTheme = {
@@ -116,6 +117,7 @@ const Routes = ({ }) => {
     //Return pages wrapped in navigation corrisponding to users
     return (
         <NavigationContainer theme={MyTheme}>
+            <StatusBar style="dark" />
             {loading ? (
                 <LoadingScreen />
             ) : user ? (
