@@ -161,17 +161,16 @@ useLayoutEffect(() => {
 }, [])
  
   const validateUser = async () => {
-    
     let res = await RequestHandler(
       "post",
       endpoints.REGISTER(),
       pushToken ? {
           "first_name": firstname,
           "last_name": lastname,
-          "email": email,
+          "email_address": email,
           "address": address,
           "date_of_birth": date_of_birth.toISOString(),
-          "phone": route.params.phone,
+          "phone_number": route.params.phone,
           "code": route.params.code,
           "push_token": pushToken
       }
@@ -179,16 +178,16 @@ useLayoutEffect(() => {
       {
         "first_name": firstname,
         "last_name": lastname,
-        "email": email,
+        "email_address": email,
         "address": address,
         "date_of_birth": date_of_birth.toISOString(),
-        "phone": route.params.phone,
+        "phone_number": route.params.phone,
         "code": route.params.code,
       },
       "application/x-www-form-urlencoded"
     )
     if("error" in res) {
-      if(res.error.message == "Request body contains invalid code.") {
+      if(res.error.status == 400) {
         Alert.alert('Your session has expired', 'Your session has expired due to inactivity, please try again.')
         navigation.navigate('Start')
       }

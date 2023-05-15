@@ -58,7 +58,7 @@ const PhonePage = ({ navigation, route }) => {
         let res = await RequestHandler(
             "post",
             endpoints.VERIFY(),
-            { "phone": value },
+            { "phone_number": value },
             "application/x-www-form-urlencoded",
         )
         if (res.error) {

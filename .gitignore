@@ -53,6 +53,7 @@ local.properties
 .cxx/
 *.keystore
 !debug.keystore
+greenclick-360111-7309c93f6f47.json
 
 # node.js
 #

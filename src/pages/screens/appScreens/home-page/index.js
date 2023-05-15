@@ -50,7 +50,7 @@ const Title = styled.Text`
 `;
 
 const Subtitle = styled.Text`
-  color: ${(props) => (props.color ? "#ffffff" : "#494d52")};
+  color: ${(props) => (props.isColor ? "#ffffff" : "#494d52")};
   font-weight: 500;
   font-size: 20px;
   padding-bottom: ${(props) => (props.isMargin ? "5px" : "10px")};
@@ -194,6 +194,28 @@ const ActiveBookingTextContainer = styled.Text`
   font-size: ${(props) => (props.size ? "16px" : "14px")};
 `;
 
+const EmailUnverifiedContainer = styled.TouchableOpacity`
+  display: flex;
+  background-color: #f55142;
+  padding: 15px 7px;
+  flex-direction: row;
+  align-items: center;
+`
+
+const EmailUnverifiedText = styled.Text`
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  flex-shrink: 1;
+  margin-bottom: 2px;
+`;
+
+const EmailUnverifiedTextSub = styled.Text`
+  color: #ffffff;
+  font-size: 12px;
+  flex-shrink: 1;
+`;
+
 const HomePage = ({ navigation, route }) => {
   const { location, setLocation, locationStatus, setLocationStatus, pushToken, setPushToken } = useContext(Context);
   const isFocused = useIsFocused();
@@ -256,6 +278,7 @@ const HomePage = ({ navigation, route }) => {
     setRefreshing(true);
     getLocation()
     activeBooking.refetch()
+    getUser.refetch()
   }, []);
 
   const getLocation = async () => {
@@ -319,6 +342,24 @@ const HomePage = ({ navigation, route }) => {
 
   }
 
+  const handleVerifyEmail = async () => {
+    let res = await RequestHandler(
+      "post",
+      endpoints.VERIFY(),
+      { "email_address": getUser.data.user.email_address },
+      "application/x-www-form-urlencoded",
+    )
+    if (res.error) {
+      Alert.alert("An error has occured", res.error.message);
+    } else {
+      navigation.navigate("Email Verification", {
+        email: getUser.data.user.email_address,
+        origin: 'Home'
+      })
+
+    }
+  }
+
   async function fetchVehicle() {
     let res = await RequestHandler(
       "GET",
@@ -348,7 +389,7 @@ const HomePage = ({ navigation, route }) => {
       'application/x-www-form-urlencoded',
       true
     );
-    
+
     if (res == 'OK') {
     } else {
       Alert.alert('An error has occured', res.error.message)
@@ -431,6 +472,7 @@ const HomePage = ({ navigation, route }) => {
   const getUser = useQuery({
     queryKey: ["user"],
     queryFn: () => fetchUser(),
+    refetchOnWindowFocus: 'always'
   });
 
   useEffect(() => {
@@ -441,7 +483,6 @@ const HomePage = ({ navigation, route }) => {
     });
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      //console.log(response);
     });
 
     return () => {
@@ -500,6 +541,19 @@ const HomePage = ({ navigation, route }) => {
                 size={30}
               />
             </TouchableOpacity>
+            <TouchableOpacity
+              style={{ paddingRight: 10 }}
+              onPress={() => {
+                navigation.navigate("Notifications");
+              }}
+            >
+              <Ionicons
+                color={"#494d52"}
+                name="notifications-outline"
+                size={30}
+              />
+            </TouchableOpacity>
+            
           </View>
         </View>
         {
@@ -515,7 +569,7 @@ const HomePage = ({ navigation, route }) => {
                 support for assitance at https://support.greenclick.app/
               </SubtitleTwo>
             ) : "error" in activeBooking.data ? (
-                activeBooking.data.error.status == 404 ?
+              activeBooking.data.error.status == 404 ?
                 <></>
                 :
                 <SubtitleTwo>
@@ -523,7 +577,7 @@ const HomePage = ({ navigation, route }) => {
                 </SubtitleTwo>
             ) : (
               <ActiveBookingContainer>
-                <Subtitle isColor>Your Active Booking</Subtitle>
+                <Subtitle isColor={"#FFFFFF"}>Your Active Booking</Subtitle>
                 {activeBooking.isLoading ? (
                   <ActivityIndicator
                     style={{ paddingTop: 10, paddingBottom: 10 }}
@@ -553,161 +607,161 @@ const HomePage = ({ navigation, route }) => {
                   ) : (
                     "error" in getHotel.data || "error" in getVehicle.data ?
                       <SubtitleTwo>
-                      Error loading your active booking. Please contact support at
-                      https://support.greenclick.app
-                    </SubtitleTwo>
-                    :
-                    <ActiveBookingTab
-                      onPress={() =>
-                        navigation.navigate("Order", {
-                          hotelId: activeBooking.data.bookings.hotel_id,
-                          vehicleId: activeBooking.data.bookings.vehicle_id,
-                          bookingId: activeBooking.data.bookings.id,
-                          active: true,
-                        })
-                      }
-                    >
-                      <View
-                        style={{
-                          flex: 1,
-                        }}
-                        s
+                        Error loading your active booking. Please contact support at
+                        https://support.greenclick.app
+                      </SubtitleTwo>
+                      :
+                      <ActiveBookingTab
+                        onPress={() =>
+                          navigation.navigate("Order", {
+                            hotelId: activeBooking.data.bookings.hotel_id,
+                            vehicleId: activeBooking.data.bookings.vehicle_id,
+                            bookingId: activeBooking.data.bookings.id,
+                            active: true,
+                          })
+                        }
                       >
-                        <ActiveBookingImage
-                          source={{
-                            uri: getVehicle.data.vehicle.image_urls[0],
-                          }}
-                        ></ActiveBookingImage>
-                      </View>
-
-                      <View
-                        style={{
-                          flex: 2,
-                          padding: 20,
-                        }}
-                      >
-                        <ActiveBookingTextContainer size bold>
-                          {getVehicle.data.vehicle.model}
-                        </ActiveBookingTextContainer>
-                        <ActiveBookingTextContainer size isMargin={"8px"}>
-                          {getHotel.data.hotel.name}
-                        </ActiveBookingTextContainer>
                         <View
                           style={{
-                            padding: 15,
-                            borderWidth: 1,
-                            borderRadius: 10,
-                            borderColor: "#00000020",
+                            flex: 1,
+                          }}
+                          s
+                        >
+                          <ActiveBookingImage
+                            source={{
+                              uri: getVehicle.data.vehicle.image_urls[0],
+                            }}
+                          ></ActiveBookingImage>
+                        </View>
+
+                        <View
+                          style={{
+                            flex: 2,
+                            padding: 20,
                           }}
                         >
-                          <View
-                            style={{
-                              flexDirection: "row",
-                            }}
-                          >
-                            <Ionicons
-                              style={{
-                                paddingTop: 1,
-                                paddingRight: 5,
-                              }}
-                              name="calendar"
-                              color={"#00000080"}
-                            ></Ionicons>
-                            <ActiveBookingTextContainer bold>
-                              Start
-                            </ActiveBookingTextContainer>
-                          </View>
-
-                          <ActiveBookingTextContainer isMargin={"12px"}>
-                            {moment(activeBooking.data.bookings.start_date).format(
-                              "LLL"
-                            )}
+                          <ActiveBookingTextContainer size bold>
+                            {getVehicle.data.vehicle.model}
+                          </ActiveBookingTextContainer>
+                          <ActiveBookingTextContainer size isMargin={"8px"}>
+                            {getHotel.data.hotel.name}
                           </ActiveBookingTextContainer>
                           <View
                             style={{
-                              flexDirection: "row",
+                              padding: 15,
+                              borderWidth: 1,
+                              borderRadius: 10,
+                              borderColor: "#00000020",
                             }}
                           >
-                            <Ionicons
+                            <View
                               style={{
-                                paddingTop: 1,
-                                paddingRight: 5,
+                                flexDirection: "row",
                               }}
-                              name="calendar"
-                              color={"#00000080"}
-                            ></Ionicons>
-                            <ActiveBookingTextContainer bold>
-                              End
-                            </ActiveBookingTextContainer>
-                          </View>
-                          <ActiveBookingTextContainer isMargin={"10px"}>
-                            {moment(activeBooking.data.bookings.end_date).format(
-                              "LLL"
-                            )}
-                          </ActiveBookingTextContainer>
-                          {
-                            // Check if Rental Period has Started or Not
-                            moment(currentDate).isBefore(moment(activeBooking.data.bookings.start_date)) ?
-                              //Has Not Started
-                              <ActiveBookingTextContainer bold isColor={"#42ad56"}>
-                                Your booking period has not started just yet.
+                            >
+                              <Ionicons
+                                style={{
+                                  paddingTop: 1,
+                                  paddingRight: 5,
+                                }}
+                                name="calendar"
+                                color={"#00000080"}
+                              ></Ionicons>
+                              <ActiveBookingTextContainer bold>
+                                Start
                               </ActiveBookingTextContainer>
-                            :
-                              moment(currentDate).isBefore(moment(activeBooking.data.bookings.end_date)) ?
-                                //Has Started
-                                "received_keys" in activeBooking.data.bookings ?
+                            </View>
+
+                            <ActiveBookingTextContainer isMargin={"12px"}>
+                              {moment(activeBooking.data.bookings.start_date).format(
+                                "LLL"
+                              )}
+                            </ActiveBookingTextContainer>
+                            <View
+                              style={{
+                                flexDirection: "row",
+                              }}
+                            >
+                              <Ionicons
+                                style={{
+                                  paddingTop: 1,
+                                  paddingRight: 5,
+                                }}
+                                name="calendar"
+                                color={"#00000080"}
+                              ></Ionicons>
+                              <ActiveBookingTextContainer bold>
+                                End
+                              </ActiveBookingTextContainer>
+                            </View>
+                            <ActiveBookingTextContainer isMargin={"10px"}>
+                              {moment(activeBooking.data.bookings.end_date).format(
+                                "LLL"
+                              )}
+                            </ActiveBookingTextContainer>
+                            {
+                              // Check if Rental Period has Started or Not
+                              moment(currentDate).isBefore(moment(activeBooking.data.bookings.start_date)) ?
+                                //Has Not Started
                                 <ActiveBookingTextContainer bold isColor={"#42ad56"}>
-                                  Your booking period is activated.
+                                  Your booking period has not started just yet.
                                 </ActiveBookingTextContainer>
                                 :
-                                <ActiveBookingTextContainer bold isColor={"#42ad56"}>
-                                  Your booking period is ready to be activated.
-                                </ActiveBookingTextContainer>
-                              :
-                              //Has Ended
-                              <ActiveBookingTextContainer bold isColor={"#42ad56"}>
-                                  Your booking period is overdue. Please return your vehicles keys immediately.
-                              </ActiveBookingTextContainer>
-                          }
+                                moment(currentDate).isBefore(moment(activeBooking.data.bookings.end_date)) ?
+                                  //Has Started
+                                  "received_keys" in activeBooking.data.bookings ?
+                                    <ActiveBookingTextContainer bold isColor={"#42ad56"}>
+                                      Your booking period is activated.
+                                    </ActiveBookingTextContainer>
+                                    :
+                                    <ActiveBookingTextContainer bold isColor={"#42ad56"}>
+                                      Your booking period is ready to be activated.
+                                    </ActiveBookingTextContainer>
+                                  :
+                                  //Has Ended
+                                  <ActiveBookingTextContainer bold isColor={"#42ad56"}>
+                                    Your booking period is overdue. Please return your vehicles keys immediately.
+                                  </ActiveBookingTextContainer>
+                            }
 
-                          {
-                          
-                          // moment(currentDate).utc().isAfter(
-                          //   moment(activeBooking.data.bookings.end_date).utc()
-                          // ) ? (
-                          //   <ActiveBookingTextContainer bold color={"#f05157"}>
-                          //     Your booking is{" "}
-                          //     {moment(currentDate).utc().diff(
-                          //       moment(activeBooking.data.bookings.end_date).utc(),
-                          //       "hours"
-                          //     )}{" "}
-                          //     hours overdue, please return your keys as soon as
-                          //     possible.
-                          //   </ActiveBookingTextContainer>
-                          // ) : moment(activeBooking.data.bookings.end_date).utc().isSame(
-                          //   moment(currentDate).utc(),
-                          //   "day"
-                          // ) ? (
-                          //   <ActiveBookingTextContainer bold color={"#eba910"}>
-                          //     Your booking ends today, please return as soon as
-                          //     possible.
-                          //   </ActiveBookingTextContainer>
-                          // ) : "recieved_keys" in activeBooking.data.bookings ? (
-                          //   <ActiveBookingTextContainer bold color={"#42ad56"}>
-                          //     Click here to see your rental information and return
-                          //     your keys.
-                          //   </ActiveBookingTextContainer>
-                          // ) : (
-                          //   <ActiveBookingTextContainer bold color={"#42ad56"}>
-                          //     Click here to see your rental information and recieve
-                          //     your keys.
-                          //   </ActiveBookingTextContainer>
-                          // )
-                          
-                          }
+                            {
+
+                              // moment(currentDate).utc().isAfter(
+                              //   moment(activeBooking.data.bookings.end_date).utc()
+                              // ) ? (
+                              //   <ActiveBookingTextContainer bold color={"#f05157"}>
+                              //     Your booking is{" "}
+                              //     {moment(currentDate).utc().diff(
+                              //       moment(activeBooking.data.bookings.end_date).utc(),
+                              //       "hours"
+                              //     )}{" "}
+                              //     hours overdue, please return your keys as soon as
+                              //     possible.
+                              //   </ActiveBookingTextContainer>
+                              // ) : moment(activeBooking.data.bookings.end_date).utc().isSame(
+                              //   moment(currentDate).utc(),
+                              //   "day"
+                              // ) ? (
+                              //   <ActiveBookingTextContainer bold color={"#eba910"}>
+                              //     Your booking ends today, please return as soon as
+                              //     possible.
+                              //   </ActiveBookingTextContainer>
+                              // ) : "recieved_keys" in activeBooking.data.bookings ? (
+                              //   <ActiveBookingTextContainer bold color={"#42ad56"}>
+                              //     Click here to see your rental information and return
+                              //     your keys.
+                              //   </ActiveBookingTextContainer>
+                              // ) : (
+                              //   <ActiveBookingTextContainer bold color={"#42ad56"}>
+                              //     Click here to see your rental information and recieve
+                              //     your keys.
+                              //   </ActiveBookingTextContainer>
+                              // )
+
+                            }
+                          </View>
                         </View>
-                      </View>
-                    </ActiveBookingTab>
+                      </ActiveBookingTab>
                   )
                 ) : (
                   <SubtitleTwo>
@@ -718,6 +772,25 @@ const HomePage = ({ navigation, route }) => {
               </ActiveBookingContainer>
             )
           )
+
+        }
+        {
+          getUser.data.user && !getUser.data.user.email_verified ?
+            <EmailUnverifiedContainer onPress={() => { handleVerifyEmail() }}>
+              <Ionicons
+                name="alert-outline"
+                size={30}
+                color={"#FFF"}
+              >
+              </Ionicons>
+              <View>
+                <EmailUnverifiedText>Tap to Verify your Email</EmailUnverifiedText>
+                <EmailUnverifiedTextSub>You must verify your email before selecting a vehicle</EmailUnverifiedTextSub>
+              </View>
+
+            </EmailUnverifiedContainer>
+            :
+            <></>
         }
         <StaticContainer>
           <Subtitle isMargin>Rent a Car, E-Bike & More</Subtitle>
@@ -735,7 +808,7 @@ const HomePage = ({ navigation, route }) => {
           </SearchBar>
           <ItemContainer>
             <ItemWrapper isRight>
-              <ItemMenu isColor onPress={()=> {
+              <ItemMenu isColor onPress={() => {
                 navigation.navigate('Map')
               }}>
                 <Ionicons
@@ -747,7 +820,7 @@ const HomePage = ({ navigation, route }) => {
               <TextItem>Vehicles</TextItem>
             </ItemWrapper>
             <ItemWrapper isLeft isRight>
-              <ItemMenu onPress={()=> {
+              <ItemMenu onPress={() => {
                 navigation.navigate('Map')
               }}>
                 <Ionicons
@@ -759,7 +832,7 @@ const HomePage = ({ navigation, route }) => {
               <TextItem>E-Bikes</TextItem>
             </ItemWrapper>
             <ItemWrapper isRight isLeft>
-              <ItemMenu onPress={()=> {
+              <ItemMenu onPress={() => {
                 Alert.alert('Coming Soon', "Events currently in construction and is coming soon to greenclick.")
               }}>
                 <Ionicons
@@ -771,7 +844,7 @@ const HomePage = ({ navigation, route }) => {
               <TextItem>Events</TextItem>
             </ItemWrapper>
             <ItemWrapper isLeft>
-              <ItemMenu onPress={()=> {
+              <ItemMenu onPress={() => {
                 navigation.navigate('Support')
               }}>
                 <Ionicons
@@ -790,78 +863,78 @@ const HomePage = ({ navigation, route }) => {
               {!isLoading && data ? (
                 //Data Exists and is not loadin
                 "error" in data ?
-                <View>
-                  <Subtitle>Nearest Hotels with Greenclick</Subtitle>
-                  <HotelSubTitle>
-                  {data.error.message}
-                  </HotelSubTitle>
-                </View>
-                :
-                <NearbyHotel>
-                  {data.hotels && data.hotels.length == 1 ? (
-                    <Subtitle>Nearest Hotel with Greenclick</Subtitle>
-                  ) : (
+                  <View>
                     <Subtitle>Nearest Hotels with Greenclick</Subtitle>
-                  )}
-                  {data.hotels ? (
-                    <HotelWrapper
-                      onPress={() => {
-                        navigation.navigate("Map", {
-                          hotelID: data.hotels[0].id,
-                        });
-                      }}
-                    >
-                      <SecondaryWrapper>
-                        <MapContainer>
-                          <HotelImage
-                            source={{
-                              uri: data.hotels[0].image_urls[0],
-                            }}
-                            resizeMode="cover"
-                          >
-                            <LinearGradient
-                              style={{
-                                flex: 1,
-                                justifyContent: "center",
+                    <HotelSubTitle>
+                      {data.error.message}
+                    </HotelSubTitle>
+                  </View>
+                  :
+                  <NearbyHotel>
+                    {data.hotels && data.hotels.length == 1 ? (
+                      <Subtitle>Nearest Hotel with Greenclick</Subtitle>
+                    ) : (
+                      <Subtitle>Nearest Hotels with Greenclick</Subtitle>
+                    )}
+                    {data.hotels.length > 0 ? (
+                      <HotelWrapper
+                        onPress={() => {
+                          navigation.navigate("Map", {
+                            hotelID: data.hotels[0].id,
+                          });
+                        }}
+                      >
+                        <SecondaryWrapper>
+                          <MapContainer>
+                            <HotelImage
+                              source={{
+                                uri: data.hotels[0].image_urls[0],
                               }}
-                              colors={colors}
-                              locations={locations}
-                              start={{ x: 0, y: 1 }}
-                              end={{ x: 0, y: 0.7 }}
-                            ></LinearGradient>
-                          </HotelImage>
-                        </MapContainer>
-                        <View style={{ flex: 1, height: 50 }}>
-                          <NearestHotelContainer>
-                            <View
-                              style={{
-                                position: "absolute",
-                                zIndex: 2,
-                              }}
+                              resizeMode="cover"
                             >
-                              <HotelTitle>{data.hotels[0].name}</HotelTitle>
-                              <HotelSubTitle>
-                                {data.hotels[0].address.length > 45
-                                  ? data.hotels[0].address.slice(0, 45) + "..."
-                                  : data.hotels[0].address}
-                              </HotelSubTitle>
-                            </View>
-                            <View
-                              style={{
-                                maxWidth: "70%",
-                                flex: 1,
-                                alignItems: "flex-end",
-                                marginLeft: "auto",
-                              }}
-                            ></View>
-                          </NearestHotelContainer>
-                        </View>
-                      </SecondaryWrapper>
-                    </HotelWrapper>
-                  ) : (
-                    <HotelSubTitle>No nearby hotels found.</HotelSubTitle>
-                  )}
-                </NearbyHotel>
+                              <LinearGradient
+                                style={{
+                                  flex: 1,
+                                  justifyContent: "center",
+                                }}
+                                colors={colors}
+                                locations={locations}
+                                start={{ x: 0, y: 1 }}
+                                end={{ x: 0, y: 0.7 }}
+                              ></LinearGradient>
+                            </HotelImage>
+                          </MapContainer>
+                          <View style={{ flex: 1, height: 50 }}>
+                            <NearestHotelContainer>
+                              <View
+                                style={{
+                                  position: "absolute",
+                                  zIndex: 2,
+                                }}
+                              >
+                                <HotelTitle>{data.hotels[0].name}</HotelTitle>
+                                <HotelSubTitle>
+                                  {data.hotels[0].address.length > 45
+                                    ? data.hotels[0].address.slice(0, 45) + "..."
+                                    : data.hotels[0].address}
+                                </HotelSubTitle>
+                              </View>
+                              <View
+                                style={{
+                                  maxWidth: "70%",
+                                  flex: 1,
+                                  alignItems: "flex-end",
+                                  marginLeft: "auto",
+                                }}
+                              ></View>
+                            </NearestHotelContainer>
+                          </View>
+                        </SecondaryWrapper>
+                      </HotelWrapper>
+                    ) : (
+                      <HotelSubTitle>No nearby hotels found.</HotelSubTitle>
+                    )}
+                  </NearbyHotel>
               ) : isError ? (
                 //Data is Error
                 <View>
@@ -889,9 +962,9 @@ const HomePage = ({ navigation, route }) => {
                   <Subtitle>Nearest Hotels with Greenclick</Subtitle>
                   <SubtitleTwo>In order to use the greenclick app, please allow location permissions located in your devices settings. If you have enabled location permissions, please restart the app.</SubtitleTwo>
                   <TouchableOpacity onPress={() => {
-                                Linking.openSettings()
-                            }}>
-                    <Text style={{ color: "#4aaf6e", fontSize: "16px"}}>Open Location Permissions</Text>
+                    Linking.openSettings()
+                  }}>
+                    <Text style={{ color: "#4aaf6e", fontSize: "16px" }}>Open Location Permissions</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -913,7 +986,8 @@ const HomePage = ({ navigation, route }) => {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         >
-          {main}
+
+          {data ? main : <></>}
         </ScrollView>
       </View>
     </SafeAreaView>

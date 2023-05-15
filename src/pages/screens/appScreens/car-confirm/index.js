@@ -5,7 +5,8 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
-  Text
+  Text,
+  Image
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import styled from "styled-components";
@@ -20,6 +21,7 @@ import RequestHandler from "../../../../helpers/api/rest_handler";
 import endpoints from "../../../../constants/endpoints";
 import { useQuery, useQueries } from "@tanstack/react-query";
 import { StripeProvider } from "@stripe/stripe-react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 
 const Container = styled.View`
@@ -237,6 +239,69 @@ const CheckboxText = styled.Text`
   color: #3b414b;
 `;
 
+const InformationBox = styled.View`
+  flex-direction: ${props => props.reverse ? "row-reverse" : "row"};
+  gap: 20px;  
+  align-items: center;
+  padding: 20px;
+`;
+
+const InsuranceBox = styled.View`
+  flex-direction: row;
+  gap: 10px;  
+  align-items: center;
+  padding-bottom: 10px;
+`;
+
+const InformationTitle = styled.Text`
+  font-weight: 600;
+  margin-bottom: 3px;
+  color: #000000AA;
+`;
+
+const InformationText = styled.Text`
+  color: #00000090;
+  flex-shrink: 1
+`;
+
+const Bolding = styled.Text`
+  font-weight: 500;
+`;
+
+const InsuranceWrapper = styled.View`
+  padding: 10px 20px;
+  border: 1px solid #00000010;
+  margin-bottom: 20px;
+`;
+
+const InsuranceSelector = styled.TouchableOpacity`
+  width: 20px;
+  height: 20px;
+  border-radius: 20px;
+  border: 1px solid #00000010;
+  background-color: ${props => props.active ? "#4aaf6e" : "#eeeeee"};
+  margin: 0px 5px;
+`;
+
+const VerifyContainer = styled.View`
+  padding: 10px 15px;
+  background-color: ${props => props.isActive ? "#eeeeee" : "#FFFFFF"}
+  border: 1px solid #00000010;
+`;
+
+const VerifyTitle = styled.Text`
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+`;
+
+const VerifyDescription = styled.Text`
+  font-size: 14px;
+  margin-bottom: 15px;
+
+`;
+
+
 const CarConfirm = ({ route, navigation }) => {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [isChecked, setChecked] = useState(false);
@@ -244,6 +309,9 @@ const CarConfirm = ({ route, navigation }) => {
   const [card, setCard] = useState({});
   const [errorIntent, setErrorIntent] = useState('')
   const [purchaseConfirmed, setPurchaseConfirmed] = useState(false)
+  const [isCurrentInsurance, setCurrentInsurance] = useState(false)
+  const [insurance, setInsurance] = useState('645f630f7d8c9f3278c5e11c')
+  const [promotion, setPromotion] = useState('')
   const initializePaymentSheet = async () => {
 
     const { error } = await initPaymentSheet({
@@ -323,19 +391,31 @@ const CarConfirm = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
+      if (res.error.code == "VERIFY_EMAIL") {
+        handleVerifyEmail()
+      }
+      if (res.error.code == "VERIFY_IDENTITY") {
+        navigation.navigate("User Verification", {
+          startDate: route.params.startDate,
+          endDate: route.params.endDate,
+          origin: 'Confirm'
+        })
+      }
       return res;
     } else {
       return res;
     }
   }
 
-  async function fetchPaymentProperties(hotelId, vehicleId, startDate, endDate) {
+  async function fetchPaymentProperties(hotelId, vehicleId, startDate, endDate, insurance, promotion) {
     let res = await RequestHandler(
       "POST",
       endpoints.GET_ORDER_SUBTOTAL(hotelId, vehicleId),
       {
         start_date: moment(startDate).utc().toISOString(),
         end_date: moment(endDate).utc().toISOString(),
+        insurance: insurance,
+        promotion: promotion
       },
       undefined,
       true
@@ -389,12 +469,13 @@ const CarConfirm = ({ route, navigation }) => {
       {
         queryKey: ["paymentIntent", route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate],
         queryFn: () => fetchPaymentIntent(route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate),
-        enabled: !!pubKey,
+        enabled: !!pubKey && userEmail,
         cacheTime: 0,
+        refetchOnWindowFocus: true
       },
       {
         queryKey: ["paymentProperties", route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate],
-        queryFn: () => fetchPaymentProperties(route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate),
+        queryFn: () => fetchPaymentProperties(route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate, insurance, promotion),
       },
       {
         queryKey: ["pubKey"],
@@ -402,16 +483,79 @@ const CarConfirm = ({ route, navigation }) => {
         onSuccess: (data) => {
           "error" in data ? setPubKey() : setPubKey(data.pub_key)
         }
+      },
+      {
+      queryKey: ["user"],
+      queryFn: () => fetchUser(),
+      },
+      {
+      queryKey: ["insurances", route.params.vehicleId],
+      queryFn: () => fetchInsurances(route.params.hotelId, route.params.vehicleId)
       }
     ],
   });
+
+  const fetchInsurances = async (hotelId, vehicleId) => {
+    let res = await RequestHandler(
+      "GET",
+      endpoints.GET_VEHICLE_INSURANCES(hotelId, vehicleId),
+      undefined,
+      undefined,
+      true
+    );
+    return res;
+  }
+
+  async function fetchUser() {
+    let res = await RequestHandler(
+      "GET",
+      endpoints.GET_CURRENT_USER(),
+      undefined,
+      undefined,
+      true
+    );
+    if ("error" in res) {
+      return res;
+    } else {
+      return res;
+    }
+  }
+
+  const handleVerifyEmail = async () => {
+    let res = await RequestHandler(
+      "post",
+      endpoints.VERIFY(),
+      { "email_address": getUser.data.user.email_address },
+      "application/x-www-form-urlencoded",
+    )
+    if (res.error) {
+      Alert.alert("An error has occured", res.error.message);
+      navigation.navigate('Details')
+    } else {
+      navigation.navigate("Email Verification", {
+        startDate: route.params.startDate,
+        endDate: route.params.endDate,
+        email: getUser.data.user.email_address,
+        origin: 'Confirm'
+      })
+
+    }
+  }
+
+  const getUser = useQuery({
+    queryKey: ["user"],
+    queryFn: () => fetchUser(),
+    refetchOnWindowFocus: 'always'
+  });
+
+  const userEmail = getUser?.data.user.email
 
   const activeBooking = useQuery({
     queryKey: ["activeBooking"],
     queryFn: () => getActiveBooking(),
     enabled: false,
     onSuccess: (data) => {
-      if("error" in data) {
+      if ("error" in data) {
         Alert.alert('An error has occured', data.error.message)
       } else {
         navigation.navigate("Order", {
@@ -421,7 +565,7 @@ const CarConfirm = ({ route, navigation }) => {
           active: true,
         });
       }
-      
+
     }
   })
 
@@ -477,7 +621,17 @@ const CarConfirm = ({ route, navigation }) => {
             <View style={{ flex: 1 }}>
               {
                 "error" in results[2].data ?
-                  <Text>{results[2].data.error.message}</Text>
+                  results[2].data.error.code == 'VERIFY_EMAIL' || results[2].data.error.code == 'VERIFY_IDENTITY' ?
+                    <View style={{ padding: 20 }}>
+                      {/* <VerifyContainer>
+                        <VerifyDescription>In order to continue, you must verify your email address.</VerifyDescription>
+                        <CustomButton title={"Verify"} bgcolor={"#4aaf6e"} fcolor={"#fff"}></CustomButton>
+                      </VerifyContainer> */}
+                      <ActivityIndicator size={'small'}></ActivityIndicator>
+
+                    </View>
+                    :
+                    <Text>{results[2].data.error.message}</Text>
                   :
                   <View style={{ flex: 1 }}>
                     {"error" in results[1].data ? (
@@ -563,14 +717,6 @@ const CarConfirm = ({ route, navigation }) => {
                                           Model: {results[1].data.vehicle.model}
                                         </DateText>
                                       </DateIconFlex>
-                                      <DateIconFlex>
-                                        <Ionicons
-                                          name={"information-circle-outline"}
-                                          size={18}
-                                          color={"#3B414B"}
-                                        ></Ionicons>
-                                        <DateText>Color: Blue</DateText>
-                                      </DateIconFlex>
                                     </DateWrapper>
                                     <DateWrapper>
                                       <MiniSubtitle>Hotel</MiniSubtitle>
@@ -601,6 +747,24 @@ const CarConfirm = ({ route, navigation }) => {
                                     </DateWrapper>
                                   </GrayWrapper>
                               }
+                              <InsuranceWrapper>
+                                <DateWrapper>
+                                  <MiniSubtitle>Select Insurance</MiniSubtitle>
+                                </DateWrapper>
+                                <InsuranceBox>
+                                  <InsuranceSelector onPress={() => {
+                                    setCurrentInsurance(!isCurrentInsurance)
+                                  }} active={isCurrentInsurance}></InsuranceSelector>
+                                  <View style={{ flex: 5 }}>
+                                    <InformationTitle>Bonzah Insurance</InformationTitle>
+                                    <InformationText>
+                                      Includes full protection yatta yatta yatta
+                                    </InformationText>
+                                  </View>
+                                  <Image source={require("../../../../assets/bonzah.jpg")} style={{ resizeMode: "contain", flex: 1, height: 50, width: 50 }}></Image>
+
+                                </InsuranceBox>
+                              </InsuranceWrapper>
 
                               {
 
@@ -634,7 +798,35 @@ const CarConfirm = ({ route, navigation }) => {
                                   </WhiteWrapperTotal>
 
                               }
+
                             </GeneralWrapper>
+                            <InformationBox>
+                              <Ionicons
+                                color="#00000090"
+                                name="thumbs-up-outline"
+                                size={38}
+                              ></Ionicons>
+                              <View style={{ flexShrink: 1 }}>
+                                <InformationTitle>Free Cancellation</InformationTitle>
+                                <InformationText>
+                                  Recieve a full refund before <Bolding>{moment(route.params.startDate).subtract(1, "days").format('LLL')}.</Bolding>
+                                </InformationText>
+                              </View>
+
+                            </InformationBox>
+                            <InformationBox reverse>
+                              <Ionicons
+                                color="#00000090"
+                                name="car-outline"
+                                size={42}
+                              ></Ionicons>
+                              <View style={{ flexShrink: 1 }}>
+                                <InformationTitle>Access your Keys Easily</InformationTitle>
+                                <InformationText>
+                                  Your vehicle keys can be accessed on <Bolding> {moment(route.params.startDate).format("LL")} at {moment(route.params.startDate).format("LT")}</Bolding>.
+                                </InformationText>
+                              </View>
+                            </InformationBox>
                           </Container>
                         </ScrollView>
                         <Footer>

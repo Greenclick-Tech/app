@@ -17,6 +17,7 @@ import RequestHandler from "../../../../helpers/api/rest_handler";
 import endpoints from "../../../../constants/endpoints";
 import { useQuery } from "@tanstack/react-query";
 import CarLoad from "../../../../components/car-load";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 const Container = styled.View`
   width: 100%;
@@ -108,7 +109,7 @@ const ButtonEditCentre = styled.TouchableOpacity`
 
 const ButtonText = styled.Text`
   font-size: 16px;
-  color: #4aaf6e;
+  color: ${props => props.available ? "#4aaf6e" : "#8c8c8c"};
 `;
 
 const BodyText = styled.Text`
@@ -260,6 +261,10 @@ const CarDetails = ({ route, navigation }) => {
   const [masterStart, setMasterStart] = useState('');
   const [masterEnd, setMasterEnd] = useState('');
   const refCalendarPickerMicro = useRef();
+  const [pickupTime, setPickupTime] = useState("");
+  const [dropoffTime, setDropOffTime] = useState("");
+  const [isPickupTimeVisible, setPickupTimePickerVisibility] = useState(false);
+  const [isDropoffTimeVisible, setDropoffTimePickerVisibility] = useState(false);
 
   //start
   const showDatePicker = () => {
@@ -273,6 +278,46 @@ const CarDetails = ({ route, navigation }) => {
     }
   };
 
+  const showPickupPicker = () => {
+    setPickupTimePickerVisibility(true);
+  };
+
+  const hidePickupPicker = () => {
+    setPickupTimePickerVisibility(false);
+  };
+
+  const handlePickupConfirm = (date) => {
+    setPickupTime(date)
+    let pickupDate = moment(date);
+    setStartDate(moment(startDate).set({
+      hour: pickupDate.hour(),
+      minute: pickupDate.minute(),
+      second: pickupDate.second(),
+      millisecond: pickupDate.millisecond(),
+    }))
+    hidePickupPicker();
+  };
+
+  const showDropoffPicker = () => {
+    setDropoffTimePickerVisibility(true);
+  };
+
+  const hideDropoffPicker = () => {
+    setDropoffTimePickerVisibility(false);
+    
+  };
+
+  const handleDropoffConfirm = (date) => {
+    setDropOffTime(date)
+    let dropoffDate = moment(date);
+    setEndDate(moment(endDate).set({
+      hour: dropoffDate.hour(),
+      minute: dropoffDate.minute(),
+      second: dropoffDate.second(),
+      millisecond: dropoffDate.millisecond(),
+    }))
+    hideDropoffPicker();
+  };
 
   const onSelectTimeSlot = (markup, start, end) => {
     let updatedTimeSlots = [];
@@ -316,6 +361,8 @@ const CarDetails = ({ route, navigation }) => {
 
   const handleNext = () => {
     if (route.params.type == 'vehicle') {
+      setPickupTime("")
+      setDropOffTime("")
       navigation.navigate("Confirm", {
         hotelId: route.params.hotelId,
         vehicleId: route.params.id,
@@ -330,27 +377,27 @@ const CarDetails = ({ route, navigation }) => {
         endDate: moment(masterEnd),
       });
     }
-
   };
 
   const handleTempConfirm = (date, type) => {
     if (route.params.type == "vehicle") {
+      setPickupTime();
+      setDropOffTime();
 
-
-      if(type === "END_DATE" && date != null) {
+      if (type === "END_DATE" && date != null) {
         setCheckedDates("");
         setVehicleTempEndDate(moment(date))
-      } else if(type === "END_DATE" && date === null) {
+      } else if (type === "END_DATE" && date === null) {
         setVehicleTempEndDate("")
       }
 
-      if(type === "START_DATE" && date != null) {
+      if (type === "START_DATE" && date != null) {
         setCheckedDates("");
         setVehicleTempStartDate(moment(date))
       } else if (type === "START_DATE" && date === null) {
         setVehicleTempStartDate("")
       }
-      
+
     } else {
       setMicroTempStartDate(moment(date));
     }
@@ -569,6 +616,8 @@ const CarDetails = ({ route, navigation }) => {
   }
 
   const handleReset = () => {
+    setDropOffTime()
+    setPickupTime()
     if (route.params.type == "vehicle") {
       setCheckedDates("");
       refCalendarPicker.current.resetSelections();
@@ -605,660 +654,748 @@ const CarDetails = ({ route, navigation }) => {
     main = (
       <View style={{ flex: 1 }}>
         {
-        "error" in vehicleQuery.data ?
-        <View style={{
-          padding: 20,
-          paddingTop: 50,
-          backgroundColor: "#00000050"
-        }}>
+          "error" in vehicleQuery.data ?
+            <View style={{
+              padding: 20,
+              paddingTop: 50,
+              backgroundColor: "#00000050"
+            }}>
 
-        <Title>{vehicleQuery.data.error.message}</Title>
-        </View>
-        :
-        vehicleQuery.data.vehicle ? (
-          <View style={{ flex: 1 }}>
-            <ScrollView
-              scrollIndicatorInsets={{ right: 1 }}
-              style={{ flex: 1, width: "100%" }}
-            >
-              <ModalView
-                visible={isDatePickerVisible}
-                transparent={true}
-                animationType="slide"
-              >
-                
-                <ModalContent activeOpacity={1}>
-                  <ModalMargin onPress={() => null} activeOpacity={1}>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        paddingLeft: 15,
-                        paddingRight: 15,
-                        width: "100%",
-                        paddingTop: 70,
-                        paddingBottom: 7,
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      {route.params.type == "micro_mobility" ? (
+              <Title>{vehicleQuery.data.error.message}</Title>
+            </View>
+            :
+            vehicleQuery.data.vehicle ? (
+              <View style={{ flex: 1 }}>
+                <ScrollView
+                  scrollIndicatorInsets={{ right: 1 }}
+                  style={{ flex: 1, width: "100%" }}
+                >
+                  <ModalView
+                    visible={isDatePickerVisible}
+                    transparent={true}
+                    animationType="slide"
+                  >
+
+                    <ModalContent activeOpacity={1}>
+                      <ModalMargin onPress={() => null} activeOpacity={1}>
                         <View
                           style={{
-                            flex: 1,
-                            paddingRight: 5,
-                          }}
-                        >
-                          {modalView == 0 ? (
-                            <TripTitle notCenter>
-                              Step 1: Select a Date
-                            </TripTitle>
-                          ) : (
-                            <TripTitle notCenter>
-                              Step 2: Select a Time
-                            </TripTitle>
-                          )}
-                        </View>
-                      ) : (
-                        <TripTitle>Select your Trip Dates</TripTitle>
-                      )}
-                      <View style={{}}>
-                        <Ionicons
-                          onPress={() => {
-                            if (modalView == 1) {
-                              hideDatePicker();
-                            } else {
-                              hideDatePicker(true);
-                            }
-                          }}
-                          name={"close-circle"}
-                          size={24}
-                          color={"#3B414B"}
-                        ></Ionicons>
-                      </View>
-                    </View>
-
-                    {route.params.type == "micro_mobility" ? (
-                      //Micro Mobility
-                      <View
-                        style={{
-                          paddingLeft: 15,
-                          paddingRight: 15,
-                        }}
-                      >
-                        <TripDescription>
-                          Micro Mobility vehicles are only available for up to 1
-                          day at a time. Please select your booking date and
-                          then, a time slot you will be renting from.
-                        </TripDescription>
-                      </View>
-                    ) : (
-                      //Vehicles
-                      <View
-                        style={{
-                          paddingLeft: 15,
-                          paddingRight: 15,
-                        }}
-                      >
-                        <TripDescription>
-                          Micro Mobility vehicles are only available for up to 1
-                          day at a time. Select up to 3 time slots.
-                        </TripDescription>
-                      </View>
-                    )}
-
-                    <SeperatorFull></SeperatorFull>
-
-                    {route.params.type == "micro_mobility" ? (
-                      //if Selection Micro Mobility
-
-                      modalView == 0 ? (
-                        //if screen 1
-                        
-                        <CalendarPicker
-                          onDateChange={handleTempConfirm}
-                          allowRangeSelection={false}
-                          minDate={moment()}
-                          selectedDayColor="#4aaf6e"
-                          selectedDayTextColor="#FFFFFF"
-                          previousTitle="Back"
-                          maxDate={moment().add(1, 'month').subtract(1, 'day')}
-                          ref={refCalendarPickerMicro}
-                          dayLabelsWrapper={{
-                            borderColor: "#FFF",
-                          }}
-                          selectedStartDate={microStartDate}
-                          onMonthChange={(date) => {
-                            setCurrentMonth(date)
-                          }}
-
-                        />
-                      ) : (
-                        //if screen 2
-                        <View
-                          style={{
+                            flexDirection: "row",
+                            paddingLeft: 15,
+                            paddingRight: 15,
                             width: "100%",
-                            flex: 1,
+                            paddingTop: 70,
+                            paddingBottom: 7,
+                            justifyContent: "space-between",
                           }}
                         >
-                          <View
-                            style={{
-                              width: "100%",
-                              paddingLeft: 20,
-                              paddingRight: 20,
-                              paddingBottom: 10,
-                              flexDirection: "row",
-                            }}
-                          >
-                            <Ionicons name="calendar" size={18}></Ionicons>
-                            <Text
+                          {route.params.type == "micro_mobility" ? (
+                            <View
                               style={{
-                                fontSize: 16,
-                                paddingLeft: 10,
+                                flex: 1,
+                                paddingRight: 5,
                               }}
                             >
-                              {moment(startMicroTempDate).format(
-                                "dddd, MMMM, Do YYYY"
+                              {modalView == 0 ? (
+                                <TripTitle notCenter>
+                                  Step 1: Select a Date
+                                </TripTitle>
+                              ) : (
+                                <TripTitle notCenter>
+                                  Step 2: Select a Time
+                                </TripTitle>
                               )}
-                            </Text>
+                            </View>
+                          ) : (
+                            <TripTitle>Select your Trip Dates</TripTitle>
+                          )}
+                          <View style={{}}>
+                            <Ionicons
+                              onPress={() => {
+                                if (modalView == 1) {
+                                  hideDatePicker();
+                                } else {
+                                  hideDatePicker(true);
+                                }
+                              }}
+                              name={"close-circle"}
+                              size={24}
+                              color={"#3B414B"}
+                            ></Ionicons>
                           </View>
+                        </View>
+
+                        {route.params.type == "micro_mobility" ? (
+                          //Micro Mobility
                           <View
                             style={{
-                              borderBottomColor: "#00000040",
-                              borderBottomWidth: 1,
-                              paddingLeft: 38,
-                              paddingBottom: 20,
+                              paddingLeft: 15,
+                              paddingRight: 15,
                             }}
                           >
-                            <Text
+                            <TripDescription>
+                              Micro Mobility vehicles are only available for up to 1
+                              day at a time. Please select your booking date and
+                              then, a time slot you will be renting from.
+                            </TripDescription>
+                          </View>
+                        ) : (
+                          //Vehicles
+                          <View
+                            style={{
+                              paddingLeft: 15,
+                              paddingRight: 15,
+                            }}
+                          >
+                            <TripDescription>
+                              Micro Mobility vehicles are only available for up to 1
+                              day at a time. Select up to 3 time slots.
+                            </TripDescription>
+                          </View>
+                        )}
+
+                        <SeperatorFull></SeperatorFull>
+
+                        {route.params.type == "micro_mobility" ? (
+                          //if Selection Micro Mobility
+
+                          modalView == 0 ? (
+                            //if screen 1
+
+                            <CalendarPicker
+                              onDateChange={handleTempConfirm}
+                              allowRangeSelection={false}
+                              minDate={moment()}
+                              selectedDayColor="#4aaf6e"
+                              selectedDayTextColor="#FFFFFF"
+                              previousTitle="Back"
+                              maxDate={moment().add(1, 'month').subtract(1, 'day')}
+                              ref={refCalendarPickerMicro}
+                              dayLabelsWrapper={{
+                                borderColor: "#FFF",
+                              }}
+                              selectedStartDate={microStartDate}
+                              onMonthChange={(date) => {
+                                setCurrentMonth(date)
+                              }}
+
+                            />
+                          ) : (
+                            //if screen 2
+                            <View
                               style={{
-                                fontSize: 16,
-                                paddingLeft: 10,
-                                color: "#4aaf6e",
-                                fontWeight: "600",
+                                width: "100%",
+                                flex: 1,
                               }}
                             >
-                              {masterStart
-                                ? moment(masterStart).format('LT') + " - " + moment(masterEnd).format('LT')
-                                : "Select a Time"}
-                            </Text>
-                          </View>
+                              <View
+                                style={{
+                                  width: "100%",
+                                  paddingLeft: 20,
+                                  paddingRight: 20,
+                                  paddingBottom: 10,
+                                  flexDirection: "row",
+                                }}
+                              >
+                                <Ionicons name="calendar" size={18}></Ionicons>
+                                <Text
+                                  style={{
+                                    fontSize: 16,
+                                    paddingLeft: 10,
+                                  }}
+                                >
+                                  {moment(startMicroTempDate).format(
+                                    "dddd, MMMM, Do YYYY"
+                                  )}
+                                </Text>
+                              </View>
+                              <View
+                                style={{
+                                  borderBottomColor: "#00000040",
+                                  borderBottomWidth: 1,
+                                  paddingLeft: 38,
+                                  paddingBottom: 20,
+                                }}
+                              >
+                                <Text
+                                  style={{
+                                    fontSize: 16,
+                                    paddingLeft: 10,
+                                    color: "#4aaf6e",
+                                    fontWeight: "600",
+                                  }}
+                                >
+                                  {masterStart
+                                    ? moment(masterStart).format('LT') + " - " + moment(masterEnd).format('LT')
+                                    : "Select a Time"}
+                                </Text>
+                              </View>
 
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              flex: 1,
-                            }}
-                          >
-                            <FlatList
-                              style={{
-                                paddingTop: 10,
-                              }}
-                              data={timeDates}
-                              keyExtractor={(item, index) => index.toString()}
-                              renderItem={({ item }) => {
-                                let isBooked = false;
-                                let start = moment(item.start).format();
-                                let end = moment(item.end).format();
-                                bookingQuery.data.bookings && bookingQuery.data?.bookings?.forEach((booking) => {
-                                  if (moment(booking.start_date).isSame(start) && moment(booking.end_date).isSame(end)) {
-                                    isBooked = true;
-                                  }
-                                });
+                              <View
+                                style={{
+                                  flexDirection: "row",
+                                  flex: 1,
+                                }}
+                              >
+                                <FlatList
+                                  style={{
+                                    paddingTop: 10,
+                                  }}
+                                  data={timeDates}
+                                  keyExtractor={(item, index) => index.toString()}
+                                  renderItem={({ item }) => {
+                                    let isBooked = false;
+                                    let start = moment(item.start).format();
+                                    let end = moment(item.end).format();
+                                    bookingQuery.data.bookings && bookingQuery.data?.bookings?.forEach((booking) => {
+                                      if (moment(booking.start_date).isSame(start) && moment(booking.end_date).isSame(end)) {
+                                        isBooked = true;
+                                      }
+                                    });
 
-                                return (
-                                  <View
-                                    style={{
-                                      flex: 1,
-                                      width: "100%",
-                                      paddingLeft: 20,
-                                      paddingRight: 20,
-                                    }}
-                                  >
-                                    {item.isNextDay && (
+                                    return (
                                       <View
                                         style={{
-                                          paddingTop: 15,
-                                          paddingBottom: 15,
+                                          flex: 1,
+                                          width: "100%",
+                                          paddingLeft: 20,
+                                          paddingRight: 20,
                                         }}
                                       >
-                                        <DateText size weight>
-                                          Results for the Next Day
-                                        </DateText>
+                                        {item.isNextDay && (
+                                          <View
+                                            style={{
+                                              paddingTop: 15,
+                                              paddingBottom: 15,
+                                            }}
+                                          >
+                                            <DateText size weight>
+                                              Results for the Next Day
+                                            </DateText>
+                                          </View>
+                                        )}
+                                        {moment(item.start).isBefore(moment()) ? (
+                                          <DateItem activeOpacity={1} booked>
+                                            <DateText>{item.markup}</DateText>
+                                          </DateItem>
+                                        ) : (
+                                          <DateItem
+                                            disabled={isBooked}
+                                            booked={isBooked}
+                                            selected={selectedTimeSlots.findIndex(selected => moment(selected.start).isSame(moment(item.start))) !== -1}
+                                            onPress={() => {
+                                              onSelectTimeSlot(item.markup, item.start, item.end)
+                                            }}
+                                          >
+                                            <DateText>{item.markup}</DateText>
+                                          </DateItem>
+                                        )}
                                       </View>
-                                    )}
-                                    {moment(item.start).isBefore(moment()) ? (
-                                      <DateItem activeOpacity={1} booked>
-                                        <DateText>{item.markup}</DateText>
-                                      </DateItem>
-                                    ) : (
-                                      <DateItem
-                                        disabled={isBooked}
-                                        booked={isBooked}
-                                        selected={selectedTimeSlots.findIndex(selected => moment(selected.start).isSame(moment(item.start))) !== -1}
-                                        onPress={() => {
-                                          onSelectTimeSlot(item.markup, item.start, item.end)
-                                        }}
-                                      >
-                                        <DateText>{item.markup}</DateText>
-                                      </DateItem>
-                                    )}
-                                  </View>
-                                );
-                              }}
-                            />
-                          </View>
-                        </View>
-                      )
-                    ) : (
-                      //if selection is vehicles
-                      
-                      <CalendarPicker
-                        onDateChange={handleTempConfirm}
-                        allowRangeSelection={true}
-                        minDate={moment()}
-                        selectedDayColor={"#4aaf6e"}
-                        selectedDayTextColor="#FFFFFF"
-                        previousTitle="Back"
-                        ref={refCalendarPicker}
-                        dayLabelsWrapper={{
-                          borderColor: "#FFF",
-                        }}
-                        selectedStartDate={startDate}
-                        selectedEndDate={endDate}
-                        disabledDates={unavailableDates}
-                        selectedDisabledDatesTextStyle={{
-                          color: "#FF0000",
-                        }}
-                        customDatesStyles={{
-                          textStyle: { color: "#fad" },
-                        }}
-                        onMonthChange={(date) => {
-                          setCurrentMonth(date)
-                        }}
-                        maxDate={moment().add(1, 'month').subtract(1, 'day')}
-                        maxRangeDuration={7}
-                      />
-                    )}
+                                    );
+                                  }}
+                                />
+                              </View>
+                            </View>
+                          )
+                        ) : (
+                          //if selection is vehicles
 
-                    {/* //Buttons */}
-                    {route.params.type == "micro_mobility" ? (
-                      //micro mobility
-                      modalView == 0 ? (
-                        <WrapperFlex>
-                          <ConfirmButton onPress={() => hideDatePicker(true)}>
-                            <CancelText>Cancel</CancelText>
-                          </ConfirmButton>
-                          {startMicroTempDate ? (
-                            <ConfirmButton
-                              onPress={() => {
-                                setMicroStartDate(startMicroTempDate);
-                                setModalView(1);
-                              }}
-                            >
-                              <ConfirmText color={"#4aaf6e"}>Next</ConfirmText>
-                            </ConfirmButton>
-                          ) : (
-                            <ConfirmButton>
-                              <ConfirmText>Next</ConfirmText>
-                            </ConfirmButton>
-                          )}
-                        </WrapperFlex>
-                      ) : (
-                        <WrapperFlex>
-                          <ConfirmButton onPress={() => setModalView(0)}>
-                            <CancelText>Back</CancelText>
-                          </ConfirmButton>
-                          {masterStart && masterEnd ? (
-                            <ConfirmButton
-                              onPress={() => {
-                                setModalView(0);
-                                hideDatePicker();
-                              }}
-                            >
-                              <ConfirmText color={"#4aaf6e"}>Next</ConfirmText>
-                            </ConfirmButton>
-                          ) : (
-                            <ConfirmButton>
-                              <ConfirmText>Next</ConfirmText>
-                            </ConfirmButton>
-                          )}
-                        </WrapperFlex>
-                      )
-                    ) : //vehicles
-                      !startVehicleTempDate && !endVehicleTempDate ? (
-                        <WrapperFlex>
-                          <ConfirmButton onPress={hideDatePicker}>
-                            <CancelText>Cancel</CancelText>
-                          </ConfirmButton>
-                          <ConfirmButton>
-                            <ConfirmText>Confirm</ConfirmText>
-                          </ConfirmButton>
-                        </WrapperFlex>
-                      ) : (
-                        <WrapperFlex>
-                          <ConfirmButton
-                            onPress={() => {
-                              handleReset();
+                          <CalendarPicker
+                            onDateChange={handleTempConfirm}
+                            allowRangeSelection={true}
+                            minDate={moment()}
+                            selectedDayColor={"#4aaf6e"}
+                            selectedDayTextColor="#FFFFFF"
+                            previousTitle="Back"
+                            ref={refCalendarPicker}
+                            dayLabelsWrapper={{
+                              borderColor: "#FFF",
                             }}
-                          >
-                            <CancelText reset>Reset</CancelText>
-                          </ConfirmButton>
+                            selectedStartDate={startDate}
+                            selectedEndDate={endDate}
+                            disabledDates={unavailableDates}
+                            selectedDisabledDatesTextStyle={{
+                              color: "#FF0000",
+                            }}
+                            customDatesStyles={{
+                              textStyle: { color: "#fad" },
+                            }}
+                            onMonthChange={(date) => {
+                              setCurrentMonth(date)
+                            }}
+                            maxDate={moment().add(1, 'month').subtract(1, 'day')}
+                            maxRangeDuration={7}
+                          />
+                        )}
 
-                          {startVehicleTempDate && endVehicleTempDate ? (
-                            checkDatesInRange(
-                              unavailableDates,
-                              startVehicleTempDate,
-                              endVehicleTempDate
-                            ) ? (
+                        {/* //Buttons */}
+                        {route.params.type == "micro_mobility" ? (
+                          //micro mobility
+                          modalView == 0 ? (
+                            <WrapperFlex>
+                              <ConfirmButton onPress={() => hideDatePicker(true)}>
+                                <CancelText>Cancel</CancelText>
+                              </ConfirmButton>
+                              {startMicroTempDate ? (
+                                <ConfirmButton
+                                  onPress={() => {
+                                    setMicroStartDate(startMicroTempDate);
+                                    setModalView(1);
+                                  }}
+                                >
+                                  <ConfirmText color={"#4aaf6e"}>Next</ConfirmText>
+                                </ConfirmButton>
+                              ) : (
+                                <ConfirmButton>
+                                  <ConfirmText>Next</ConfirmText>
+                                </ConfirmButton>
+                              )}
+                            </WrapperFlex>
+                          ) : (
+                            <WrapperFlex>
+                              <ConfirmButton onPress={() => setModalView(0)}>
+                                <CancelText>Back</CancelText>
+                              </ConfirmButton>
+                              {masterStart && masterEnd ? (
+                                <ConfirmButton
+                                  onPress={() => {
+                                    setModalView(0);
+                                    hideDatePicker();
+                                  }}
+                                >
+                                  <ConfirmText color={"#4aaf6e"}>Next</ConfirmText>
+                                </ConfirmButton>
+                              ) : (
+                                <ConfirmButton>
+                                  <ConfirmText>Next</ConfirmText>
+                                </ConfirmButton>
+                              )}
+                            </WrapperFlex>
+                          )
+                        ) : //vehicles
+                          !startVehicleTempDate && !endVehicleTempDate ? (
+                            <WrapperFlex>
+                              <ConfirmButton onPress={hideDatePicker}>
+                                <CancelText>Cancel</CancelText>
+                              </ConfirmButton>
                               <ConfirmButton>
-                                <ConfirmText color={"#FF0000"}>
-                                  Please Select Available Dates
-                                </ConfirmText>
+                                <ConfirmText>Confirm</ConfirmText>
                               </ConfirmButton>
-                            ) : (
-                              <ConfirmButton onPress={() => handleConfirm()}>
-                                <ConfirmText color={"#4aaf6e"}>
-                                  Confirm
-                                </ConfirmText>
-                              </ConfirmButton>
-                            )
+                            </WrapperFlex>
                           ) : (
-                            <ConfirmButton>
-                              <ConfirmText>Confirm</ConfirmText>
-                            </ConfirmButton>
+                            <WrapperFlex>
+                              <ConfirmButton
+                                onPress={() => {
+                                  handleReset();
+                                }}
+                              >
+                                <CancelText reset>Reset</CancelText>
+                              </ConfirmButton>
+
+                              {startVehicleTempDate && endVehicleTempDate ? (
+                                checkDatesInRange(
+                                  unavailableDates,
+                                  startVehicleTempDate,
+                                  endVehicleTempDate
+                                ) ? (
+                                  <ConfirmButton>
+                                    <ConfirmText color={"#FF0000"}>
+                                      Please Select Available Dates
+                                    </ConfirmText>
+                                  </ConfirmButton>
+                                ) : (
+                                  <ConfirmButton onPress={() => handleConfirm()}>
+                                    <ConfirmText color={"#4aaf6e"}>
+                                      Confirm
+                                    </ConfirmText>
+                                  </ConfirmButton>
+                                )
+                              ) : (
+                                <ConfirmButton>
+                                  <ConfirmText>Confirm</ConfirmText>
+                                </ConfirmButton>
+                              )}
+                            </WrapperFlex>
                           )}
-                        </WrapperFlex>
-                      )}
-                  </ModalMargin>
-                </ModalContent>
-              </ModalView>
+                      </ModalMargin>
+                    </ModalContent>
+                  </ModalView>
 
-              <WrapperImage>
-                <Swiper
-                  showsPagination={false}
-                  showsButtons={true}
-                  nextButton={
-                    <Ionicons
-                      name={"chevron-forward"}
-                      size={32}
-                      color={"#fff"}
-                    ></Ionicons>
-                  }
-                  prevButton={
-                    <Ionicons
-                      name={"chevron-back"}
-                      size={32}
-                      color={"#fff"}
-                    ></Ionicons>
-                  }
-                >
-                  {vehicleQuery.data.vehicle.image_urls.map((e) => {
-                    return (
-                      <View style={{ flex: 1 }}>
-                        <ImageCars
-                          resizeMode="cover"
-                          source={{ uri: e }}
-                        ></ImageCars>
-                      </View>
-                    );
-                  })}
-                </Swiper>
-              </WrapperImage>
-
-              <Container>
-                <GeneralWrapper>
-                  <Title>{vehicleQuery.data.vehicle.model}</Title>
-                  <BodyText>{vehicleQuery.data.vehicle.description}</BodyText>
-                </GeneralWrapper>
-                <GeneralWrapper>
-                  <Subtitle>Trip Dates</Subtitle>
-                  {route.params.type == "vehicle" ? (
-                    startDate == "" ? (
-                      <GrayWrapper>
-                        <ButtonEditCentre
-                          onPress={showDatePicker}
-                          style={{ padding: 10, borderColor: "#4aaf6e" }}
-                        >
-                          <Ionicons
-                            style={{ marginRight: 10 }}
-                            name={"calendar-outline"}
-                            size={16}
-                            color={"#4aaf6e"}
-                          ></Ionicons>
-                          <ButtonText>Select your Trip Dates</ButtonText>
-                        </ButtonEditCentre>
-                      </GrayWrapper>
-                    ) : (
-                      <GrayWrapper>
-                        <DateWrapper>
-                          <TitleButtonWrapper>
-                            <MiniSubtitle>Start Date</MiniSubtitle>
-                            <ButtonEdit onPress={showDatePicker}>
-                              <ButtonText>Change</ButtonText>
-                            </ButtonEdit>
-                          </TitleButtonWrapper>
-                          <DateIconFlex>
-                            <Ionicons
-                              name={"calendar-outline"}
-                              size={16}
-                              color={"#3B414B"}
-                            ></Ionicons>
-                            <DateText>
-                              {moment(startDate).format("LLL")}
-                            </DateText>
-                          </DateIconFlex>
-                        </DateWrapper>
-                        <DateWrapper>
-                          <TitleButtonWrapper>
-                            <MiniSubtitle>End Date</MiniSubtitle>
-                          </TitleButtonWrapper>
-                          <DateIconFlex>
-                            <Ionicons
-                              name={"calendar-outline"}
-                              size={16}
-                              color={"#3B414B"}
-                            ></Ionicons>
-                            <DateText>{moment(endDate).format("LLL")}</DateText>
-                          </DateIconFlex>
-                        </DateWrapper>
-                        <DateWrapper>
-                          <MiniSubtitle>Duration</MiniSubtitle>
-                          <DateIconFlex>
-                            <Ionicons
-                              name={"car-outline"}
-                              size={16}
-                              color={"#3B414B"}
-                            ></Ionicons>
-                            {moment(endDate).diff(startDate, "days") >= 1 ? (
-                              <DateText>
-                                {moment(endDate).diff(startDate, "days")} days
-                              </DateText>
-                            ) : (
-                              <DateText>
-                                {moment(endDate).diff(startDate, "hours")} hours
-                              </DateText>
-                            )}
-                          </DateIconFlex>
-                        </DateWrapper>
-                      </GrayWrapper>
-                    )
-                  ) : masterStart == "" ? (
-                    <GrayWrapper>
-                      <ButtonEditCentre
-                        onPress={showDatePicker}
-                        style={{ padding: 10, borderColor: "#4aaf6e" }}
-                      >
+                  <WrapperImage>
+                    <Swiper
+                      showsPagination={false}
+                      showsButtons={true}
+                      nextButton={
                         <Ionicons
-                          style={{ marginRight: 10 }}
-                          name={"calendar-outline"}
-                          size={16}
-                          color={"#4aaf6e"}
+                          name={"chevron-forward"}
+                          size={32}
+                          color={"#fff"}
                         ></Ionicons>
-                        <ButtonText>Select your Trip Dates</ButtonText>
-                      </ButtonEditCentre>
-                    </GrayWrapper>
-                  ) : (
-                    <GrayWrapper>
-                      <DateWrapper>
-                        <TitleButtonWrapper>
-                          <MiniSubtitle>Start Date</MiniSubtitle>
-                          <ButtonEdit onPress={showDatePicker}>
-                            <ButtonText>Change</ButtonText>
-                          </ButtonEdit>
-                        </TitleButtonWrapper>
-                        <DateIconFlex>
-                          <Ionicons
-                            name={"calendar-outline"}
-                            size={16}
-                            color={"#3B414B"}
-                          ></Ionicons>
-                          <DateText>
-                            {moment(masterStart).format("LLL")}
-                          </DateText>
-                        </DateIconFlex>
-                      </DateWrapper>
-                      <DateWrapper>
-                        <TitleButtonWrapper>
-                          <MiniSubtitle>End Date</MiniSubtitle>
-                        </TitleButtonWrapper>
-                        <DateIconFlex>
-                          <Ionicons
-                            name={"calendar-outline"}
-                            size={16}
-                            color={"#3B414B"}
-                          ></Ionicons>
-                          <DateText>
-                            {moment(masterEnd).format("LLL")}
-                          </DateText>
-                        </DateIconFlex>
-                      </DateWrapper>
-                      <DateWrapper>
-                        <MiniSubtitle>Duration</MiniSubtitle>
-                        <DateIconFlex>
-                          <Ionicons
-                            name={"car-outline"}
-                            size={16}
-                            color={"#3B414B"}
-                          ></Ionicons>
-                          {moment(masterEnd).diff(
-                            masterStart,
-                            "days"
-                          ) >= 1 ? (
-                            <DateText>
-                              {moment(masterEnd).diff(
-                                masterStart,
-                                "days"
-                              )}{" "}
-                              days
-                            </DateText>
-                          ) : (
-                            <DateText>
-                              {moment(masterEnd).diff(
-                                masterStart,
-                                "hours"
-                              )}{" "}
-                              hour
-                            </DateText>
-                          )}
-                        </DateIconFlex>
-                      </DateWrapper>
-                    </GrayWrapper>
-                  )}
-                  <GeneralWrapper>
-                    <Subtitle>Price</Subtitle>
-                    <GrayWrapper>
-                      <DateWrapper>
-                        {
-                          route.params.type == 'vehicle' ?
-                            <MiniSubtitle>Rate Per Day</MiniSubtitle>
-                            :
-                            <MiniSubtitle>Rate Per Hour</MiniSubtitle>
+                      }
+                      prevButton={
+                        <Ionicons
+                          name={"chevron-back"}
+                          size={32}
+                          color={"#fff"}
+                        ></Ionicons>
+                      }
+                    >
+                      {vehicleQuery.data.vehicle.image_urls.map((e) => {
+                        return (
+                          <View style={{ flex: 1 }}>
+                            <ImageCars
+                              resizeMode="cover"
+                              source={{ uri: e }}
+                            ></ImageCars>
+                          </View>
+                        );
+                      })}
+                    </Swiper>
+                  </WrapperImage>
 
-                        }
-                        <DateIconFlex>
-                          <Ionicons
-                            name={"pricetag-outline"}
-                            size={16}
-                            color={"#3B414B"}
-                          ></Ionicons>
-                          <DateText>
-                            ${vehicleQuery.data.vehicle.rate.toFixed(2)}
-                          </DateText>
-                        </DateIconFlex>
-                      </DateWrapper>
-                      <DateWrapper>
-                        <MiniSubtitle
-                          style={{ color: "#4aaf6e", fontWeight: "700" }}
-                        >
-                          Sub Total
-                        </MiniSubtitle>
-
-                        {(route.params.type == "vehicle" ? (
-                          startDate ?
-                            <DateIconFlex>
+                  <Container>
+                    <GeneralWrapper>
+                      <Title>{vehicleQuery.data.vehicle.model}</Title>
+                      <BodyText>{vehicleQuery.data.vehicle.description}</BodyText>
+                    </GeneralWrapper>
+                    <GeneralWrapper>
+                      <Subtitle>Trip Dates</Subtitle>
+                      {route.params.type == "vehicle" ? (
+                        startDate == "" ? (
+                          <GrayWrapper>
+                            <ButtonEditCentre
+                              onPress={showDatePicker}
+                              style={{ padding: 10, borderColor: "#4aaf6e" }}
+                            >
                               <Ionicons
-                                name={"cash-outline"}
+                                style={{ marginRight: 10 }}
+                                name={"calendar-outline"}
                                 size={16}
                                 color={"#4aaf6e"}
                               ></Ionicons>
-                              <DateText
-                                style={{ color: "#4aaf6e", fontWeight: "700" }}
-                              >
-                                $
-                                {(vehicleQuery.data.vehicle.rate *
-                                  moment(endDate).diff(startDate, "days")).toFixed(2)}
-                                {" "}USD
-                              </DateText>
-                            </DateIconFlex>
-
-                            :
-                            <DateIconFlex>
-                              <Ionicons
-                                name={"cash-outline"}
-                                size={16}
-                                color={"#3B414B"}
-                              ></Ionicons>
-                              <DateText>Select a Date to Reveal</DateText>
-                            </DateIconFlex>
+                              <ButtonText available>Select your Trip Dates</ButtonText>
+                            </ButtonEditCentre>
+                          </GrayWrapper>
                         ) : (
-                          masterStart ?
-                          <DateIconFlex>
+                          <GrayWrapper>
+                            <DateWrapper>
+                              <TitleButtonWrapper>
+                                <MiniSubtitle>Start Date</MiniSubtitle>
+                                <ButtonEdit onPress={showDatePicker}>
+                                  <ButtonText color>Change</ButtonText>
+                                </ButtonEdit>
+                              </TitleButtonWrapper>
+                              <DateIconFlex>
+                                <Ionicons
+                                  name={"calendar-outline"}
+                                  size={16}
+                                  color={"#3B414B"}
+                                ></Ionicons>
+                                <DateText>
+                                  {pickupTime ? moment(startDate).format("LLL") : moment(startDate).format("LL")}
+                                </DateText>
+                              </DateIconFlex>
+                            </DateWrapper>
+                            <DateWrapper>
+                              <TitleButtonWrapper>
+                                <MiniSubtitle>End Date</MiniSubtitle>
+                              </TitleButtonWrapper>
+                              <DateIconFlex>
+                                <Ionicons
+                                  name={"calendar-outline"}
+                                  size={16}
+                                  color={"#3B414B"}
+                                ></Ionicons>
+                                <DateText>{dropoffTime ? moment(endDate).format("LLL") : moment(endDate).format("LL")}</DateText>
+                              </DateIconFlex>
+                            </DateWrapper>
+                            <DateWrapper>
+                              <MiniSubtitle>Duration</MiniSubtitle>
+                              <DateIconFlex>
+                                <Ionicons
+                                  name={"car-outline"}
+                                  size={16}
+                                  color={"#3B414B"}
+                                ></Ionicons>
+                                {moment(endDate).diff(startDate, "days") >= 1 ? (
+                                  <DateText>
+                                    {moment(endDate).startOf("day").diff(moment(startDate).startOf("day"), "days")} days
+                                  </DateText>
+                                ) : (
+                                  <DateText>
+                                    {moment(endDate).diff(startDate, "hours")} hours
+                                  </DateText>
+                                )}
+                              </DateIconFlex>
+                            </DateWrapper>
+                          </GrayWrapper>
+                        )
+                      ) : masterStart == "" ? (
+                        <GrayWrapper>
+                          <ButtonEditCentre
+                            onPress={showDatePicker}
+                            style={{ padding: 10, borderColor: "#4aaf6e" }}
+                          >
                             <Ionicons
-                              name={"cash-outline"}
+                              style={{ marginRight: 10 }}
+                              name={"calendar-outline"}
                               size={16}
                               color={"#4aaf6e"}
                             ></Ionicons>
-                            <DateText
-                              style={{ color: "#4aaf6e", fontWeight: "700" }}
-                            >
-                              $
-                              {
-                                vehicleQuery.data.vehicle.rate.toFixed(2) *
-                                moment(masterEnd).diff(
-                                  masterStart,
-                                  "hours"
-                                ).toFixed(2)
-                              }
-                            </DateText>
-                          </DateIconFlex>
-                          :
-                          <DateIconFlex>
+                            <ButtonText available>Select your Trip Dates</ButtonText>
+                          </ButtonEditCentre>
+                        </GrayWrapper>
+                      ) : (
+                        <GrayWrapper>
+                          <DateWrapper>
+                            <TitleButtonWrapper>
+                              <MiniSubtitle>Start Date</MiniSubtitle>
+                              <ButtonEdit onPress={showDatePicker}>
+                                <ButtonText>Change</ButtonText>
+                              </ButtonEdit>
+                            </TitleButtonWrapper>
+                            <DateIconFlex>
                               <Ionicons
-                                name={"cash-outline"}
+                                name={"calendar-outline"}
                                 size={16}
                                 color={"#3B414B"}
                               ></Ionicons>
-                              <DateText>Select a Date to Reveal</DateText>
+                              <DateText>
+                                {moment(masterStart).format("LLL")}
+                              </DateText>
                             </DateIconFlex>
-                        )
-                        )}
-                      </DateWrapper>
-                    </GrayWrapper>
-                  </GeneralWrapper>
-                </GeneralWrapper>
-              </Container>
-            </ScrollView>
-            <Footer>
-              {/* <ButtonEdit style={{
+                          </DateWrapper>
+                          <DateWrapper>
+                            <TitleButtonWrapper>
+                              <MiniSubtitle>End Date</MiniSubtitle>
+                            </TitleButtonWrapper>
+                            <DateIconFlex>
+                              <Ionicons
+                                name={"calendar-outline"}
+                                size={16}
+                                color={"#3B414B"}
+                              ></Ionicons>
+                              <DateText>
+                                {moment(masterEnd).format("LLL")}
+                              </DateText>
+                            </DateIconFlex>
+                          </DateWrapper>
+                          <DateWrapper>
+                            <MiniSubtitle>Duration</MiniSubtitle>
+                            <DateIconFlex>
+                              <Ionicons
+                                name={"car-outline"}
+                                size={16}
+                                color={"#3B414B"}
+                              ></Ionicons>
+                              {moment(masterEnd).diff(
+                                masterStart,
+                                "days"
+                              ) >= 1 ? (
+                                <DateText>
+                                  {moment(masterEnd).diff(
+                                    masterStart,
+                                    "days"
+                                  )}{" "}
+                                  days
+                                </DateText>
+                              ) : (
+                                <DateText>
+                                  {moment(masterEnd).diff(
+                                    masterStart,
+                                    "hours"
+                                  )}{" "}
+                                  hour
+                                </DateText>
+                              )}
+                            </DateIconFlex>
+                          </DateWrapper>
+                        </GrayWrapper>
+                      )}
+
+                      <Subtitle>Pickup Time</Subtitle>
+                      <DateTimePickerModal
+                        isVisible={isPickupTimeVisible}
+                        mode="time"
+                        onConfirm={handlePickupConfirm}
+                        onCancel={hidePickupPicker}
+                      />
+                      <DateTimePickerModal
+                        isVisible={isDropoffTimeVisible}
+                        mode="time"
+                        onConfirm={handleDropoffConfirm}
+                        onCancel={hideDropoffPicker}
+                      />
+                      <GrayWrapper>
+                        {pickupTime ?
+                          <DateWrapper>
+                            <TitleButtonWrapper>
+                              <MiniSubtitle>Pickup Time</MiniSubtitle>
+                              <ButtonEdit onPress={showPickupPicker}>
+                                <ButtonText color>Change</ButtonText>
+                              </ButtonEdit>
+                            </TitleButtonWrapper>
+                            <DateIconFlex>
+                              <Ionicons
+                                name={"time-outline"}
+                                size={16}
+                                color={"#3B414B"}
+                              ></Ionicons>
+                              <DateText>
+                                {moment(pickupTime).format("LT")}
+                              </DateText>
+                            </DateIconFlex>
+                          </DateWrapper>
+                          :
+
+                          <ButtonEditCentre
+                            onPress={showPickupPicker}
+                            style={{ padding: 10, borderColor: "#4aaf6e" }}
+                          >
+                            <Ionicons
+                              style={{ marginRight: 10 }}
+                              name={"calendar-outline"}
+                              size={16}
+                              color={startDate && endDate ? "#4aaf6e" : "#8c8c8c"}
+                            ></Ionicons>
+                            <ButtonText available={startDate && endDate}>Select your Pickup Time</ButtonText>
+                          </ButtonEditCentre>
+                        }
+                      </GrayWrapper>
+
+                      <Subtitle>Drop Off Time</Subtitle>
+                      <GrayWrapper>
+                        {dropoffTime ?
+                          <DateWrapper>
+                            <TitleButtonWrapper>
+                              <MiniSubtitle>Drop Off Time</MiniSubtitle>
+                              <ButtonEdit onPress={showDropoffPicker}>
+                                <ButtonText color>Change</ButtonText>
+                              </ButtonEdit>
+                            </TitleButtonWrapper>
+                            <DateIconFlex>
+                              <Ionicons
+                                name={"time-outline"}
+                                size={16}
+                                color={"#3B414B"}
+                              ></Ionicons>
+                              <DateText>
+                                {moment(dropoffTime).format("LT")}
+                              </DateText>
+                            </DateIconFlex>
+                          </DateWrapper>
+                          :
+                          <ButtonEditCentre
+                            onPress={showDropoffPicker}
+                            style={{ padding: 10, borderColor: "#4aaf6e" }}
+                          >
+                            <Ionicons
+                              style={{ marginRight: 10 }}
+                              name={"calendar-outline"}
+                              size={16}
+                              color={startDate && endDate && pickupTime ? "#4aaf6e" : "#8c8c8c"}
+                            ></Ionicons>
+                            <ButtonText available={startDate && endDate && pickupTime}>Select your Drop Off Time</ButtonText>
+                          </ButtonEditCentre>
+                        }
+                      </GrayWrapper>
+
+                      <GeneralWrapper>
+                        <Subtitle>Price</Subtitle>
+                        <GrayWrapper>
+                          <DateWrapper>
+                            {
+                              route.params.type == 'vehicle' ?
+                                <MiniSubtitle>Rate Per Day</MiniSubtitle>
+                                :
+                                <MiniSubtitle>Rate Per Hour</MiniSubtitle>
+
+                            }
+                            <DateIconFlex>
+                              <Ionicons
+                                name={"pricetag-outline"}
+                                size={16}
+                                color={"#3B414B"}
+                              ></Ionicons>
+                              <DateText>
+                                ${vehicleQuery.data.vehicle.rate.toFixed(2)}
+                              </DateText>
+                            </DateIconFlex>
+                          </DateWrapper>
+                          <DateWrapper>
+                            <MiniSubtitle
+                              style={{ color: "#4aaf6e", fontWeight: "700" }}
+                            >
+                              Sub Total
+                            </MiniSubtitle>
+
+                            {(route.params.type == "vehicle" ? (
+                              startDate ?
+                                <DateIconFlex>
+                                  <Ionicons
+                                    name={"cash-outline"}
+                                    size={16}
+                                    color={"#4aaf6e"}
+                                  ></Ionicons>
+                                  <DateText
+                                    style={{ color: "#4aaf6e", fontWeight: "700" }}
+                                  >
+                                    $
+                                    {(vehicleQuery.data.vehicle.rate *
+                                      moment(endDate).diff(startDate, "days")).toFixed(2)}
+                                    {" "}USD
+                                  </DateText>
+                                </DateIconFlex>
+
+                                :
+                                <DateIconFlex>
+                                  <Ionicons
+                                    name={"cash-outline"}
+                                    size={16}
+                                    color={"#3B414B"}
+                                  ></Ionicons>
+                                  <DateText>Select a Date to Reveal</DateText>
+                                </DateIconFlex>
+                            ) : (
+                              masterStart ?
+                                <DateIconFlex>
+                                  <Ionicons
+                                    name={"cash-outline"}
+                                    size={16}
+                                    color={"#4aaf6e"}
+                                  ></Ionicons>
+                                  <DateText
+                                    style={{ color: "#4aaf6e", fontWeight: "700" }}
+                                  >
+                                    $
+                                    {
+                                      vehicleQuery.data.vehicle.rate.toFixed(2) *
+                                      moment(masterEnd).diff(
+                                        masterStart,
+                                        "hours"
+                                      ).toFixed(2)
+                                    }
+                                  </DateText>
+                                </DateIconFlex>
+                                :
+                                <DateIconFlex>
+                                  <Ionicons
+                                    name={"cash-outline"}
+                                    size={16}
+                                    color={"#3B414B"}
+                                  ></Ionicons>
+                                  <DateText>Select a Date to Reveal</DateText>
+                                </DateIconFlex>
+                            )
+                            )}
+                          </DateWrapper>
+                        </GrayWrapper>
+                      </GeneralWrapper>
+                    </GeneralWrapper>
+                  </Container>
+                </ScrollView>
+                <Footer>
+                  {/* <ButtonEdit style={{
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'row'
@@ -1267,103 +1404,103 @@ const CarDetails = ({ route, navigation }) => {
     <ButtonText
     style={{color: '#727d76'}}
     >Back</ButtonText></ButtonEdit> */}
-              {route.params.type == "vehicle" ? (
-                startDate == "" ? (
-                  <ContainerPrice>
-                    <WrapperPriceFix>
-                      <TitlePrice color>
-                        ${vehicleQuery.data.vehicle.rate.toFixed(2)} Per Day
-                      </TitlePrice>
-                      <Price color>Select your Trip Dates</Price>
-                    </WrapperPriceFix>
-                    <WrapperPrice style={{ marginLeft: 10 }}>
-                      <Ionicons
-                        name={"arrow-forward"}
-                        size={32}
-                        color={endDate == "" ? "#c6cacf" : "#4aaf6e"}
-                      ></Ionicons>
-                    </WrapperPrice>
-                  </ContainerPrice>
-                ) : (
-                  <ContainerPrice>
-                    <WrapperPriceFix>
-                      <TitlePrice color>
-                        ${vehicleQuery.data.vehicle.rate.toFixed(2)} Per Hour
-                      </TitlePrice>
-                      <Price color>
-                        $
-                        {vehicleQuery.data.vehicle.rate.toFixed(2) *
-                          moment(endDate).diff(startDate, "days")}{" "}
-                        est. total
-                      </Price>
-                    </WrapperPriceFix>
+                  {route.params.type == "vehicle" ? (
+                    startDate && endDate && dropoffTime && pickupTime ? (
+                      <ContainerPrice>
+                        <WrapperPriceFix>
+                          <TitlePrice color>
+                            ${vehicleQuery.data.vehicle.rate.toFixed(2)} Per Hour
+                          </TitlePrice>
+                          <Price color>
+                            $
+                            {vehicleQuery.data.vehicle.rate.toFixed(2) *
+                              moment(endDate).diff(startDate, "days")}{" "}
+                            est. total
+                          </Price>
+                        </WrapperPriceFix>
 
-                    <WrapperPrice style={{ marginLeft: 20 }}>
-                      <CustomButton
-                        width={"120px"}
-                        bgcolor={"#4aaf6e"}
-                        fcolor="#fff"
-                        title={"Next"}
-                        rad
-                        onPress={() => handleNext()}
-                      ></CustomButton>
-                    </WrapperPrice>
-                  </ContainerPrice>
-                )
-              ) : (
-                masterStart == "" ?
-                  <ContainerPrice>
-                    <WrapperPriceFix>
-                      <TitlePrice color>
-                        ${vehicleQuery.data.vehicle.rate.toFixed(2)} Per Hour
-                      </TitlePrice>
-                      <Price color>Select your Trip Dates</Price>
-                    </WrapperPriceFix>
-                    <WrapperPrice style={{ marginLeft: 10 }}>
-                      <Ionicons
-                        name={"arrow-forward"}
-                        size={32}
-                        color={endDate == "" ? "#c6cacf" : "#4aaf6e"}
-                      ></Ionicons>
-                    </WrapperPrice>
-                  </ContainerPrice>
-                  :
-                  <ContainerPrice>
-                    <WrapperPriceFix>
-                      <TitlePrice color>
-                        ${vehicleQuery.data.vehicle.rate.toFixed(2)} Per Hour
-                      </TitlePrice>
+                        <WrapperPrice style={{ marginLeft: 20 }}>
+                          <CustomButton
+                            width={"120px"}
+                            bgcolor={"#4aaf6e"}
+                            fcolor="#fff"
+                            title={"Next"}
+                            rad
+                            onPress={() => handleNext()}
+                          ></CustomButton>
+                        </WrapperPrice>
+                      </ContainerPrice>
+                    ) : (
+                      <ContainerPrice>
+                        <WrapperPriceFix>
+                          <TitlePrice color>
+                            ${vehicleQuery.data.vehicle.rate.toFixed(2)} Per Day
+                          </TitlePrice>
+                          <Price color>Select your Trip Dates</Price>
+                        </WrapperPriceFix>
+                        <WrapperPrice style={{ marginLeft: 10 }}>
+                          <Ionicons
+                            name={"arrow-forward"}
+                            size={32}
+                            color={"#c6cacf"}
+                          ></Ionicons>
+                        </WrapperPrice>
+                      </ContainerPrice>
+                    )
+                  ) : (
+                    masterStart == "" ?
+                      <ContainerPrice>
+                        <WrapperPriceFix>
+                          <TitlePrice color>
+                            ${vehicleQuery.data.vehicle.rate.toFixed(2)} Per Hour
+                          </TitlePrice>
+                          <Price color>Select your Trip Dates</Price>
+                        </WrapperPriceFix>
+                        <WrapperPrice style={{ marginLeft: 10 }}>
+                          <Ionicons
+                            name={"arrow-forward"}
+                            size={32}
+                            color={endDate == "" ? "#c6cacf" : "#4aaf6e"}
+                          ></Ionicons>
+                        </WrapperPrice>
+                      </ContainerPrice>
+                      :
+                      <ContainerPrice>
+                        <WrapperPriceFix>
+                          <TitlePrice color>
+                            ${vehicleQuery.data.vehicle.rate.toFixed(2)} Per Hour
+                          </TitlePrice>
 
-                      <Price color>
-                        $
-                        {vehicleQuery.data.vehicle.rate.toFixed(2) *
-                          moment(masterEnd).diff(
-                            masterStart,
-                            "hours"
-                          )}{" "}
-                        est. total
-                      </Price>
-                    </WrapperPriceFix>
+                          <Price color>
+                            $
+                            {vehicleQuery.data.vehicle.rate.toFixed(2) *
+                              moment(masterEnd).diff(
+                                masterStart,
+                                "hours"
+                              )}{" "}
+                            est. total
+                          </Price>
+                        </WrapperPriceFix>
 
-                    <WrapperPrice style={{ marginLeft: 20 }}>
-                      <CustomButton
-                        width={"120px"}
-                        bgcolor={"#4aaf6e"}
-                        fcolor="#fff"
-                        title={"Next"}
-                        rad
-                        onPress={() => handleNext()}
-                      ></CustomButton>
-                    </WrapperPrice>
-                  </ContainerPrice>
+                        <WrapperPrice style={{ marginLeft: 20 }}>
+                          <CustomButton
+                            width={"120px"}
+                            bgcolor={"#4aaf6e"}
+                            fcolor="#fff"
+                            title={"Next"}
+                            rad
+                            onPress={() => handleNext()}
+                          ></CustomButton>
+                        </WrapperPrice>
+                      </ContainerPrice>
+                  )}
+                </Footer>
+              </View>
+            )
+
+              : (
+                <></>
               )}
-            </Footer>
-          </View>
-        )
-        
-        : (
-          <></>
-        )}
       </View>
     );
   }

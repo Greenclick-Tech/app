@@ -90,7 +90,6 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
           }
           token = (await Notifications.getExpoPushTokenAsync()).data;
         } else {
-            console.log('navigate')
         }
     
         if (Platform.OS === 'android') {

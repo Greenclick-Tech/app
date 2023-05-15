@@ -16,6 +16,9 @@ import PageNotifications from "../../../screens/appScreens/settings/nested-setti
 import PagePrivacy from "../../../screens/appScreens/settings/nested-settings/privacy";
 import Faq from "../../../screens/appScreens/settings/nested-settings/faq";
 import Support from "../../../screens/appScreens/settings/nested-settings/support";
+import EmailVerifyPage from "../../../screens/appScreens/email-verification";
+import UserVerifyPage from "../../../screens/appScreens/user-verification";
+import NotificationsPage from "../../../screens/appScreens/notifications";
 
 // import Activity from "./pages/pages-app/activity";
 // import PaymentMethods from "./pages/pages-app/payment-methods";
@@ -86,7 +89,7 @@ const AppRoutes = () => {
             {/* Notification management, user managing all extra notifications that are not related to user experience */}
 
             {/* <Stack.Screen
-                name="Notifications"
+                name="Notifications-Settings"
                 component={PageNotifications}
             /> */}
 
@@ -175,6 +178,44 @@ const AppRoutes = () => {
                 }}
                 component={KeyReturn}
             />
+
+            <Stack.Screen
+                name="Email Verification"
+                options={({ navigation }) => ({
+                    headerBackTitle: "Home",
+                    headerTitle: "Verify your Email",
+                    headerLeft: () => (
+                        <Button color={"#000"} onPress={() => navigation.navigate("Home", {
+                            refresh: true
+                        })} title="Home" />
+                    ),
+                })}
+                component={EmailVerifyPage}
+            />
+
+            <Stack.Screen
+                name="User Verification"
+                options={({ navigation }) => ({
+                    headerBackTitle: "Home",
+                    headerTitle: "Verify your Identification",
+                    headerLeft: () => (
+                        <Button color={"#000"} onPress={() => navigation.navigate("Home", {
+                            refresh: true
+                        })} title="Home" />
+                    ),
+                })}
+                component={UserVerifyPage}
+            />
+
+            <Stack.Screen
+                name="Notifications"
+                options={({ navigation }) => ({
+                    headerBackTitle: "Back",
+                    headerTitle: "All Notifications"
+                })}
+                component={NotificationsPage}
+            />
+
 
         </Stack.Navigator>
     );
