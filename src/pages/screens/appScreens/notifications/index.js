@@ -116,7 +116,6 @@ const NotificationsPage = ({ navigation, route }) => {
         queryKey: ["notifications"],
         queryFn: () => fetchNotifications(),
         onSuccess: (data) => {
-            console.log(data)
             setTimeout(() => {
                 setRefreshing(false)
             }, 500)

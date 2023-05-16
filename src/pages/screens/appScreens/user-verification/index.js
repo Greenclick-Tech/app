@@ -135,8 +135,8 @@ const UserVerifyPage = ({ navigation, route }) => {
                 navigation.navigate('Confirm', {
                     hotelId: route.params.hotelId,
                     vehicleId: route.params.vehicleId,
-                    startDate: route.params.startDate,
-                    endDate: route.params.endDate
+                    startDate: moment(route.params.startDate),
+                    endDate: moment(route.params.endDate)
                 })
             }
           return res;
@@ -170,10 +170,11 @@ const UserVerifyPage = ({ navigation, route }) => {
                                     getUser.refetch()
                                 }}
                             >
-                            {!getUser.data.user.identity_verified && 
-                            <RedBody>Your identity is currently being verified, please check back in a few minutes.</RedBody>
-                            }
                             </CustomButton>
+                            
+                    }
+                    {!getUser.data.user.identity_verified && 
+                            <RedBody>Your identity is currently being verified, please check back in a few minutes.</RedBody>
                     }
 
 

@@ -1219,12 +1219,15 @@ const CarDetails = ({ route, navigation }) => {
                         mode="time"
                         onConfirm={handlePickupConfirm}
                         onCancel={hidePickupPicker}
+                        minuteInterval={15}
+                        minimumDate={moment(startDate).isSame(new Date(), "day") ? moment().toDate() : null}
                       />
                       <DateTimePickerModal
                         isVisible={isDropoffTimeVisible}
                         mode="time"
                         onConfirm={handleDropoffConfirm}
                         onCancel={hideDropoffPicker}
+                        minuteInterval={15}
                       />
                       <GrayWrapper>
                         {pickupTime ?
