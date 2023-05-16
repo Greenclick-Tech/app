@@ -465,6 +465,7 @@ const HomePage = ({ navigation, route }) => {
 
   useFocusEffect(
     React.useCallback(() => {
+      getUser.refetch()
       activeBooking.refetch()
     }, [isFocused])
   );
@@ -472,7 +473,7 @@ const HomePage = ({ navigation, route }) => {
   const getUser = useQuery({
     queryKey: ["user"],
     queryFn: () => fetchUser(),
-    refetchOnWindowFocus: 'always'
+    refetchOnWindowFocus: 'always',
   });
 
   useEffect(() => {
