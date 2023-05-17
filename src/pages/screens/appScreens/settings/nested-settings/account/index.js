@@ -56,7 +56,6 @@ const PageAccount = () => {
         if ("error" in res) {
             Alert.alert('An error has occured', res.error.message)
         } else {
-        console.log(res)
           return res;
         }
       }

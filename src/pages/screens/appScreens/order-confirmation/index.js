@@ -306,7 +306,6 @@ const OrderConfirmation = ({ route, navigation }) => {
             // SAHIL, HANDLE THIS
             // probably a 404, hotel prob doesnt exist or somthing
             //
-            //console.log(res.error)
             return res;
         } else {
             return res;

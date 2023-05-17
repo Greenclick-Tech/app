@@ -107,7 +107,6 @@ const EmailVerifyPage = ({ navigation, route }) => {
             "application/x-www-form-urlencoded",
             true
         )
-        console.log(res)
         if ("error" in res) {
             Alert.alert("An error has occured", res.error.message);
         } else {
