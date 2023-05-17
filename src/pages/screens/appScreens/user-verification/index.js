@@ -9,6 +9,7 @@ import CustomButton from '../../../../components/custom-button';
 import endpoints from '../../../../constants/endpoints';
 import { useQuery } from "@tanstack/react-query";
 import { useStripeIdentity } from "@stripe/stripe-identity-react-native";
+import moment from 'moment';
 
 // A square logo for your brand
 import logo from '../../../../assets/icon.png';
