@@ -301,6 +301,31 @@ const VerifyDescription = styled.Text`
 
 `;
 
+const PromoCodeInput = styled.TextInput`
+  padding: 10px 10px;
+  background-color: #eeeeee30;
+  border: 1px solid #00000010;
+  flex: 1;
+  font-size: 16px;
+  border-radius: 7px;
+`;
+
+const AddButton = styled.TouchableOpacity`
+  padding: 10px 10px;
+  background-color: ${props => props.active ? "#4aaf6e50": "#4aaf6e"}
+  font-size: 16px;
+  border-radius: 7px;
+`;
+
+const ResetButton = styled.TouchableOpacity`
+
+`;
+
+const ResetText = styled.Text`
+  color: #ff0000;
+  font-size: 12px;
+`;
+
 
 const CarConfirm = ({ route, navigation }) => {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
@@ -310,8 +335,9 @@ const CarConfirm = ({ route, navigation }) => {
   const [errorIntent, setErrorIntent] = useState('')
   const [purchaseConfirmed, setPurchaseConfirmed] = useState(false)
   const [isCurrentInsurance, setCurrentInsurance] = useState(false)
-  const [insurance, setInsurance] = useState('645f630f7d8c9f3278c5e11c')
+  const [insurance, setInsurance] = useState('')
   const [promotion, setPromotion] = useState('')
+  const [promotionText, setPromotionText] = useState('')
   const initializePaymentSheet = async () => {
 
     const { error } = await initPaymentSheet({
@@ -485,12 +511,12 @@ const CarConfirm = ({ route, navigation }) => {
         }
       },
       {
-      queryKey: ["user"],
-      queryFn: () => fetchUser(),
+        queryKey: ["user"],
+        queryFn: () => fetchUser(),
       },
       {
-      queryKey: ["insurances", route.params.vehicleId],
-      queryFn: () => fetchInsurances(route.params.hotelId, route.params.vehicleId)
+        queryKey: ["insurances", route.params.vehicleId],
+        queryFn: () => fetchInsurances(route.params.hotelId, route.params.vehicleId),
       }
     ],
   });
@@ -592,6 +618,10 @@ const CarConfirm = ({ route, navigation }) => {
   const hidePaymentPicker = (type) => {
     setPaymentVisibility(false);
   };
+
+  useEffect(()=> {
+    results[3].refetch()
+  }, [insurance, promotion])
 
   useEffect(() => {
     initializePaymentSheet();
@@ -747,24 +777,54 @@ const CarConfirm = ({ route, navigation }) => {
                                     </DateWrapper>
                                   </GrayWrapper>
                               }
-                              <InsuranceWrapper>
+                              { results[6].data.insurances?.length > 0 ?
+
+                              results[6].data.insurances.map((data)=> {
+                                return (
+                                  <InsuranceWrapper>
                                 <DateWrapper>
                                   <MiniSubtitle>Select Insurance</MiniSubtitle>
                                 </DateWrapper>
                                 <InsuranceBox>
                                   <InsuranceSelector onPress={() => {
-                                    setCurrentInsurance(!isCurrentInsurance)
-                                  }} active={isCurrentInsurance}></InsuranceSelector>
+                                    setInsurance(insurance == data.id ? '' : data.id)
+                                  }} active={insurance == data.id}></InsuranceSelector>
                                   <View style={{ flex: 5 }}>
-                                    <InformationTitle>Bonzah Insurance</InformationTitle>
+                                    <InformationTitle>{data.name}</InformationTitle>
                                     <InformationText>
-                                      Includes full protection yatta yatta yatta
+                                      {data.description}
                                     </InformationText>
                                   </View>
                                   <Image source={require("../../../../assets/bonzah.jpg")} style={{ resizeMode: "contain", flex: 1, height: 50, width: 50 }}></Image>
 
                                 </InsuranceBox>
                               </InsuranceWrapper>
+                                )
+                              })
+                                :
+                                <></>
+                                }
+
+                            {/* <InsuranceWrapper>
+                                <DateWrapper>
+                                  <MiniSubtitle>Add a Promo Code</MiniSubtitle>
+                                </DateWrapper>
+                                <InsuranceBox>
+                                  <PromoCodeInput onChangeText={(text) => {
+                                    setPromotionText(text)
+                                  }}>
+                                  </PromoCodeInput>
+                                  <AddButton onPress={()=> {
+                                    setPromotion()
+                                  }}><Text style={{color: "#ffffff", fontSize: 16}}>Add</Text></AddButton>
+                                </InsuranceBox>
+                                {
+                                promotion && 
+                                <ResetButton>
+                                  <ResetText>Reset</ResetText>
+                                </ResetButton>
+                                }
+                              </InsuranceWrapper> */}
 
                               {
 
@@ -800,20 +860,24 @@ const CarConfirm = ({ route, navigation }) => {
                               }
 
                             </GeneralWrapper>
-                            <InformationBox>
-                              <Ionicons
-                                color="#00000090"
-                                name="thumbs-up-outline"
-                                size={38}
-                              ></Ionicons>
-                              <View style={{ flexShrink: 1 }}>
-                                <InformationTitle>Free Cancellation</InformationTitle>
-                                <InformationText>
-                                  Recieve a full refund before <Bolding>{moment(route.params.startDate).subtract(1, "days").format('LLL')}.</Bolding>
-                                </InformationText>
-                              </View>
+                            {
+                            moment(route.params.startDate).subtract(1, "days").isAfter(moment()) &&
+                              
+                              <InformationBox>
+                                <Ionicons
+                                  color="#00000090"
+                                  name="thumbs-up-outline"
+                                  size={38}
+                                ></Ionicons>
+                                <View style={{ flexShrink: 1 }}>
+                                  <InformationTitle>Free Cancellation</InformationTitle>
+                                  <InformationText>
+                                    Recieve a full refund before <Bolding>{moment(route.params.startDate).subtract(1, "days").format('LLL')}.</Bolding>
+                                  </InformationText>
+                                </View>
 
-                            </InformationBox>
+                              </InformationBox>
+                            }
                             <InformationBox reverse>
                               <Ionicons
                                 color="#00000090"
@@ -838,12 +902,6 @@ const CarConfirm = ({ route, navigation }) => {
                               fcolor={"#fff"}
                               width="100%"
                             ></CustomButton>
-                            {/* <Button
-                    title="test"
-                    onPress={() => {
-                      navigation.navigate("Order");
-                    }}
-                  ></Button> */}
                           </ContainerPrice>
                         </Footer>
                       </SafeAreaView>
