@@ -153,12 +153,14 @@ const UserVerifyPage = ({ navigation, route }) => {
                         fcolor={"#fff"}
                         title={"Continue"}
                         onPress={()=> {
-                            navigation.navigate('Confirm', {
+
+                            navigation.navigate("Confirm", {
                                 hotelId: route.params.hotelId,
                                 vehicleId: route.params.vehicleId,
                                 startDate: moment(route.params.startDate).toDate(),
                                 endDate: moment(route.params.endDate).toDate()
-                            })
+                            });
+                            
                         }}
                     >
                     </CustomButton>
