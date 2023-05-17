@@ -116,100 +116,102 @@ const UserVerifyPage = ({ navigation, route }) => {
         queryKey: ["user"],
         queryFn: () => fetchUser(),
         refetchOnWindowFocus: 'always',
-        enabled: false
-      });
+        refetchInterval: 8000
+    });
 
-      async function fetchUser() {
+    async function fetchUser() {
         let res = await RequestHandler(
-          "GET",
-          endpoints.GET_CURRENT_USER(),
-          undefined,
-          undefined,
-          true
+            "GET",
+            endpoints.GET_CURRENT_USER(),
+            undefined,
+            undefined,
+            true
         );
-    
+
         if ("error" in res) {
             Alert.alert('An error has occured', res.error.message)
         } else {
-            if(res.user.identity_verified) {
-                navigation.navigate('Confirm', {
-                    hotelId: route.params.hotelId,
-                    vehicleId: route.params.vehicleId,
-                    startDate: moment(route.params.startDate),
-                    endDate: moment(route.params.endDate)
-                })
-            }
-          return res;
+            return res;
         }
-      }
+    }
 
     return (
-        <Cont>
-            {
-
-            status == "FlowCompleted" ?
+        getUser.data.user.identity_verified ?
+            <Cont>
                 <SafeArea
                     contentContainerStyle={{ flexGrow: 1 }}
                     keyboardShouldPersistTaps='handled'
                     scrollEnabled={false}
                 >
-                    <Subtitle>Your Verification is Processing</Subtitle>
-                    <EmailText>Your verification is currently processing. This process usually takes 1-3 minutes and we will notify you when it's done.</EmailText>
+                    <Subtitle>Your have been Verified!</Subtitle>
+                    <EmailText>Continue your order by clicking "Continue" below.</EmailText>
                     <ButtonContainer>
-
                     </ButtonContainer>
-                    {
-                        loading ?
-                            <ActivityIndicator size={'small'}></ActivityIndicator>
-                            :
-                            <CustomButton
-                                bgcolor={"#4aaf6e"}
-                                fcolor={"#fff"}
-                                title={"Check Status"}
-                                onPress={()=> {
-                                    getUser.refetch()
-                                }}
-                            >
-                            </CustomButton>
-                            
-                    }
-                    {!getUser.data.user.identity_verified && 
-                            <RedBody>Your identity is currently being verified, please check back in a few minutes.</RedBody>
-                    }
-
+                    <CustomButton
+                        bgcolor={"#4aaf6e"}
+                        fcolor={"#fff"}
+                        title={"Continue"}
+                        onPress={()=> {
+                            navigation.navigate('Confirm', {
+                                hotelId: route.params.hotelId,
+                                vehicleId: route.params.vehicleId,
+                                startDate: moment(route.params.startDate),
+                                endDate: moment(route.params.endDate)
+                            })
+                        }}
+                    >
+                    </CustomButton>
 
                 </SafeArea>
+            </Cont>
             :
-                <SafeArea
-                    contentContainerStyle={{ flexGrow: 1 }}
-                    keyboardShouldPersistTaps='handled'
-                    scrollEnabled={false}
-                >
-                    <Subtitle>Verify your ID</Subtitle>
-                    <EmailText>To increase trust and safety, Greenclick requires to verify your identification before rental purchases. Have your identification ready and tap "Verify" to start the verification process.</EmailText>
-                    <ButtonContainer>
+            <Cont>
+                {
 
-                    </ButtonContainer>
-                    {
-                        loading ?
-                            <ActivityIndicator size={'small'}></ActivityIndicator>
-                            :
-                            <CustomButton
-                                bgcolor={"#4aaf6e"}
-                                fcolor={"#fff"}
-                                title={"Verify"}
-                                onPress={handlePress}
-                            >
-                            </CustomButton>
-                    }
-                    {
-                        status == "FlowFailed" &&
-                        <RedBody>Verification was cancelled by user. If this was a mistake, please tap Verify again.</RedBody>
-                    }
+                    status == "FlowCompleted" ?
+                        <SafeArea
+                            contentContainerStyle={{ flexGrow: 1 }}
+                            keyboardShouldPersistTaps='handled'
+                            scrollEnabled={false}
+                        >
+                            <Subtitle>Your Verification is Processing</Subtitle>
+                            <EmailText>Your verification is currently processing. This process usually takes 1-3 minutes and we will notify you when it's done.</EmailText>
+                            <ButtonContainer>
 
-                </SafeArea>
-            }
-        </Cont>
+                            </ButtonContainer>
+
+                        </SafeArea>
+                        :
+                        <SafeArea
+                            contentContainerStyle={{ flexGrow: 1 }}
+                            keyboardShouldPersistTaps='handled'
+                            scrollEnabled={false}
+                        >
+                            <Subtitle>Verify your ID</Subtitle>
+                            <EmailText>To increase trust and safety, Greenclick requires to verify your identification before rental purchases. Have your identification ready and tap "Verify" to start the verification process.</EmailText>
+                            <ButtonContainer>
+
+                            </ButtonContainer>
+                            {
+                                loading ?
+                                    <ActivityIndicator size={'small'}></ActivityIndicator>
+                                    :
+                                    <CustomButton
+                                        bgcolor={"#4aaf6e"}
+                                        fcolor={"#fff"}
+                                        title={"Verify"}
+                                        onPress={handlePress}
+                                    >
+                                    </CustomButton>
+                            }
+                            {
+                                status == "FlowFailed" &&
+                                <RedBody>Verification was cancelled by user. If this was a mistake, please tap Verify again.</RedBody>
+                            }
+
+                        </SafeArea>
+                }
+            </Cont>
     )
 };
 
