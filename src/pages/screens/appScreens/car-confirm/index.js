@@ -378,6 +378,7 @@ const CarConfirm = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
+      Alert.alert('An error has occured', res.error.message)
       return res;
     } else {
       return res;
@@ -396,6 +397,7 @@ const CarConfirm = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
+      Alert.alert('An error has occured', res.error.message)
       return res;
     } else {
       return res;
@@ -417,6 +419,7 @@ const CarConfirm = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
+      Alert.alert('An error has occured', res.error.message)
       if (res.error.code == "VERIFY_EMAIL") {
         handleVerifyEmail()
       }
@@ -450,6 +453,7 @@ const CarConfirm = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
+      Alert.alert('An error has occured', res.error.message)
     } else {
       return res;
     }
@@ -470,6 +474,7 @@ const CarConfirm = ({ route, navigation }) => {
       // OR the hotel doesnt even have a box yet
       // or u could receive 403, so show the error message to user
       //
+      Alert.alert('An error has occured', res.error.message)
       return res;
     } else {
       // res.latch_id = Number
