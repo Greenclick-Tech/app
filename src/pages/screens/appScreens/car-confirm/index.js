@@ -378,7 +378,6 @@ const CarConfirm = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
-      Alert.alert('An error has occured', res.error.message)
       return res;
     } else {
       return res;
@@ -397,7 +396,6 @@ const CarConfirm = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
-      Alert.alert('An error has occured', res.error.message)
       return res;
     } else {
       return res;
@@ -419,14 +417,15 @@ const CarConfirm = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
-      Alert.alert('An error has occured', res.error.message)
       if (res.error.code == "VERIFY_EMAIL") {
         handleVerifyEmail()
       }
       if (res.error.code == "VERIFY_IDENTITY") {
         navigation.navigate("User Verification", {
-          startDate: route.params.startDate,
-          endDate: route.params.endDate,
+          vehicleId: route.params.vehicleId,
+          hotelId: route.params.hotelId,
+          startDate: moment(route.params.startDate),
+          endDate: moment(route.params.endDate),
           origin: 'Confirm'
         })
       }
@@ -453,7 +452,6 @@ const CarConfirm = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
-      Alert.alert('An error has occured', res.error.message)
     } else {
       return res;
     }
@@ -474,7 +472,6 @@ const CarConfirm = ({ route, navigation }) => {
       // OR the hotel doesnt even have a box yet
       // or u could receive 403, so show the error message to user
       //
-      Alert.alert('An error has occured', res.error.message)
       return res;
     } else {
       // res.latch_id = Number
@@ -567,6 +564,8 @@ const CarConfirm = ({ route, navigation }) => {
         startDate: route.params.startDate,
         endDate: route.params.endDate,
         email: getUser.data.user.email_address,
+        vehicleId: route.params.vehicleId,
+        hotelId: route.params.hotelId,
         origin: 'Confirm'
       })
 
