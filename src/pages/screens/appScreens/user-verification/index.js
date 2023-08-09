@@ -157,8 +157,8 @@ const UserVerifyPage = ({ navigation, route }) => {
                             navigation.navigate("Confirm", {
                                 hotelId: route.params.hotelId,
                                 vehicleId: route.params.vehicleId,
-                                startDate: moment(route.params.startDate).toDate(),
-                                endDate: moment(route.params.endDate).toDate()
+                                startDate: moment(route.params.startDate),
+                                endDate: moment(route.params.endDate)
                             });
                             
                         }}
