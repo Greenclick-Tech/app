@@ -104,6 +104,15 @@ const HotelTitle = styled.Text`
   padding: 3px 0px;
 `;
 
+const OtherHotels = styled.Text`
+  font-size: 18px;
+  color: #3b414b;
+  font-weight: 500;
+  padding: 3px 0px;
+  padding-top: 20px;
+
+`;
+
 const IconFlex = styled.View`
   flex-direction: row;
   width: 100%;
@@ -373,12 +382,49 @@ const HotelsFound = ({ hotels, onPress }) => {
         }
     };
 
+    const getAllHotels = async (id) => {
+        let res = await RequestHandler(
+            "GET",
+            endpoints.SEARCH_HOTELS({
+                q: "all",
+            }),
+            undefined,
+            undefined,
+            true
+        );
+        if ("error" in res) {
+            // SAHIL, HANDLE THIS
+            // probably a 404 the hotel doesn't exist maybe
+            //
+            if (res.error.status == 404) {
+                Alert.alert("An error has occured", "This hotel does not exist")
+            }
+            return res;
+        } else {
+            console.log(res.data)
+            return res;
+        }
+    };
+
     const mapHotels = useQueries({
         queries:
             hotels?.map((item) => {
                 return {
                     queryKey: ["hotel", item.id],
                     queryFn: () => getSpecificHotel(item.id),
+                    staleTime: 10 * (60 * 1000),
+                    cacheTime: 15 * (60 * 1000)                };
+            }) ?? [],
+    });
+
+    const originalMapHotels = useQueries({
+        queries:
+            hotels?.map(() => {
+                return {
+                    queryKey: ["hotel"],
+                    onSuccess: (data) => {console.log(data)},
+                    onError: (data) => {console.log(data)},
+                    queryFn: () => getAllHotels(),
                     staleTime: 10 * (60 * 1000),
                     cacheTime: 15 * (60 * 1000)                };
             }) ?? [],
@@ -391,6 +437,16 @@ const HotelsFound = ({ hotels, onPress }) => {
         mapHotels.every((result) => result.isFetched) &&
         mapHotels.every((result) => result.isFetched);
     const isErrHotels =
+        mapHotels.every((result) => result.isError) &&
+        mapHotels.every((result) => result.isError);
+
+        const isLoadAllHotels =
+        mapHotels.every((result) => result.isLoading) &&
+        mapHotels.every((result) => result.isLoading);
+    const isFetchedAllHotels =
+        mapHotels.every((result) => result.isFetched) &&
+        mapHotels.every((result) => result.isFetched);
+    const isErrAllHotels =
         mapHotels.every((result) => result.isError) &&
         mapHotels.every((result) => result.isError);
 
@@ -456,7 +512,25 @@ const HotelsFound = ({ hotels, onPress }) => {
 
     )
     :
-    <Text>No hotels found in your radius.</Text>
+    <View>
+        <Text>No hotels found in your radius.</Text>
+        <OtherHotels>Hotels outside your Radius</OtherHotels>
+        {
+            originalMapHotels ?
+                isLoadAllHotels ?
+                    <ActivityIndicator size={"small"}></ActivityIndicator>
+                :
+                isErrAllHotels ? 
+                <Text>Error Retriving hotels.</Text>
+                :
+                isFetchedAllHotels ?
+                <></>
+                :
+                <></>
+            :
+            <></>
+        }
+    </View>
 };
 
 const VehicleList = ({
@@ -1513,6 +1587,14 @@ const MapPage = ({ route, navigation, props }) => {
                                         clearButtonMode="always"
                                         onClear={() => {
                                             setSearch("");
+                                            setmapRegion({
+                                                latitude: e.location.coordinates[1],
+                                                longitude: e.location.coordinates[0],
+                                                latitudeDelta: 0.08,
+                                                longitudeDelta: 0.08,
+                                            });
+                                            handleSheetChanges(0);
+                                            
                                         }}
                                         onChangeText={(e) => {
                                             setSearch(e);
@@ -1773,7 +1855,9 @@ const MapPage = ({ route, navigation, props }) => {
                                                 hotels={filteredMarkers}
                                             ></HotelsFound>
                                         ) : (
+                                            <View>
                                             <Text>No hotels found in your radius.</Text>
+                                            </View>
                                         )}
                                     </View>
                                 )}
@@ -1867,6 +1951,7 @@ const MapPage = ({ route, navigation, props }) => {
                                                         ) : (
                                                             <TouchablePlace
                                                                 //Setting from Search
+                                                                keyboardShouldPersistTaps={'handled'}
                                                                 onPress={async () => {
                                                                     Keyboard.dismiss();
                                                                     await axios

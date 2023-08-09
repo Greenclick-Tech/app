@@ -785,8 +785,8 @@ const HomePage = ({ navigation, route }) => {
               >
               </Ionicons>
               <View>
-                <EmailUnverifiedText>Tap to Verify your Email</EmailUnverifiedText>
-                <EmailUnverifiedTextSub>You must verify your email before selecting a vehicle</EmailUnverifiedTextSub>
+                <EmailUnverifiedText>Tap Here to Verify your Email</EmailUnverifiedText>
+                <EmailUnverifiedTextSub>You must verify your email before selecting a vehicle. Tap here to verify.</EmailUnverifiedTextSub>
               </View>
 
             </EmailUnverifiedContainer>
