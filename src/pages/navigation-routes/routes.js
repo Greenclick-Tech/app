@@ -8,15 +8,11 @@ import * as Location from "expo-location";
 import RequestHandler from "../../helpers/api/rest_handler";
 import endpoints from "../../constants/endpoints";
 import { StatusBar } from 'expo-status-bar';
+navigator.geolocation = require('@react-native-community/geolocation');
+navigator.geolocation = require('react-native-geolocation-service');
 
-//Defining a theme for react navigation to follow
-const MyTheme = {
-    ...DefaultTheme,
-    colors: {
-        ...DefaultTheme.colors,
-        background: "white"
-    },
-};
+
+
 
 //Creating Routes for each page in application
 const Routes = ({ }) => {
@@ -116,7 +112,7 @@ const Routes = ({ }) => {
 
     //Return pages wrapped in navigation corrisponding to users
     return (
-        <NavigationContainer theme={MyTheme}>
+        <>
             <StatusBar style="dark" />
             {loading ? (
                 <LoadingScreen />
@@ -126,7 +122,7 @@ const Routes = ({ }) => {
                 //User Doesn't Exist
                 <AuthRoutes />
             )}
-        </NavigationContainer>
+        </>
     );
 };
 

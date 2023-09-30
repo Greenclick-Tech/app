@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, KeyboardAvoidingView, Alert } from "react-native";
 import styled from 'styled-components';
 import { Context } from '../../../../helpers/context/context';
@@ -18,20 +18,27 @@ const Cont = styled.View`
 const Subtitle = styled.Text`
     color: #3B414B;
     font-weight: bold;
-    font-size: 42px;362985
+    font-size: 42px;
+    padding-bottom: 10px;
 `;
 
 const Body = styled.Text`
-    color: #4aaf6e;
+    color: ${props => props.color && props.color};
     line-height: 21px;
     font-size: 14px;
     padding-bottom: 40px;
 `;
 
+const PhoneNumber = styled.Text`
+    color: #000000B6;
+    line-height: 21px;
+    font-size: 14px;
+`;
+
 const UnderlineText = styled.Text`
-text-decoration: underline;
-text-decoration-color: #4aaf6e;
-text-decoration-style: solid;
+    text-decoration: underline;
+    text-decoration-color: ${props => props.color && props.color};
+    text-decoration-style: solid;
 `;
 
 const RedBody = styled.Text`
@@ -46,7 +53,6 @@ const TryAgain = styled.TouchableOpacity``;
 
 const ButtonContainer = styled.View`
     width: 100%;
-    padding-top: 20px;
     padding-bottom: 20px;
 `;
 
@@ -72,71 +78,97 @@ const styles = StyleSheet.create({
 
 const PhoneVerifyPage = ({ navigation, route }) => {
 
+    //Phone number from previous page
+    const phone = route.params.phone;
     const CELL_COUNT = 6;
-    const { setUser, pushToken, setPushToken } = useContext(Context);
+    const { user, setUser, pushToken, setPushToken, expiryRef, debounceExpiry, clearExpiry } = useContext(Context);
     const [value, setValue] = useState("");
     const [error, setError] = useState("");
+    const [timeout, setTime] = useState(0);
+    const [expiry, setExpiry] = useState(0);
     const ref = useBlurOnFulfill({ value, cellCount: CELL_COUNT });
-    const [retryCooldown, setRetryCooldown] = useState();
     const [props, getCellOnLayoutHandler] = useClearByFocusCell({
         value,
         setValue,
     });
 
-    const [notification, setNotification] = useState(false);
-    const [notificationStatus, setNotificationStatus] = useState()
-
     async function registerForPushNotificationsAsync() {
         let token;
         if (Device.isDevice) {
-          const { status: existingStatus } = await Notifications.getPermissionsAsync();
-          let finalStatus = existingStatus;
-          if (existingStatus !== 'granted') {
-            const { status } = await Notifications.requestPermissionsAsync();
-            finalStatus = status;
-          }
-          if (finalStatus !== 'granted') {
-            return;
-          }
-          token = (await Notifications.getExpoPushTokenAsync()).data;
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            let finalStatus = existingStatus;
+            if (existingStatus !== 'granted') {
+                const { status } = await Notifications.requestPermissionsAsync();
+                finalStatus = status;
+            }
+            if (finalStatus !== 'granted') {
+                return;
+            }
+            token = (await Notifications.getExpoPushTokenAsync()).data;
         } else {
-            
+
         }
-    
+
         if (Platform.OS === 'android') {
-          Notifications.setNotificationChannelAsync('default', {
-            name: 'default',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
-          });
+            Notifications.setNotificationChannelAsync('default', {
+                name: 'default',
+                importance: Notifications.AndroidImportance.MAX,
+                vibrationPattern: [0, 250, 250, 250],
+                lightColor: '#FF231F7C',
+            });
         }
         return token;
     }
 
-    useEffect(()=> {
-        if(!pushToken) {
+    useEffect(() => {
+        if (!pushToken) {
             registerForPushNotificationsAsync().then(token => {
                 setPushToken(token)
             });
         }
-        
+
     }, [])
 
+    //Decrement Counter
+    useEffect(() => {
+        const timer =
+            timeout > 0 && setInterval(() => setTime(timeout - 1), 1000);
+        return () => clearInterval(timer);
+    }, [timeout]);
 
-    //Phone number from previous page
-    const phone = route.params.phone;
+    //Set Original Expiry
+    useEffect(() => {
+        if(route.params.expires_in) {
+            setExpiry(route.params.expires_in)
+        }
+    }, [route.params.expires_in])
+
+    //Expiry Cleanup
+
+    //Redirect if mounted/expired code
+    useEffect(() => {
+        if (expiry > 0) {
+            clearInterval(expiryRef.current)
+            debounceExpiry(expiry, 'Phone')
+        }
+    }, [expiry])
+
 
     const handleRetry = async () => {
+        setTime(30)
+        clear
         let res = await RequestHandler(
             "post",
             endpoints.VERIFY(),
             { "phone_number": phone },
             "application/x-www-form-urlencoded",
         )
-        if (res == 'OK') {
-        } else {
+        if ("error" in res) {
             Alert.alert("An error has occured", res.error.message);
+            
+        } else {
+            setExpiry(res.expires_in)
+            Alert.alert("A new code was sent.", `A new 6 digit verification code was sent to ${phone}`);
         }
     }
 
@@ -150,32 +182,33 @@ const PhoneVerifyPage = ({ navigation, route }) => {
                 "phone_number": phone,
                 "code": value
             } :
-            {
-                "phone_number": phone,
-                "code": value,
-                "push_token": pushToken
-            },
+                {
+                    "phone_number": phone,
+                    "code": value,
+                    "push_token": pushToken
+                },
             "application/x-www-form-urlencoded"
         );
 
         if ("error" in res) {
             setError(res.error.message)
-            if(res.error.status == 404) {
+            if (res.error.status == 404) {
                 setError('')
                 navigation.navigate('Signup', {
                     phone: phone,
                     code: value
                 })
+            } else {
+                Alert.alert("An error has occured", res.error.message);
             }
-            
+
         } else {
+            clearExpiry()
             await AsyncStorage.setItem("access_token", res.access_token)
             await AsyncStorage.setItem("refresh_token", res.refresh_token)
-            setUser({access_token: res.access_token, refresh_token: res.refresh_token})
-            navigation.navigate('Home')
+            setUser({ access_token: res.access_token, refresh_token: res.refresh_token })
         }
     }
-
     return (
         <Cont>
             <SafeArea
@@ -184,6 +217,7 @@ const PhoneVerifyPage = ({ navigation, route }) => {
                 scrollEnabled={false}
             >
                 <Subtitle>Verify</Subtitle>
+                <PhoneNumber>Enter the 6 digit verification code sent to {phone}</PhoneNumber>
                 <ButtonContainer>
                     <KeyboardAvoidingView>
                         <CodeField
@@ -207,9 +241,11 @@ const PhoneVerifyPage = ({ navigation, route }) => {
                     </KeyboardAvoidingView>
 
                 </ButtonContainer>
-                <TryAgain onPress={()=> {
-                    handleRetry()
-                }}><Body>Didn't recieve a text? <UnderlineText>Tap here to retry.</UnderlineText></Body></TryAgain>
+             
+                <TryAgain onPress={() => {
+                    !(timeout > 0) && handleRetry();
+                }}>
+                    <Body color={timeout > 0 ? "#85979e" : "#4aaf6e"}> {timeout > 0 ? "A new code was sent. Retry again in" : "Didn't recieve a text?"} <UnderlineText color={timeout > 0 ? "#85979e" : "#4aaf6e"}>{timeout > 0 ? `${timeout} seconds` : "Tap here to retry."}</UnderlineText></Body></TryAgain>
 
                 {value.length === 6 ?
                     <CustomButton

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext, useLayoutEffect    } from 'react';
+import React, { useState, useRef, useContext, useLayoutEffect, useEffect    } from 'react';
 import { KeyboardAvoidingView, TextInput, Alert } from "react-native";
 import styled from 'styled-components';
 import CustomButton from '../../../../components/custom-button';
@@ -52,40 +52,32 @@ const PhonePage = ({ navigation, route }) => {
     const [value, setValue] = useState("");
     const [valid, setValid] = useState(true);
     const phoneInput = useRef(null);
-    const { setLocation, setLocationStatus } = useContext(Context);
+    const { setLocation, setLocationStatus, expiryRef, currentPhone, setCurrentPhone } = useContext(Context);
 
     const handleRegister = async () => {
-        let res = await RequestHandler(
-            "post",
-            endpoints.VERIFY(),
-            { "phone_number": value },
-            "application/x-www-form-urlencoded",
-        )
-        if (res.error) {
-            Alert.alert("An error has occured", res.error.message);
-        } else {
+        if(currentPhone == value) {
             navigation.navigate('PhoneVerifyPage', {
-                phone: value
+                phone: value,
             })
+        } else {
+            setCurrentPhone(value)
+            let res = await RequestHandler(
+                "post",
+                endpoints.VERIFY(),
+                { "phone_number": value },
+                "application/x-www-form-urlencoded",
+            )
+            if (res.error) {
+                Alert.alert("An error has occured", res.error.message);
+            } else {
+                navigation.navigate('PhoneVerifyPage', {
+                    phone: value,
+                    expires_in: res.expires_in
+                })
+            }
         }
     }
-
-    const getLocation = async () => {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-            return;
-        }
-        //obtaining the users location
-        let location = await Location.getCurrentPositionAsync({});
-        setLocation(location);
-        setLocationStatus(status);
-    };
     
-    useLayoutEffect(() => {
-        getLocation()
-    }, [])
-    
-
     return (
         <Cont>
             <SafeArea

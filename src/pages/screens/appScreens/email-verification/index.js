@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, KeyboardAvoidingView, Alert } from "react-native";
 import styled from 'styled-components';
 import { Context } from '../../../../helpers/context/context';
@@ -32,7 +32,7 @@ const Bolding = styled.Text`
 `;
 
 const Body = styled.Text`
-    color: #4aaf6e;
+    color: ${props => props.color && props.color};
     line-height: 21px;
     font-size: 14px;
     padding-bottom: 40px;
@@ -40,7 +40,7 @@ const Body = styled.Text`
 
 const UnderlineText = styled.Text`
 text-decoration: underline;
-text-decoration-color: #4aaf6e;
+text-decoration-color: ${props => props.color && props.color};
 text-decoration-style: solid;
 `;
 
@@ -83,10 +83,12 @@ const styles = StyleSheet.create({
 const EmailVerifyPage = ({ navigation, route }) => {
 
     const CELL_COUNT = 6;
-    const { setUser, pushToken, setPushToken } = useContext(Context);
+    const { setUser, pushToken, setPushToken, expiryRef, debounceExpiry, clearExpiry } = useContext(Context);
     const [value, setValue] = useState("");
     const [error, setError] = useState("");
     const ref = useBlurOnFulfill({ value, cellCount: CELL_COUNT });
+    const [timeout, setTime] = useState(0);
+    const [expiry, setExpiry] = useState(0);
     const [retryCooldown, setRetryCooldown] = useState();
     const [props, getCellOnLayoutHandler] = useClearByFocusCell({
         value,
@@ -100,6 +102,7 @@ const EmailVerifyPage = ({ navigation, route }) => {
     //Phone number from previous page
 
     const handleRetry = async () => {
+        setTime(30)
         let res = await RequestHandler(
             "post",
             endpoints.VERIFY(),
@@ -110,7 +113,8 @@ const EmailVerifyPage = ({ navigation, route }) => {
         if ("error" in res) {
             Alert.alert("An error has occured", res.error.message);
         } else {
-            Alert.alert("Verifcation Code Sent", `A new verification code was sent to ${route.params.email}. Enter the 6 digit code you will recieve shortly to be verified.`)
+            setExpiry(res.expires_in)
+            Alert.alert("Verifcation Code Sent", `A new 6 digit verification code was sent to ${route.params.email}.`)
         }
     }
 
@@ -128,6 +132,7 @@ const EmailVerifyPage = ({ navigation, route }) => {
         );
 
         if(res == 'OK') {
+            clearExpiry()
             Alert.alert("Your Email has Successfully been Verified.", "You are now able to access all of Greenclick's features")
             navigation.navigate({
                 name: route.params.origin,
@@ -137,6 +142,26 @@ const EmailVerifyPage = ({ navigation, route }) => {
             setError(res.error.message)
         }
     }
+
+    //Decrement Counter
+    useEffect(() => {
+        const timer =
+            timeout > 0 && setInterval(() => setTime(timeout - 1), 1000);
+        return () => clearInterval(timer);
+    }, [timeout]);
+
+    //Set Original Expiry
+    useEffect(() => {
+        setExpiry(route.params.expires_in)
+    }, [route.params.expires_in])
+
+    //Redirect if mounted/expired code
+    useEffect(() => {
+        if (expiry > 0) {
+            debounceExpiry(expiry, "Home")
+        }
+    }, [expiry])
+
 
     return (
         <Cont>
@@ -170,9 +195,10 @@ const EmailVerifyPage = ({ navigation, route }) => {
                     </KeyboardAvoidingView>
 
                 </ButtonContainer>
-                <TryAgain onPress={()=> {
-                    handleRetry()
-                }}><Body>Didn't recieve an email? <UnderlineText>Tap here to retry.</UnderlineText></Body></TryAgain>
+                <TryAgain onPress={() => {
+                    !(timeout > 0) && handleRetry();
+                }}>
+                    <Body color={timeout > 0 ? "#85979e" : "#4aaf6e"}> {timeout > 0 ? "A new code was sent. Retry again in" : "Didn't recieve a text?"} <UnderlineText color={timeout > 0 ? "#85979e" : "#4aaf6e"}>{timeout > 0 ? `${timeout} seconds` : "Tap here to retry."}</UnderlineText></Body></TryAgain>
 
                 {value.length === 6 ?
                     <CustomButton

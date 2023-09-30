@@ -304,7 +304,7 @@ const CarDetails = ({ route, navigation }) => {
 
   const hideDropoffPicker = () => {
     setDropoffTimePickerVisibility(false);
-    
+
   };
 
   const handleDropoffConfirm = (date) => {

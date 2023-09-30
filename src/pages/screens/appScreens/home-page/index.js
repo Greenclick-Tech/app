@@ -197,7 +197,9 @@ const ActiveBookingTextContainer = styled.Text`
 const EmailUnverifiedContainer = styled.TouchableOpacity`
   display: flex;
   background-color: #f55142;
-  padding: 15px 7px;
+  padding: 20px 7px;
+  width: 100%;
+  box-sizing: border-box;
   flex-direction: row;
   align-items: center;
 `
@@ -205,6 +207,7 @@ const EmailUnverifiedContainer = styled.TouchableOpacity`
 const EmailUnverifiedText = styled.Text`
   color: #ffffff;
   font-size: 15px;
+  width: 100%;
   font-weight: 600;
   flex-shrink: 1;
   margin-bottom: 2px;
@@ -217,7 +220,7 @@ const EmailUnverifiedTextSub = styled.Text`
 `;
 
 const HomePage = ({ navigation, route }) => {
-  const { location, setLocation, locationStatus, setLocationStatus, pushToken, setPushToken } = useContext(Context);
+  const { location, setLocation, locationStatus, setLocationStatus, pushToken, setPushToken, expiryRef } = useContext(Context);
   const isFocused = useIsFocused();
   const [pageLoading, setPageLoading] = useState(true)
   const [loading, setLoading] = useState(true);
@@ -343,19 +346,29 @@ const HomePage = ({ navigation, route }) => {
   }
 
   const handleVerifyEmail = async () => {
-    let res = await RequestHandler(
-      "post",
-      endpoints.VERIFY(),
-      { "email_address": getUser.data.user.email_address },
-      "application/x-www-form-urlencoded",
-    )
-    if (res.error) {
-      Alert.alert("An error has occured", res.error.message);
-    } else {
+    console.log(expiryRef.current)
+    if (expiryRef.current > 0) {
       navigation.navigate("Email Verification", {
         email: getUser.data.user.email_address,
         origin: 'Home'
       })
+    } else {
+      let res = await RequestHandler(
+        "post",
+        endpoints.VERIFY(),
+        { "email_address": getUser.data.user.email_address },
+        "application/x-www-form-urlencoded",
+      )
+      if (res.error) {
+        Alert.alert("An error has occured", res.error.message);
+      } else {
+        navigation.navigate("Email Verification", {
+          email: getUser.data.user.email_address,
+          expires_in: res.expires_in,
+          origin: 'Home'
+        })
+
+      }
 
     }
   }
@@ -554,7 +567,7 @@ const HomePage = ({ navigation, route }) => {
                 size={30}
               />
             </TouchableOpacity>
-            
+
           </View>
         </View>
         {
@@ -782,9 +795,10 @@ const HomePage = ({ navigation, route }) => {
                 name="alert-outline"
                 size={30}
                 color={"#FFF"}
+                style={{ flex: 1 }}
               >
               </Ionicons>
-              <View>
+              <View style={{ flex: 7 }}>
                 <EmailUnverifiedText>Tap Here to Verify your Email</EmailUnverifiedText>
                 <EmailUnverifiedTextSub>You must verify your email before selecting a vehicle. Tap here to verify.</EmailUnverifiedTextSub>
               </View>
