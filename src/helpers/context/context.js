@@ -48,11 +48,7 @@ const ContextProvider = ({ children }) => {
         // Log the value of expiryRef.current after clearing the interval
         console.log('After clearInterval:', expiryRef.current);
     }
-
-    useEffect(()=> {
-        console.log("Refernece: ", expiryRef.current)
-    }, [expiryRef.current])
- 
+    
     return (
         <Context.Provider value={{
             user,

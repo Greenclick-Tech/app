@@ -110,6 +110,7 @@ const OtherHotels = styled.Text`
   font-weight: 500;
   padding: 3px 0px;
   padding-top: 20px;
+  margin-bottom: 10px;
 
 `;
 
@@ -382,11 +383,12 @@ const HotelsFound = ({ hotels, onPress }) => {
         }
     };
 
-    const getAllHotels = async (id) => {
+    const getAllHotels = async () => {
+        console.log("INITIATE")
         let res = await RequestHandler(
             "GET",
             endpoints.SEARCH_HOTELS({
-                q: "all",
+                q: "popular"
             }),
             undefined,
             undefined,
@@ -401,7 +403,6 @@ const HotelsFound = ({ hotels, onPress }) => {
             }
             return res;
         } else {
-            console.log(res.data)
             return res;
         }
     };
@@ -411,6 +412,8 @@ const HotelsFound = ({ hotels, onPress }) => {
             hotels?.map((item) => {
                 return {
                     queryKey: ["hotel", item.id],
+                    onSuccess: (data) => {"SUCCESS: ",  console.log(data) },
+                    onError: (data) => {"ERROR: ", console.log(data) },
                     queryFn: () => getSpecificHotel(item.id),
                     staleTime: 10 * (60 * 1000),
                     cacheTime: 15 * (60 * 1000)
@@ -418,18 +421,13 @@ const HotelsFound = ({ hotels, onPress }) => {
             }) ?? [],
     });
 
-    const originalMapHotels = useQueries({
-        queries:
-            hotels?.map(() => {
-                return {
-                    queryKey: ["hotel"],
-                    onSuccess: (data) => { console.log(data) },
-                    onError: (data) => { console.log(data) },
-                    queryFn: () => getAllHotels(),
-                    staleTime: 10 * (60 * 1000),
-                    cacheTime: 15 * (60 * 1000)
-                };
-            }) ?? [],
+    const allAvailableHotels = useQuery({
+        queryKey: ["hotel"],
+        onSuccess: (data) => { console.log(data) },
+        onError: (data) => { console.log(data) },
+        queryFn: () => getAllHotels(),
+        staleTime: 10 * (60 * 1000),
+        cacheTime: 15 * (60 * 1000)
     });
 
     const isLoadHotels =
@@ -439,16 +437,6 @@ const HotelsFound = ({ hotels, onPress }) => {
         mapHotels.every((result) => result.isFetched) &&
         mapHotels.every((result) => result.isFetched);
     const isErrHotels =
-        mapHotels.every((result) => result.isError) &&
-        mapHotels.every((result) => result.isError);
-
-    const isLoadAllHotels =
-        mapHotels.every((result) => result.isLoading) &&
-        mapHotels.every((result) => result.isLoading);
-    const isFetchedAllHotels =
-        mapHotels.every((result) => result.isFetched) &&
-        mapHotels.every((result) => result.isFetched);
-    const isErrAllHotels =
         mapHotels.every((result) => result.isError) &&
         mapHotels.every((result) => result.isError);
 
@@ -517,20 +505,19 @@ const HotelsFound = ({ hotels, onPress }) => {
         <View>
             <Text>No hotels found in your radius.</Text>
             <OtherHotels>Hotels outside your Radius</OtherHotels>
+
             {
-                originalMapHotels ?
-                    isLoadAllHotels ?
-                        <ActivityIndicator size={"small"}></ActivityIndicator>
-                        :
-                        isErrAllHotels ?
-                            <Text>Error Retriving hotels.</Text>
-                            :
-                            isFetchedAllHotels ?
-                                <></>
-                                :
-                                <></>
-                    :
-                    <></>
+                allAvailableHotels.isLoading && (
+                    <ActivityIndicator size={"small"}></ActivityIndicator>
+                )
+            }
+            {
+                allAvailableHotels.isError && (
+                    <Text>An error has occured fetching hotels, please contact our support team for support.</Text>
+                )
+            }
+            {
+
             }
         </View>
 };

@@ -1220,7 +1220,7 @@ const CarDetails = ({ route, navigation }) => {
                         onConfirm={handlePickupConfirm}
                         onCancel={hidePickupPicker}
                         minuteInterval={15}
-                        minimumDate={moment(startDate).isSame(new Date(), "day") ? moment().toDate() : null}
+                        minimumDate={moment(startDate).isSame(new Date(), "day") ? moment(startDate).add(2, 'h').startOf().toDate() : null}
                       />
                       <DateTimePickerModal
                         isVisible={isDropoffTimeVisible}
