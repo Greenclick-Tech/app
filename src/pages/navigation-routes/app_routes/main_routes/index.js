@@ -194,6 +194,15 @@ const AppRoutes = () => {
             />
 
             <Stack.Screen
+                name="Notifications"
+                options={({ navigation }) => ({
+                    headerBackTitle: "Back",
+                    headerTitle: "All Notifications"
+                })}
+                component={NotificationsPage}
+            />
+
+            <Stack.Screen
                 name="User Verification"
                 options={({ navigation }) => ({
                     headerBackTitle: "Home",
@@ -205,15 +214,6 @@ const AppRoutes = () => {
                     ),
                 })}
                 component={UserVerifyPage}
-            />
-
-            <Stack.Screen
-                name="Notifications"
-                options={({ navigation }) => ({
-                    headerBackTitle: "Back",
-                    headerTitle: "All Notifications"
-                })}
-                component={NotificationsPage}
             />
 
 

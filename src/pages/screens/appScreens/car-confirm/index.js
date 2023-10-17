@@ -338,6 +338,12 @@ const CarConfirm = ({ route, navigation }) => {
   const [insurance, setInsurance] = useState('')
   const [promotion, setPromotion] = useState('')
   const [promotionText, setPromotionText] = useState('')
+
+  const requestBodyPaymentProperties = {
+    start_date: moment(startDate).utc().toISOString(),
+    end_date: moment(endDate).utc().toISOString(),
+  }
+
   const initializePaymentSheet = async () => {
 
     const { error } = await initPaymentSheet({
@@ -439,12 +445,7 @@ const CarConfirm = ({ route, navigation }) => {
     let res = await RequestHandler(
       "POST",
       endpoints.GET_ORDER_SUBTOTAL(hotelId, vehicleId),
-      {
-        start_date: moment(startDate).utc().toISOString(),
-        end_date: moment(endDate).utc().toISOString(),
-        insurance: insurance,
-        promotion: promotion
-      },
+      requestBodyPaymentProperties,
       undefined,
       true
     );
@@ -502,8 +503,14 @@ const CarConfirm = ({ route, navigation }) => {
         refetchOnWindowFocus: true
       },
       {
-        queryKey: ["paymentProperties", route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate],
+        queryKey: ["paymentProperties", route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate, insurance, promotion],
         queryFn: () => fetchPaymentProperties(route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate, insurance, promotion),
+        onSuccess: (data) => {
+          console.log(data)
+        },
+        onError: (data) => {
+          console.log(data)
+        }
       },
       {
         queryKey: ["pubKey"],
@@ -624,6 +631,12 @@ const CarConfirm = ({ route, navigation }) => {
   };
 
   useEffect(()=> {
+    if(insurance) {
+      requestBodyPaymentProperties.insurance = insurance;
+    }
+    if(promotion) {
+      requestBodyPaymentProperties.promotion = promotion;
+    }
     results[3].refetch()
   }, [insurance, promotion])
 
@@ -809,7 +822,7 @@ const CarConfirm = ({ route, navigation }) => {
                                 <></>
                                 }
 
-                            {/* <InsuranceWrapper>
+                            <InsuranceWrapper>
                                 <DateWrapper>
                                   <MiniSubtitle>Add a Promo Code</MiniSubtitle>
                                 </DateWrapper>
@@ -819,7 +832,7 @@ const CarConfirm = ({ route, navigation }) => {
                                   }}>
                                   </PromoCodeInput>
                                   <AddButton onPress={()=> {
-                                    setPromotion()
+                                    setPromotion(promotionText)
                                   }}><Text style={{color: "#ffffff", fontSize: 16}}>Add</Text></AddButton>
                                 </InsuranceBox>
                                 {
@@ -828,7 +841,7 @@ const CarConfirm = ({ route, navigation }) => {
                                   <ResetText>Reset</ResetText>
                                 </ResetButton>
                                 }
-                              </InsuranceWrapper> */}
+                              </InsuranceWrapper>
 
                               {
 

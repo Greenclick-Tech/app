@@ -111,6 +111,7 @@ const CaughtUpText = styled.Text`
 const NotificationsPage = ({ navigation, route }) => {
 
     const [refreshing, setRefreshing] = useState(false);
+    const [development, setDevelopment] = useState(true);
 
     const getNotifications = useQuery({
         queryKey: ["notifications"],
@@ -143,91 +144,105 @@ const NotificationsPage = ({ navigation, route }) => {
         getNotifications.refetch()
     }, []);
 
-    return (
-        <Cont>
-            <SafeArea
-                contentContainerStyle={{ flexGrow: 1 }}
-                keyboardShouldPersistTaps='handled'
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                }
-            >
-                {
-                    getNotifications.isLoading ?
-
-                        <ActivityIndicator size={'small'}></ActivityIndicator>
-
-                        :
-                        getNotifications.isError ?
-                            <EmailText>An error has occured. {getNotifications.data.error.message}</EmailText>
+    if(development) {
+        return (
+            <Cont>
+                <SafeArea
+                    contentContainerStyle={{ flexGrow: 1 }}
+                    keyboardShouldPersistTaps='handled'
+                >
+                    <Text>This page is currently in development</Text>
+    
+                </SafeArea>
+            </Cont>
+        )
+    } else {
+        return (
+            <Cont>
+                <SafeArea
+                    contentContainerStyle={{ flexGrow: 1 }}
+                    keyboardShouldPersistTaps='handled'
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                    }
+                >
+                    {
+                        getNotifications.isLoading ?
+    
+                            <ActivityIndicator size={'small'}></ActivityIndicator>
+    
                             :
-                            getNotifications.data.notifications.length  == 0 ?
-                            <></>
-                            :
-                            <Cont>
-                                <TitleNotify isUnread>Unread</TitleNotify>
-
-                                {
-                                    getNotifications.data.notifications.filter((item) => item.unread).length > 0 ?
-
-                                    getNotifications.data.notifications.filter((item) => item.unread).map((item) => {
-                                        return <NotificationContainer>
-                                        <NotificationIcon
-                                            source={{
-                                                uri: item.icon_url,
-                                            }}
-                                        >
-        
-                                        </NotificationIcon>
-                                        <NotificationTextContainer>
-                                            <NotificationTitle numberOfLines={1} isUnread>
-                                                {item.title}
-                                            </NotificationTitle>
-                                            <NotificationMessage numberOfLines={2}>
-                                                {item.content}
-                                            </NotificationMessage>
-                                        </NotificationTextContainer>
-                                    </NotificationContainer>
-                                    })
-
-                                    :
-                                    <CaughtUpText>You have no unread notifications.</CaughtUpText>
-                                }
-                                <TitleNotify>Previous</TitleNotify>
-                                {
-
-                                    getNotifications.data.notifications.filter((item) => !item.unread).length > 0 ?
-
-                                    getNotifications.data.notifications.filter((item) => !item.unread).map((item) => {
-                                        return <NotificationContainer>
-                                        <NotificationIcon
-                                            source={{
-                                                uri: item.icon_url,
-                                            }}
-                                        >
-        
-                                        </NotificationIcon>
-                                        <NotificationTextContainer>
-                                            <NotificationTitle numberOfLines={1} >
-                                                {item.title}
-                                            </NotificationTitle>
-                                            <NotificationMessage numberOfLines={2}>
-                                                {item.content}
-                                            </NotificationMessage>
-                                        </NotificationTextContainer>
-                                    </NotificationContainer>
-                                    })
-
-                                    :
-                                    <CaughtUpText>You have no read notifications.</CaughtUpText>
-                                }
-                            </Cont>
-                            
-                }
-
-            </SafeArea>
-        </Cont>
-    )
+                            getNotifications.isError ?
+                                <EmailText>An error has occured. {getNotifications.data.error.message}</EmailText>
+                                :
+                                getNotifications.data.notifications.length  == 0 ?
+                                <></>
+                                :
+                                <Cont>
+                                    <TitleNotify isUnread>Unread</TitleNotify>
+    
+                                    {
+                                        getNotifications.data.notifications.filter((item) => item.unread).length > 0 ?
+    
+                                        getNotifications.data.notifications.filter((item) => item.unread).map((item) => {
+                                            return <NotificationContainer>
+                                            <NotificationIcon
+                                                source={{
+                                                    uri: item.icon_url,
+                                                }}
+                                            >
+            
+                                            </NotificationIcon>
+                                            <NotificationTextContainer>
+                                                <NotificationTitle numberOfLines={1} isUnread>
+                                                    {item.title}
+                                                </NotificationTitle>
+                                                <NotificationMessage numberOfLines={2}>
+                                                    {item.content}
+                                                </NotificationMessage>
+                                            </NotificationTextContainer>
+                                        </NotificationContainer>
+                                        })
+    
+                                        :
+                                        <CaughtUpText>You have no unread notifications.</CaughtUpText>
+                                    }
+                                    <TitleNotify>Previous</TitleNotify>
+                                    {
+    
+                                        getNotifications.data.notifications.filter((item) => !item.unread).length > 0 ?
+    
+                                        getNotifications.data.notifications.filter((item) => !item.unread).map((item) => {
+                                            return <NotificationContainer>
+                                            <NotificationIcon
+                                                source={{
+                                                    uri: item.icon_url,
+                                                }}
+                                            >
+            
+                                            </NotificationIcon>
+                                            <NotificationTextContainer>
+                                                <NotificationTitle numberOfLines={1} >
+                                                    {item.title}
+                                                </NotificationTitle>
+                                                <NotificationMessage numberOfLines={2}>
+                                                    {item.content}
+                                                </NotificationMessage>
+                                            </NotificationTextContainer>
+                                        </NotificationContainer>
+                                        })
+    
+                                        :
+                                        <CaughtUpText>You have no read notifications.</CaughtUpText>
+                                    }
+                                </Cont>
+                                
+                    }
+    
+                </SafeArea>
+            </Cont>
+        )
+    }
 };
 
 export default NotificationsPage;

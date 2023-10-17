@@ -77,7 +77,7 @@ const AuthRoutes = () => {
             <Stack.Screen
                 name='PhoneVerifyPage'
                 component={PhoneVerifyPage}
-                options={{ title: 'Confirm', headerBackTitle: 'Back' }}
+                options={{ title: 'Confirm', headerBackTitle: 'Back', }}
             />
 
             {/* Signup page, page where users are prompted to add more information to their profile, signup only */}

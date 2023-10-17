@@ -30,4 +30,4 @@ export default {
     CREATE_PAYMENT_INTENT: (hotelID, vehicleID) => `/hotels/${hotelID}/vehicles/${vehicleID}/payment`,
     GET_PUBLISHABLE_KEY: () => `/stripe/key`,
 
-}
+}   

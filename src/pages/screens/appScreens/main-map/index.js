@@ -110,6 +110,7 @@ const OtherHotels = styled.Text`
   font-weight: 500;
   padding: 3px 0px;
   padding-top: 20px;
+  margin-bottom: 10px;
 
 `;
 
@@ -382,11 +383,12 @@ const HotelsFound = ({ hotels, onPress }) => {
         }
     };
 
-    const getAllHotels = async (id) => {
+    const getAllHotels = async () => {
+        console.log("INITIATE")
         let res = await RequestHandler(
             "GET",
             endpoints.SEARCH_HOTELS({
-                q: "all",
+                q: "popular"
             }),
             undefined,
             undefined,
@@ -401,7 +403,6 @@ const HotelsFound = ({ hotels, onPress }) => {
             }
             return res;
         } else {
-            console.log(res.data)
             return res;
         }
     };
@@ -411,23 +412,22 @@ const HotelsFound = ({ hotels, onPress }) => {
             hotels?.map((item) => {
                 return {
                     queryKey: ["hotel", item.id],
+                    onSuccess: (data) => {"SUCCESS: ",  console.log(data) },
+                    onError: (data) => {"ERROR: ", console.log(data) },
                     queryFn: () => getSpecificHotel(item.id),
                     staleTime: 10 * (60 * 1000),
-                    cacheTime: 15 * (60 * 1000)                };
+                    cacheTime: 15 * (60 * 1000)
+                };
             }) ?? [],
     });
 
-    const originalMapHotels = useQueries({
-        queries:
-            hotels?.map(() => {
-                return {
-                    queryKey: ["hotel"],
-                    onSuccess: (data) => {console.log(data)},
-                    onError: (data) => {console.log(data)},
-                    queryFn: () => getAllHotels(),
-                    staleTime: 10 * (60 * 1000),
-                    cacheTime: 15 * (60 * 1000)                };
-            }) ?? [],
+    const allAvailableHotels = useQuery({
+        queryKey: ["hotel"],
+        onSuccess: (data) => { console.log(data) },
+        onError: (data) => { console.log(data) },
+        queryFn: () => getAllHotels(),
+        staleTime: 10 * (60 * 1000),
+        cacheTime: 15 * (60 * 1000)
     });
 
     const isLoadHotels =
@@ -440,97 +440,86 @@ const HotelsFound = ({ hotels, onPress }) => {
         mapHotels.every((result) => result.isError) &&
         mapHotels.every((result) => result.isError);
 
-        const isLoadAllHotels =
-        mapHotels.every((result) => result.isLoading) &&
-        mapHotels.every((result) => result.isLoading);
-    const isFetchedAllHotels =
-        mapHotels.every((result) => result.isFetched) &&
-        mapHotels.every((result) => result.isFetched);
-    const isErrAllHotels =
-        mapHotels.every((result) => result.isError) &&
-        mapHotels.every((result) => result.isError);
+    return mapHotels.length > 0 ?
+        isLoadHotels ? (
+            <ActivityIndicator size={"small"}></ActivityIndicator>
+        ) : isErrHotels ? (
+            <Text>Error getting hotels in your radius.</Text>
+        ) : (
 
-    return mapHotels.length > 0 ? 
-    isLoadHotels ? (
-        <ActivityIndicator size={"small"}></ActivityIndicator>
-    ) : isErrHotels ? (
-        <Text>Error getting hotels in your radius.</Text>
-    ) : (
+            <View style={{ paddingBottom: 50 }}>
+                <ScrollView >
 
-        <View style={{ paddingBottom: 50 }}>
-            <ScrollView >
+                    {hotels?.map((item, index) => {
+                        const matchingHotel = mapHotels?.find(
+                            (hotel) => hotel.data.hotel && hotel?.data?.hotel.id === item.id
+                        );
+                        return (
+                            matchingHotel &&
+                            ("error" in matchingHotel.data ? (
+                                <Text>Error Retriving this hotel.</Text>
+                            ) : (
 
-                {hotels?.map((item, index) => {
-                    const matchingHotel = mapHotels?.find(
-                        (hotel) => hotel.data.hotel && hotel?.data?.hotel.id === item.id
-                    );
-                    return (
-                        matchingHotel &&
-                        ("error" in matchingHotel.data ? (
-                            <Text>Error Retriving this hotel.</Text>
-                        ) : (
-
-                            <TouchableOpacity
-                                onPress={() =>
-                                    onPress(matchingHotel.data.hotel.id, matchingHotel.data.hotel)
-                                }
-                                key={matchingHotel.data.hotel.id}
-                                style={{
-                                    paddingTop: 20,
-                                    paddingBottom: 20,
-                                    alignItems: "center",
-                                    flexDirection: "row",
-                                    borderBottomColor: "#00000010",
-                                    borderBottomWidth: 1,
-                                }}
-                            >
-                                <Image
-                                    style={{ width: 50, height: 50, borderRadius: 40 }}
-                                    resizeMethod={"resize"}
-                                    resizeMode={"cover"}
-                                    source={{
-                                        uri: matchingHotel.data.hotel.image_urls[0]
+                                <TouchableOpacity
+                                    onPress={() =>
+                                        onPress(matchingHotel.data.hotel.id, matchingHotel.data.hotel)
+                                    }
+                                    key={matchingHotel.data.hotel.id}
+                                    style={{
+                                        paddingTop: 20,
+                                        paddingBottom: 20,
+                                        alignItems: "center",
+                                        flexDirection: "row",
+                                        borderBottomColor: "#00000010",
+                                        borderBottomWidth: 1,
                                     }}
-                                ></Image>
-                                <View style={{ paddingLeft: 15 }}>
-                                    <Text style={{ fontSize: 17, paddingBottom: 5 }}>
-                                        {matchingHotel.data.hotel.name}
-                                    </Text>
-                                    <Text style={{ fontSize: 13, width: '100%', color: "#00000090" }}>
-                                        {matchingHotel.data.hotel.address.slice(0, 40) + "..."}
-                                    </Text>
-                                </View>
+                                >
+                                    <Image
+                                        style={{ width: 50, height: 50, borderRadius: 40 }}
+                                        resizeMethod={"resize"}
+                                        resizeMode={"cover"}
+                                        source={{
+                                            uri: matchingHotel.data.hotel.image_urls[0]
+                                        }}
+                                    ></Image>
+                                    <View style={{ paddingLeft: 15 }}>
+                                        <Text style={{ fontSize: 17, paddingBottom: 5 }}>
+                                            {matchingHotel.data.hotel.name}
+                                        </Text>
+                                        <Text style={{ fontSize: 13, width: '100%', color: "#00000090" }}>
+                                            {matchingHotel.data.hotel.address.slice(0, 40) + "..."}
+                                        </Text>
+                                    </View>
 
-                            </TouchableOpacity>
+                                </TouchableOpacity>
 
-                        ))
-                    );
-                })}
-            </ScrollView>
+                            ))
+                        );
+                    })}
+                </ScrollView>
 
-        </View>
+            </View>
 
-    )
-    :
-    <View>
-        <Text>No hotels found in your radius.</Text>
-        <OtherHotels>Hotels outside your Radius</OtherHotels>
-        {
-            originalMapHotels ?
-                isLoadAllHotels ?
+        )
+        :
+        <View>
+            <Text>No hotels found in your radius.</Text>
+            <OtherHotels>Hotels outside your Radius</OtherHotels>
+
+            {
+                allAvailableHotels.isLoading && (
                     <ActivityIndicator size={"small"}></ActivityIndicator>
-                :
-                isErrAllHotels ? 
-                <Text>Error Retriving hotels.</Text>
-                :
-                isFetchedAllHotels ?
-                <></>
-                :
-                <></>
-            :
-            <></>
-        }
-    </View>
+                )
+            }
+            {
+                allAvailableHotels.isError && (
+                    <Text>An error has occured fetching hotels, please contact our support team for support.</Text>
+                )
+            }
+            {
+
+            }
+        </View>
 };
 
 const VehicleList = ({
@@ -790,7 +779,7 @@ const MapPage = ({ route, navigation, props }) => {
 
     const key = Platform.OS === 'ios' ? "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w" : "AIzaSyB-PDmtDDoiNi9BcD9Qfb8d5RpX5EficyE"
     //Location
-    
+
     const getLocation = async () => {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
@@ -1169,8 +1158,8 @@ const MapPage = ({ route, navigation, props }) => {
         getLocation()
         setTimeout(() => {
             setRefreshing(false);
-          }, 500);
-      }, []);
+        }, 500);
+    }, []);
 
 
     useFocusEffect(
@@ -1187,44 +1176,44 @@ const MapPage = ({ route, navigation, props }) => {
 
     if (!location) {
         main = <SafeAreaView
-        style={{
-            flex: 1,
-            justifyContent: "space-between",
-            width: "100%",
-            alignItems: "center",
-            backgroundColor: "#f7f7f7",
-          }}
-          edges={["top", "left", "right"]}
+            style={{
+                flex: 1,
+                justifyContent: "space-between",
+                width: "100%",
+                alignItems: "center",
+                backgroundColor: "#f7f7f7",
+            }}
+            edges={["top", "left", "right"]}
         >
-        <ScrollView
-        refreshControl={
-            <RefreshControl  tintColor={"#00000040"} refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        >
-            {
-                locationLoad ?
-                    <ActivityIndicator size={'small'}></ActivityIndicator>
-                    :
-                    locationStatus == 'granted' ?
-                        <></>
+            <ScrollView
+                refreshControl={
+                    <RefreshControl tintColor={"#00000040"} refreshing={refreshing} onRefresh={onRefresh} />
+                }
+            >
+                {
+                    locationLoad ?
+                        <ActivityIndicator size={'small'}></ActivityIndicator>
                         :
-                        <View style={{
-                            paddingLeft: 15,
-                            paddingRight: 15,
-                            paddingTop: 20,
-                            flex: 1,
-                            height: "100%",
-                        }}>
-                            <Subtitle>Could not find location for Map.</Subtitle>
-                            <SubtitleTwo>In order to use the greenclick map, please allow location permissions located in your devices settings. If you have enabled location permissions, please restart the app.</SubtitleTwo>
-                            <TouchableOpacity onPress={() => {
-                                Linking.openSettings()
+                        locationStatus == 'granted' ?
+                            <></>
+                            :
+                            <View style={{
+                                paddingLeft: 15,
+                                paddingRight: 15,
+                                paddingTop: 20,
+                                flex: 1,
+                                height: "100%",
                             }}>
-                                <Text style={{ color: "#4aaf6e", fontSize: 16 }}>Open Location Permissions</Text>
-                            </TouchableOpacity>
-                        </View>
-            }
-        </ScrollView>
+                                <Subtitle>Could not find location for Map.</Subtitle>
+                                <SubtitleTwo>In order to use the greenclick map, please allow location permissions located in your devices settings. If you have enabled location permissions, please restart the app.</SubtitleTwo>
+                                <TouchableOpacity onPress={() => {
+                                    Linking.openSettings()
+                                }}>
+                                    <Text style={{ color: "#4aaf6e", fontSize: 16 }}>Open Location Permissions</Text>
+                                </TouchableOpacity>
+                            </View>
+                }
+            </ScrollView>
         </SafeAreaView>
 
     } else {
@@ -1594,7 +1583,7 @@ const MapPage = ({ route, navigation, props }) => {
                                                 longitudeDelta: 0.08,
                                             });
                                             handleSheetChanges(0);
-                                            
+
                                         }}
                                         onChangeText={(e) => {
                                             setSearch(e);
@@ -1856,7 +1845,7 @@ const MapPage = ({ route, navigation, props }) => {
                                             ></HotelsFound>
                                         ) : (
                                             <View>
-                                            <Text>No hotels found in your radius.</Text>
+                                                <Text>No hotels found in your radius.</Text>
                                             </View>
                                         )}
                                     </View>

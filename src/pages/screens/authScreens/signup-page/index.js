@@ -14,8 +14,8 @@ import { Context } from '../../../../helpers/context/context';
 import endpoints from "../../../../constants/endpoints";
 import RequestHandler from "../../../../helpers/api/rest_handler";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Ionicons from "@expo/vector-icons/Ionicons";
-import Constants from 'expo-constants';
+
+
 
 const Subtitle = styled.Text`
   color: #3b414b;
@@ -59,7 +59,7 @@ const PseudoInput = styled.View`
 
 const PseudoTextPlaceholder = styled.Text`
     font-size: 18px;
-    color: ${props=>props.color ? "#AAA" : "#3b414b"} ;
+    color: ${props => props.color ? "#AAA" : "#3b414b"} ;
 `;
 
 const ButtonWrapper = styled.View`
@@ -91,7 +91,7 @@ const ExtraInfo = ({ navigation, route }) => {
   const [date_of_birth, setDateOfBirth] = useState(new Date());
   const today = new Date();
   const [show, setShow] = useState(false);
-  const { setLocation, setLocationStatus, pushToken, setPushToken, setUser } = useContext(Context);
+  const { location, setLocation, setLocationStatus, pushToken, setPushToken, setUser, expiryRef, clearExpiry } = useContext(Context);
   const key = Platform.OS === 'ios' ? "AIzaSyBZR2Mae8MxS4Q---MQl87gG1CGTVNZy5w" : "AIzaSyB-PDmtDDoiNi9BcD9Qfb8d5RpX5EficyE"
 
   const showDatepicker = () => {
@@ -102,7 +102,7 @@ const ExtraInfo = ({ navigation, route }) => {
     setDateOfBirth(date);
     setShow(false);
   }
-  
+
   const hideDatePicker = () => {
     setShow(false);
   }
@@ -110,72 +110,59 @@ const ExtraInfo = ({ navigation, route }) => {
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
-        return;
+      return;
     }
     //obtaining the users location
     let location = await Location.getCurrentPositionAsync({});
     setLocation(location);
     setLocationStatus(status);
-};
+  };
 
-async function registerForPushNotificationsAsync() {
-  let token;
-  if (Device.isDevice) {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
+  async function registerForPushNotificationsAsync() {
+    let token;
+    if (Device.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        return;
+      }
+      token = (await Notifications.getExpoPushTokenAsync()).data;
+    } else {
+
     }
-    if (finalStatus !== 'granted') {
-      return;
-    }
-    token = (await Notifications.getExpoPushTokenAsync()).data;
-  } else {
-      
-  }
 
-  if (Platform.OS === 'android') {
-    Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
-    });
-  }
-  return token;
-}
-
-useEffect(()=> {
-  if(!pushToken) {
-      registerForPushNotificationsAsync().then(token => {
-          setPushToken(token)
+    if (Platform.OS === 'android') {
+      Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
       });
+    }
+    return token;
   }
-  
-}, [])
 
+  useEffect(() => {
+    if (!pushToken) {
+      registerForPushNotificationsAsync().then(token => {
+        setPushToken(token)
+      });
+    }
+  }, [])
 
-useLayoutEffect(() => {
+  useLayoutEffect(() => {
     getLocation()
-}, [])
- 
+  }, [])
+  
   const validateUser = async () => {
     let res = await RequestHandler(
       "post",
       endpoints.REGISTER(),
       pushToken ? {
-          "first_name": firstname,
-          "last_name": lastname,
-          "email_address": email,
-          "address": address,
-          "date_of_birth": date_of_birth.toISOString(),
-          "phone_number": route.params.phone,
-          "code": route.params.code,
-          "push_token": pushToken
-      }
-      :
-      {
         "first_name": firstname,
         "last_name": lastname,
         "email_address": email,
@@ -183,25 +170,32 @@ useLayoutEffect(() => {
         "date_of_birth": date_of_birth.toISOString(),
         "phone_number": route.params.phone,
         "code": route.params.code,
-      },
+        "push_token": pushToken
+      }
+        :
+        {
+          "first_name": firstname,
+          "last_name": lastname,
+          "email_address": email,
+          "address": address,
+          "date_of_birth": date_of_birth.toISOString(),
+          "phone_number": route.params.phone,
+          "code": route.params.code,
+        },
       "application/x-www-form-urlencoded"
     )
-    if("error" in res) {
-      if(res.error.status == 400) {
-        Alert.alert('Your session has expired', 'Your session has expired due to inactivity, please try again.')
-        navigation.navigate('Start')
-      }
+    if ("error" in res) {
+      Alert.alert('An error has occured', res.error.message)
       setValidateError(res.error.message)
 
     } else {
-      
+      clearExpiry()
       Alert.alert("Success", "Your account has successfully been created, welcome to Greenclick.")
       await AsyncStorage.setItem("access_token", res.access_token)
       await AsyncStorage.setItem("refresh_token", res.refresh_token)
-      setUser({access_token: res.access_token, refresh_token: res.refresh_token})
+      setUser({ access_token: res.access_token, refresh_token: res.refresh_token })
       navigation.navigate('Home')
     }
-    
   }
 
   return (
@@ -223,7 +217,6 @@ useLayoutEffect(() => {
           In order to start your Greenclick car rental experience, we will need
           some information from you.
         </Body>
-        <Text style={{color: "#FF0000"}}>{validateError}</Text>
         <ButtonContainer>
           <InputTitle>Email Address</InputTitle>
           <InputMain
@@ -321,12 +314,21 @@ useLayoutEffect(() => {
             textInputProps={{
               onChangeText: (text) => {
                 text.length == 0 ? setAddress() : null;
-              },
+              }
             }}
             query={{
               key: key,
               language: "en",
+              location: `${!!location && location.coords.latitude}, ${!!location && location.coords.longitude}`,
+              radius: "10000000000",
+              strictbounds: true,
+              locationBias: 'ipbias',
+              type: 'address',
+              rankby: 'distance',
+              components: 'country:us|country:ca'
+            
             }}
+            debounce={200}
             requestUrl={{
               useOnPlatform: 'all',
               url: 'https://maps.googleapis.com/maps/api',
@@ -340,17 +342,17 @@ useLayoutEffect(() => {
         </ButtonContainer>
         <ButtonContainer>
           <InputMainTouch onPress={showDatepicker}>
-          <InputTitle>Date of Birth</InputTitle>
+            <InputTitle>Date of Birth</InputTitle>
             <View>
-            <PseudoInput>
-                <PseudoTextPlaceholder color={date_of_birth.setHours(0,0,0,0) == today.setHours(0,0,0,0)}>{moment(date_of_birth).format('ll')}</PseudoTextPlaceholder> 
-            </PseudoInput>
+              <PseudoInput>
+                <PseudoTextPlaceholder color={date_of_birth.setHours(0, 0, 0, 0) == today.setHours(0, 0, 0, 0)}>{moment(date_of_birth).format('ll')}</PseudoTextPlaceholder>
+              </PseudoInput>
             </View>
           </InputMainTouch>
         </ButtonContainer>
-        
+
         <ButtonWrapper>
-          {email && firstname && lastname && address && date_of_birth && date_of_birth.setHours(0,0,0,0) != today.setHours(0,0,0,0) ? (
+          {email && firstname && lastname && address && date_of_birth && date_of_birth.setHours(0, 0, 0, 0) != today.setHours(0, 0, 0, 0) ? (
             <CustomButton
               bgcolor={"#4aaf6e"}
               fcolor={"#fff"}
@@ -369,12 +371,14 @@ useLayoutEffect(() => {
           )}
         </ButtonWrapper>
         <Disclaimer>When you tap Signup, you agree to our terms and conditions & privacy policy. </Disclaimer>
+        <Text style={{ color: "#FF0000" }}>{validateError}</Text>
+
         <DateTimePickerModal
-        isVisible={show}
-        mode="date"
-        onConfirm={(date) => handleConfirm(date)}
-        onCancel={hideDatePicker}
-      />
+          isVisible={show}
+          mode="date"
+          onConfirm={(date) => handleConfirm(date)}
+          onCancel={hideDatePicker}
+        />
       </KeyboardAwareScrollView>
     </SafeAreaView>
   );
