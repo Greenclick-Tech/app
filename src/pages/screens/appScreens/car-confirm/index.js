@@ -340,8 +340,8 @@ const CarConfirm = ({ route, navigation }) => {
   const [promotionText, setPromotionText] = useState('')
 
   const requestBodyPaymentProperties = {
-    start_date: moment(startDate).utc().toISOString(),
-    end_date: moment(endDate).utc().toISOString(),
+    start_date: moment(route.params.startDate).utc().toISOString(),
+    end_date: moment(route.params.endDate).utc().toISOString(),
   }
 
   const initializePaymentSheet = async () => {
@@ -453,6 +453,13 @@ const CarConfirm = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
+      console.log(res)
+      if(res.error.message == "Promotion does not exist.") {
+        Alert.alert("Promo Code Not Found", "This promo code could not be found, please try again.")
+        setPromotionText('')
+        setPromotion('')
+        return res;
+      }
     } else {
       return res;
     }
@@ -812,7 +819,6 @@ const CarConfirm = ({ route, navigation }) => {
                                       {data.description}
                                     </InformationText>
                                   </View>
-                                  <Image source={require("../../../../assets/bonzah.jpg")} style={{ resizeMode: "contain", flex: 1, height: 50, width: 50 }}></Image>
 
                                 </InsuranceBox>
                               </InsuranceWrapper>
@@ -827,7 +833,7 @@ const CarConfirm = ({ route, navigation }) => {
                                   <MiniSubtitle>Add a Promo Code</MiniSubtitle>
                                 </DateWrapper>
                                 <InsuranceBox>
-                                  <PromoCodeInput onChangeText={(text) => {
+                                  <PromoCodeInput value={promotionText} onChangeText={(text) => {
                                     setPromotionText(text)
                                   }}>
                                   </PromoCodeInput>
@@ -837,7 +843,10 @@ const CarConfirm = ({ route, navigation }) => {
                                 </InsuranceBox>
                                 {
                                 promotion && 
-                                <ResetButton>
+                                <ResetButton onPress={()=> {
+                                  setPromotion("")
+                                  setPromotionText("")
+                                }}>
                                   <ResetText>Reset</ResetText>
                                 </ResetButton>
                                 }

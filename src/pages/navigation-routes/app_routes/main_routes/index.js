@@ -38,6 +38,7 @@ const AppRoutes = () => {
                 headerTintColor: "#000",
                 cardStyle: { backgroundColor: "#fff" },
             }}
+            initialRouteName="Main"
         >
             {/* Navigation component, containing all bottom navigation tab pages */}
             <Stack.Screen
