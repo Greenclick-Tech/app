@@ -38,7 +38,7 @@ const AppRoutes = () => {
                 headerTintColor: "#000",
                 cardStyle: { backgroundColor: "#fff" },
             }}
-            initialRouteName="Main"
+            initialRouteName="Home"
         >
             {/* Navigation component, containing all bottom navigation tab pages */}
             <Stack.Screen
@@ -197,8 +197,13 @@ const AppRoutes = () => {
             <Stack.Screen
                 name="Notifications"
                 options={({ navigation }) => ({
-                    headerBackTitle: "Back",
-                    headerTitle: "All Notifications"
+                    headerBackTitle: "Home",
+                    headerTitle: "All Notifications",
+                    headerLeft: () => (
+                        <Button color={"#000"} onPress={() => navigation.navigate("Home", {
+                            refresh: true
+                        })} title="Home" />
+                    ),
                 })}
                 component={NotificationsPage}
             />
