@@ -503,6 +503,7 @@ const CarConfirm = ({ route, navigation }) => {
         queryFn: () => fetchVehicle(route.params.hotelId, route.params.vehicleId),
       },
       {
+        // useMutation
         queryKey: ["paymentIntent", route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate],
         queryFn: () => fetchPaymentIntent(route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate),
         enabled: !!pubKey && userEmail,

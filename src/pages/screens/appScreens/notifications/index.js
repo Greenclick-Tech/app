@@ -111,7 +111,7 @@ const CaughtUpText = styled.Text`
 const NotificationsPage = ({ navigation, route }) => {
 
     const [refreshing, setRefreshing] = useState(false);
-    const [development, setDevelopment] = useState(true);
+    const [development, setDevelopment] = useState(false);
 
     const getNotifications = useQuery({
         queryKey: ["notifications"],
@@ -151,7 +151,7 @@ const NotificationsPage = ({ navigation, route }) => {
                     contentContainerStyle={{ flexGrow: 1 }}
                     keyboardShouldPersistTaps='handled'
                 >
-                    <Text>This page is currently in development</Text>
+                    <Text>No notifications found</Text>
     
                 </SafeArea>
             </Cont>
@@ -175,16 +175,16 @@ const NotificationsPage = ({ navigation, route }) => {
                             getNotifications.isError ?
                                 <EmailText>An error has occured. {getNotifications.data.error.message}</EmailText>
                                 :
-                                getNotifications.data.notifications.length  == 0 ?
+                                getNotifications.data.notifications && getNotifications.data.notifications.length  == 0 ?
                                 <></>
                                 :
                                 <Cont>
                                     <TitleNotify isUnread>Unread</TitleNotify>
     
                                     {
-                                        getNotifications.data.notifications.filter((item) => item.unread).length > 0 ?
+                                        getNotifications.data.notifications  && getNotifications.data.notifications.filter((item) => item.unread).length > 0 ?
     
-                                        getNotifications.data.notifications.filter((item) => item.unread).map((item) => {
+                                        getNotifications.data.notifications && getNotifications.data.notifications.filter((item) => item.unread).map((item) => {
                                             return <NotificationContainer>
                                             <NotificationIcon
                                                 source={{
@@ -210,9 +210,9 @@ const NotificationsPage = ({ navigation, route }) => {
                                     <TitleNotify>Previous</TitleNotify>
                                     {
     
-                                        getNotifications.data.notifications.filter((item) => !item.unread).length > 0 ?
+                                        getNotifications.data.notifications  && getNotifications.data.notifications.filter((item) => !item.unread).length > 0 ?
     
-                                        getNotifications.data.notifications.filter((item) => !item.unread).map((item) => {
+                                        getNotifications.data.notifications  && getNotifications.data.notifications.filter((item) => !item.unread).map((item) => {
                                             return <NotificationContainer>
                                             <NotificationIcon
                                                 source={{

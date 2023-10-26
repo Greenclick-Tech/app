@@ -9,6 +9,7 @@ import CustomButton from '../../../../components/custom-button';
 import endpoints from '../../../../constants/endpoints';
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
+import { useMutation } from '@tanstack/react-query';
 
 const Cont = styled.View`
     flex: 1;
@@ -210,6 +211,11 @@ const PhoneVerifyPage = ({ navigation, route }) => {
             navigation.navigate('Home')
         }
     }
+
+    const mutationVerify = useMutation({
+        mutationFn: handleVerify
+      })
+
     return (
         <Cont>
             <SafeArea
@@ -253,7 +259,7 @@ const PhoneVerifyPage = ({ navigation, route }) => {
                         bgcolor={"#4aaf6e"}
                         fcolor={"#fff"}
                         title={"Continue"}
-                        onPress={handleVerify}
+                        onPress={()=> mutationVerify.mutate()}
                     >
                     </CustomButton>
                     :
@@ -265,9 +271,8 @@ const PhoneVerifyPage = ({ navigation, route }) => {
                     >
                     </CustomButton>
                 }
-                {error == ""
-                    ? <></>
-                    : <RedBody>{error}</RedBody>
+                {
+                    error == "" && (<RedBody>{error}</RedBody>)
                 }
             </SafeArea>
         </Cont>

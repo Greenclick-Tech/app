@@ -14,8 +14,7 @@ import { Context } from '../../../../helpers/context/context';
 import endpoints from "../../../../constants/endpoints";
 import RequestHandler from "../../../../helpers/api/rest_handler";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-
+import { useMutation } from '@tanstack/react-query';
 
 const Subtitle = styled.Text`
   color: #3b414b;
@@ -198,6 +197,12 @@ const ExtraInfo = ({ navigation, route }) => {
     }
   }
 
+  const mutation = useMutation({
+    mutationFn: validateUser
+  })
+
+
+
   return (
     <SafeAreaView
       style={{
@@ -357,9 +362,7 @@ const ExtraInfo = ({ navigation, route }) => {
               bgcolor={"#4aaf6e"}
               fcolor={"#fff"}
               title={"Signup"}
-              onPress={() => {
-                validateUser()
-              }}
+              onPress={()=> mutation.mutate()}
             ></CustomButton>
           ) : (
             <CustomButton
