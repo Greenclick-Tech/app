@@ -84,8 +84,6 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
             finalStatus = status;
           }
           if (finalStatus !== 'granted') {
-            alert('Enable notifications in settings', 'You must enable your notifications in your app settings.');
-            setNotificationStatus(finalStatus)
             return;
           }
           token = (await Notifications.getExpoPushTokenAsync()).data;
