@@ -70,7 +70,7 @@ const SafeArea = styled.ScrollView``;
 
 const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => {
 
-    const { setPushToken } = useContext(Context);
+    const { pushToken, setPushToken } = useContext(Context);
     const [notification, setNotification] = useState(false);
     const [notificationStatus, setNotificationStatus] = useState()
 
@@ -108,9 +108,14 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
     const enableNotifications = () => {
         registerForPushNotificationsAsync().then(token => {
             setPushToken(token)
-            navigation.navigate('Start')
         });
     }
+
+    useEffect(()=> {
+        if(pushToken) {
+            navigation.navigate('Start');
+        }
+    }, [pushToken])
 
     return (
         notificationStatus === 'denied' ?
