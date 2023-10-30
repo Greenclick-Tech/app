@@ -3,7 +3,7 @@ export default () => ({
   expo: {
     name: "Greenclick",
     slug: "greenclick",
-    version: "1.0.29",
+    version: "1.0.30",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "light",
@@ -22,7 +22,7 @@ export default () => ({
     ios: {
       supportsTablet: false,
       bundleIdentifier: "org.name.greenclick",
-      buildNumber: "46",
+      buildNumber: "47",
       infoPlist: {
         NSLocationWhenInUseUsageDescription: "This app uses your location to retrieve nearby hotels & unlock the greenclick lock box when you are in clock proximity.",
         NSLocationAlwaysUsageDescription: "This app requires your location to verify if you are in close proximity of the greenclick lock box.",
