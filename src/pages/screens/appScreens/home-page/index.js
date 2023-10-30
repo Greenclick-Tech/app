@@ -555,7 +555,7 @@ const HomePage = ({ navigation, route }) => {
                 size={30}
               />
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={{ paddingRight: 10 }}
               onPress={() => {
                 navigation.navigate("Notifications");
@@ -566,7 +566,7 @@ const HomePage = ({ navigation, route }) => {
                 name="notifications-outline"
                 size={30}
               />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
           </View>
         </View>

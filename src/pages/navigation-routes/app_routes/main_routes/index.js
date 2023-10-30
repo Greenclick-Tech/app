@@ -28,7 +28,7 @@ const AppRoutes = () => {
                 headerTintColor: "#000",
                 cardStyle: { backgroundColor: "#fff" },
             }}
-            initialRouteName="Main"
+            initialRouteName="Home"
         >
             {/* Navigation component, containing all bottom navigation tab pages */}
             
@@ -134,6 +134,20 @@ const AppRoutes = () => {
                 }}
                 component={KeyRetrival}
             />
+{/* 
+            <Stack.Screen
+                name="Notifications"
+                options={({ navigation }) => ({
+                    headerBackTitle: "Home",
+                    headerTitle: "All Notifications",
+                    headerLeft: () => (
+                        <Button color={"#000"} onPress={() => navigation.navigate("Home", {
+                            refresh: true
+                        })} title="Home" />
+                    ),
+                })}
+                component={NotificationsPage}
+            /> */}
 
             {/* Key return page for returning key and ending order */}
             <Stack.Screen
@@ -162,20 +176,6 @@ const AppRoutes = () => {
                     ),
                 })}
                 component={EmailVerifyPage}
-            />
-
-            <Stack.Screen
-                name="Notifications"
-                options={({ navigation }) => ({
-                    headerBackTitle: "Home",
-                    headerTitle: "All Notifications",
-                    headerLeft: () => (
-                        <Button color={"#000"} onPress={() => navigation.navigate("Home", {
-                            refresh: true
-                        })} title="Home" />
-                    ),
-                })}
-                component={NotificationsPage}
             />
 
             <Stack.Screen
