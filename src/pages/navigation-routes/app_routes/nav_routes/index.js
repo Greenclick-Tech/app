@@ -43,6 +43,7 @@ const BottomNavigationRoutes = () => {
     return (
 
         <Nav.Navigator
+            initialRouteName="Home"
             screenOptions={({ route }) => ({
                 tabBarActiveTintColor: '#4aaf6e',
                 tabBarIcon: ({ focused, color, size }) => {
