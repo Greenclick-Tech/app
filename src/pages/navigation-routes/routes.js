@@ -10,17 +10,16 @@ import endpoints from "../../constants/endpoints";
 import { StatusBar } from 'expo-status-bar';
 navigator.geolocation = require('@react-native-community/geolocation');
 navigator.geolocation = require('react-native-geolocation-service');
-
-
-
+import { useNavigation } from '@react-navigation/native';
 
 //Creating Routes for each page in application
-const Routes = ({ }) => {
+const Routes = ({}) => {
 
     const [loading, setLoading] = useState(true);
     const [notification, setNotification] = useState(false);
     const notificationListener = useRef();
     const responseListener = useRef();
+    const navigation = useNavigation();
 
     const {
         user,
@@ -110,6 +109,12 @@ const Routes = ({ }) => {
     
       }, []);
 
+    useEffect(()=> {
+        if(user) {
+            navigation.navigate('Home');
+        }
+    }, [user])
+
     //Return pages wrapped in navigation corrisponding to users
     return (
         <>
@@ -117,6 +122,7 @@ const Routes = ({ }) => {
             {loading ? (
                 <LoadingScreen />
             ) : user ? (
+                //User Exists
                 <AppRoutes />
             ) : (
                 //User Doesn't Exist

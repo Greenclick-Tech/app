@@ -7,11 +7,8 @@ import OrderConfirmation from "../../../screens/appScreens/order-confirmation";
 import KeyRetrival from "../../../screens/appScreens/keyretrival";
 import KeyReturn from '../../../screens/appScreens/keyreturn'
 import BottomNavigationRoutes from "../nav_routes";
-//
 import SettingsMain from "../../../screens/appScreens/settings";
 import PageAccount from "../../../screens/appScreens/settings/nested-settings/account";
-// import PageAppearance from "./pages/pages-app/settings/nested-settings/Appearance";
-// import PageHelp from "./pages/pages-app/settings/nested-settings/help";
 import PageNotifications from "../../../screens/appScreens/settings/nested-settings/notifications";
 import PagePrivacy from "../../../screens/appScreens/settings/nested-settings/privacy";
 import Faq from "../../../screens/appScreens/settings/nested-settings/faq";
@@ -19,13 +16,6 @@ import Support from "../../../screens/appScreens/settings/nested-settings/suppor
 import EmailVerifyPage from "../../../screens/appScreens/email-verification";
 import UserVerifyPage from "../../../screens/appScreens/user-verification";
 import NotificationsPage from "../../../screens/appScreens/notifications";
-
-// import Activity from "./pages/pages-app/activity";
-// import PaymentMethods from "./pages/pages-app/payment-methods";
-// import PaymentSheet from "./pages/pages-app/paymentsheet";
-
-// import Events from "./pages/pages-app/events";
-
 
 const Stack = createStackNavigator();
 
@@ -41,6 +31,7 @@ const AppRoutes = () => {
             initialRouteName="Home"
         >
             {/* Navigation component, containing all bottom navigation tab pages */}
+            
             <Stack.Screen
                 name="Main"
                 component={BottomNavigationRoutes}
@@ -72,27 +63,6 @@ const AppRoutes = () => {
                 name="Support"
                 component={Support}
             />
-
-            {/* Application Appearance, no use for page at the moment */}
-
-            {/* <Stack.Screen 
-                name="Appearance" 
-                component={PageAppearance} 
-            /> */}
-
-            {/* Settings page, holds all information for settings and portal to settings page on web */}
-
-            {/* <Stack.Screen 
-                name="HelpSupport" 
-                component={PageHelp} 
-            /> */}
-
-            {/* Notification management, user managing all extra notifications that are not related to user experience */}
-
-            {/* <Stack.Screen
-                name="Notifications-Settings"
-                component={PageNotifications}
-            /> */}
 
             {/* Privacy and Security, privacy policy text scroll */}
 

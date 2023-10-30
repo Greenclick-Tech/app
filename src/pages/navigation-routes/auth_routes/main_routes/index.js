@@ -8,12 +8,16 @@ import NotificationsPanel from '../../../screens/authScreens/notifications';
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { Button } from 'react-native';
+import * as Location from "expo-location";
 
 const Stack = createStackNavigator()
 
 //AuthRoutes - Application routes when user has not logged in.
 const AuthRoutes = () => {
+
     const [notificationPermissions, setNotificationPermissions] = useState()
+    const [locationPermissions] = Location.useForegroundPermissions();
+
     async function checkForPushNotificationsAsync() {
         if (Device.isDevice) {
           const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -23,7 +27,7 @@ const AuthRoutes = () => {
 
         }
     }
-    
+
     useEffect(()=> {
         checkForPushNotificationsAsync()
     }, [])
@@ -50,7 +54,6 @@ const AuthRoutes = () => {
                 {props=> <NotificationsPanel {...props} existingNotificationPermissions={notificationPermissions}></NotificationsPanel>}
             </Stack.Screen>
             }
-            
 
             {/* Start page, first page shown to users. */}
             <Stack.Screen
