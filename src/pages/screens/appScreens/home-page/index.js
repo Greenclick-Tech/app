@@ -657,7 +657,7 @@ const HomePage = ({ navigation, route }) => {
                           <ActiveBookingTextContainer size bold>
                             {getVehicle.data.vehicle.model}
                           </ActiveBookingTextContainer>
-                          <ActiveBookingTextContainer size isMargin={"8px"}>
+                          <ActiveBookingTextContainer size isMargin={8}>
                             {getHotel.data.hotel.name}
                           </ActiveBookingTextContainer>
                           <View
