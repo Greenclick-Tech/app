@@ -486,7 +486,7 @@ const ActivityPage = ({ navigation }) => {
                   <TouchableOpacity onPress={() => {
                     Linking.openSettings()
                   }}>
-                    <Text style={{ color: "#4aaf6e", fontSize: "16px" }}>Open Location Permissions</Text>
+                    <Text style={{ color: "#4aaf6e", fontSize: 16 }}>Open Location Permissions</Text>
                   </TouchableOpacity>
                 </View>
         }
