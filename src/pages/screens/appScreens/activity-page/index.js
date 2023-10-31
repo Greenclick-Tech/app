@@ -45,7 +45,7 @@ const SubtitleTwo = styled.Text`
 `;
 
 const ActiveBookingTextContainer = styled.Text`
-  margin-bottom: ${(props) => (props.margin ? props.margin : "5px")};
+  margin-bottom: ${(props) => (props.margin ? props.margin : "8px")};
   color: ${(props) => (props.color ? props.color : "#494d52")};
   font-weight: ${(props) => (props.bold ? "600" : "400")};
   font-size: ${(props) => (props.size ? "16px" : "14px")};
@@ -184,7 +184,7 @@ const ItemComponent = ({ bookings, navigation }) => {
                       <ActiveBookingTextContainer size bold>
                         {vehicleQueries[index].data.vehicle.model}
                       </ActiveBookingTextContainer>
-                      <ActiveBookingTextContainer size margin={"8px"}>
+                      <ActiveBookingTextContainer size >
                         {hotelQueries[index].data.hotel.name}
                       </ActiveBookingTextContainer>
                       <View
@@ -304,7 +304,7 @@ const ItemComponent = ({ bookings, navigation }) => {
                       <ActiveBookingTextContainer size bold>
                         {vehicleQueries[index].data.vehicle.model}
                       </ActiveBookingTextContainer>
-                      <ActiveBookingTextContainer size margin={"8px"}>
+                      <ActiveBookingTextContainer size >
                         {hotelQueries[index].data.hotel.name}
                       </ActiveBookingTextContainer>
                       <View
@@ -486,7 +486,7 @@ const ActivityPage = ({ navigation }) => {
                   <TouchableOpacity onPress={() => {
                     Linking.openSettings()
                   }}>
-                    <Text style={{ color: "#4aaf6e", fontSize: "16px" }}>Open Location Permissions</Text>
+                    <Text style={{ color: "#4aaf6e", fontSize: 16 }}>Open Location Permissions</Text>
                   </TouchableOpacity>
                 </View>
         }

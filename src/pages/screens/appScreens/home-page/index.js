@@ -100,7 +100,7 @@ const SecondaryWrapper = styled.View`
 const HotelTitle = styled.Text`
   color: #3b414b;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 16pt;
 `;
 
 const HotelSubTitle = styled.Text`
@@ -657,7 +657,7 @@ const HomePage = ({ navigation, route }) => {
                           <ActiveBookingTextContainer size bold>
                             {getVehicle.data.vehicle.model}
                           </ActiveBookingTextContainer>
-                          <ActiveBookingTextContainer size isMargin={"8px"}>
+                          <ActiveBookingTextContainer size isMargin={8}>
                             {getHotel.data.hotel.name}
                           </ActiveBookingTextContainer>
                           <View
@@ -979,7 +979,7 @@ const HomePage = ({ navigation, route }) => {
                   <TouchableOpacity onPress={() => {
                     Linking.openSettings()
                   }}>
-                    <Text style={{ color: "#4aaf6e", fontSize: "16px" }}>Open Location Permissions</Text>
+                    <Text style={{ color: "#4aaf6e", fontSize: 16 }}>Open Location Permissions</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -1002,7 +1002,7 @@ const HomePage = ({ navigation, route }) => {
           }
         >
 
-          {data ? main : <></>}
+          {main}
         </ScrollView>
       </View>
     </SafeAreaView>
