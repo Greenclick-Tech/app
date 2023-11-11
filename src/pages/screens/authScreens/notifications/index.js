@@ -88,6 +88,8 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
           }
           token = (await Notifications.getExpoPushTokenAsync()).data;
         } else {
+            console.log('hello world')
+            return;
         }
     
         if (Platform.OS === 'android') {
@@ -108,17 +110,17 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
     const enableNotifications = () => {
         registerForPushNotificationsAsync().then(token => {
             setPushToken(token)
+            navigation.navigate('Start');
         });
     }
 
     useEffect(()=> {
-        if(pushToken) {
-            navigation.navigate('Start');
-        }
+        navigation.navigate('Start');
     }, [pushToken])
 
     return (
-        notificationStatus === 'denied' ?
+        
+        notificationStatus === 'denied' ? // If the user has previously deined notificaiton permissions
         <Container>
             <SafeArea
                 contentContainerStyle={{ flexGrow: 1 }}
