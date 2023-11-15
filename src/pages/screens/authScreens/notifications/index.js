@@ -72,7 +72,7 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
 
     const { pushToken, setPushToken } = useContext(Context);
     const [notification, setNotification] = useState(false);
-    const [notificationStatus, setNotificationStatus] = useState()
+    const [notificationStatus, setNotificationStatus] = useState("")
 
     async function registerForPushNotificationsAsync() {
         let token;
@@ -111,44 +111,6 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
         registerForPushNotificationsAsync().then(token => {
             setPushToken(token)
         });
-    }
-
-    useEffect(() => {
-        if (pushToken) {
-            navigation.navigate('Start');
-        }
-    }, [pushToken, navigation]);
-
-    if (notificationStatus === 'denied') {
-        main = <Container>
-            <SafeArea
-                contentContainerStyle={{ flexGrow: 1 }}
-                keyboardShouldPersistTaps='handled'
-                scrollEnabled={false}
-            >
-
-            </SafeArea>
-        </Container>
-    } else if (notificationStatus === 'granted') {
-        main = <Container>
-            <SafeArea
-                contentContainerStyle={{ flexGrow: 1 }}
-                keyboardShouldPersistTaps='handled'
-                scrollEnabled={false}
-            >
-
-            </SafeArea>
-        </Container>
-    } else {
-        main = <Container>
-            <SafeArea
-                contentContainerStyle={{ flexGrow: 1 }}
-                keyboardShouldPersistTaps='handled'
-                scrollEnabled={false}
-            >
-
-            </SafeArea>
-        </Container>
     }
 
     return (
