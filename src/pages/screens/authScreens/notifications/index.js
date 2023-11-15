@@ -110,50 +110,74 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
     const enableNotifications = () => {
         registerForPushNotificationsAsync().then(token => {
             setPushToken(token)
-            navigation.navigate('Start');
         });
     }
 
-    useEffect(()=> {
-        navigation.navigate('Start');
-    }, [pushToken])
+    useEffect(() => {
+        if (pushToken) {
+            navigation.navigate('Start');
+        }
+    }, [pushToken, navigation]);
 
-    return (
-        
-        notificationStatus === 'denied' ? // If the user has previously deined notificaiton permissions
-        <Container>
-            <SafeArea
-                contentContainerStyle={{ flexGrow: 1 }}
-                keyboardShouldPersistTaps='handled'
-                scrollEnabled={false}
-            >
-                <Center>
-                    <FullPage>
-                        <Title>Enable Notifications </Title>
-                        <Body>You have previously denied greenclick to send you notification. Please enable it in your app settings by tapping below.</Body>
-                    </FullPage>
-                    <ButtonContainer>
-                        <CustomButton
-                            title={"Enable Notifications in App Settings"}
-                            color={'#ffffff'}
-                            onPress={() => {
-                                Linking.openSettings()
-                            }}
-                        >
-                        </CustomButton>
-                        <LoginButton
-                            onPress={() => {
-                                navigation.navigate('Start')
-                            }}
-                        >
-                            <TextLogin>Enable Notifications Later</TextLogin>
-                        </LoginButton>
-                    </ButtonContainer>
-                </Center>
-            </SafeArea>
-        </Container>
-        :
-        <Container>
+    if(notificationStatus === 'denied') {
+        main = <Container>
+        <SafeArea
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps='handled'
+            scrollEnabled={false}
+        >
+            <Center>
+                <FullPage>
+                    <Title>Enable Notifications </Title>
+                    <Body>You have previously denied greenclick to send you notification. Please enable it in your app settings by tapping below.</Body>
+                </FullPage>
+                <ButtonContainer>
+                    <CustomButton
+                        title={"Enable Notifications in App Settings"}
+                        color={'#ffffff'}
+                        onPress={() => {
+                            Linking.openSettings()
+                        }}
+                    >
+                    </CustomButton>
+                    <LoginButton
+                        onPress={() => {
+                            navigation.navigate('Start')
+                        }}
+                    >
+                        <TextLogin>Enable Notifications Later</TextLogin>
+                    </LoginButton>
+                </ButtonContainer>
+            </Center>
+        </SafeArea>
+    </Container>
+    } else if(notificationStatus === 'granted') {
+        main = <Container>
+        <SafeArea
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps='handled'
+            scrollEnabled={false}
+        >
+            <Center>
+                <FullPage>
+                    <Title>Notifications Enabled</Title>
+                    <Body>Notifications are enabled! You can adjust your notification settings in the greenclick app anytime.</Body>
+                </FullPage>
+                <ButtonContainer>
+                    <CustomButton
+                        title={"Continue"}
+                        color={'#ffffff'}
+                        onPress={() => {
+                            navigation.navigate("Start")
+                        }}
+                    >
+                    </CustomButton>
+                </ButtonContainer>
+            </Center>
+        </SafeArea>
+    </Container>
+    } else {
+        main = <Container>
             <SafeArea
                 contentContainerStyle={{ flexGrow: 1 }}
                 keyboardShouldPersistTaps='handled'
@@ -186,6 +210,12 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
                 </Center>
             </SafeArea>
         </Container>
+    }
+
+    return (
+        <View>
+            {main}
+        </View>
     )
 };
 
