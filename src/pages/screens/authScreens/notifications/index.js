@@ -121,7 +121,7 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
                 scrollEnabled={false}
             >
                 {
-                    notificationStatus ?
+                    notificationStatus != "" ?
                         notificationStatus == 'denied' ?
                             <Center>
                                 <FullPage>
