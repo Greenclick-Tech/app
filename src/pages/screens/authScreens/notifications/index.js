@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Linking, View } from 'react-native'
 import styled from 'styled-components';
 import LogoFullWhite from '../../../../assets/logo-full-white'
@@ -77,33 +77,33 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
     async function registerForPushNotificationsAsync() {
         let token;
         if (Device.isDevice) {
-          const { status: existingStatus } = await Notifications.getPermissionsAsync();
-          let finalStatus = existingStatus;
-          if (existingStatus !== 'granted') {
-            const { status } = await Notifications.requestPermissionsAsync();
-            finalStatus = status;
-          }
-          if (finalStatus !== 'granted') {
-            return;
-          }
-          token = (await Notifications.getExpoPushTokenAsync()).data;
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            let finalStatus = existingStatus;
+            if (existingStatus !== 'granted') {
+                const { status } = await Notifications.requestPermissionsAsync();
+                finalStatus = status;
+            }
+            if (finalStatus !== 'granted') {
+                return;
+            }
+            token = (await Notifications.getExpoPushTokenAsync()).data;
         } else {
             console.log('hello world')
             return;
         }
-    
+
         if (Platform.OS === 'android') {
-          Notifications.setNotificationChannelAsync('default', {
-            name: 'default',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
-          });
+            Notifications.setNotificationChannelAsync('default', {
+                name: 'default',
+                importance: Notifications.AndroidImportance.MAX,
+                vibrationPattern: [0, 250, 250, 250],
+                lightColor: '#FF231F7C',
+            });
         }
         return token;
     }
 
-    useEffect(()=> {
+    useEffect(() => {
         setNotificationStatus(existingNotificationPermissions)
     })
 
@@ -119,63 +119,26 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
         }
     }, [pushToken, navigation]);
 
-    if(notificationStatus === 'denied') {
+    if (notificationStatus === 'denied') {
         main = <Container>
-        <SafeArea
-            contentContainerStyle={{ flexGrow: 1 }}
-            keyboardShouldPersistTaps='handled'
-            scrollEnabled={false}
-        >
-            <Center>
-                <FullPage>
-                    <Title>Enable Notifications </Title>
-                    <Body>You have previously denied greenclick to send you notification. Please enable it in your app settings by tapping below.</Body>
-                </FullPage>
-                <ButtonContainer>
-                    <CustomButton
-                        title={"Enable Notifications in App Settings"}
-                        color={'#ffffff'}
-                        onPress={() => {
-                            Linking.openSettings()
-                        }}
-                    >
-                    </CustomButton>
-                    <LoginButton
-                        onPress={() => {
-                            navigation.navigate('Start')
-                        }}
-                    >
-                        <TextLogin>Enable Notifications Later</TextLogin>
-                    </LoginButton>
-                </ButtonContainer>
-            </Center>
-        </SafeArea>
-    </Container>
-    } else if(notificationStatus === 'granted') {
+            <SafeArea
+                contentContainerStyle={{ flexGrow: 1 }}
+                keyboardShouldPersistTaps='handled'
+                scrollEnabled={false}
+            >
+
+            </SafeArea>
+        </Container>
+    } else if (notificationStatus === 'granted') {
         main = <Container>
-        <SafeArea
-            contentContainerStyle={{ flexGrow: 1 }}
-            keyboardShouldPersistTaps='handled'
-            scrollEnabled={false}
-        >
-            <Center>
-                <FullPage>
-                    <Title>Notifications Enabled</Title>
-                    <Body>Notifications are enabled! You can adjust your notification settings in the greenclick app anytime.</Body>
-                </FullPage>
-                <ButtonContainer>
-                    <CustomButton
-                        title={"Continue"}
-                        color={'#ffffff'}
-                        onPress={() => {
-                            navigation.navigate("Start")
-                        }}
-                    >
-                    </CustomButton>
-                </ButtonContainer>
-            </Center>
-        </SafeArea>
-    </Container>
+            <SafeArea
+                contentContainerStyle={{ flexGrow: 1 }}
+                keyboardShouldPersistTaps='handled'
+                scrollEnabled={false}
+            >
+
+            </SafeArea>
+        </Container>
     } else {
         main = <Container>
             <SafeArea
@@ -183,39 +146,116 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
                 keyboardShouldPersistTaps='handled'
                 scrollEnabled={false}
             >
-                <Center>
-                    <FullPage>
-                        <Title>Enable Notifications </Title>
-                        <Body>Notifications are important in your Greenclick Car Rental experience. Please enable them below.</Body>
-                        <ImageNotification style={{
-                        }} source={require("../../../../assets/notifications.png")}></ImageNotification>
-                    </FullPage>
-                    <ButtonContainer>
-                        <CustomButton
-                            title={"Enable Notifications"}
-                            color={'#ffffff'}
-                            onPress={() => {
-                                enableNotifications()
-                            }}
-                        >
-                        </CustomButton>
-                        <LoginButton
-                            onPress={() => {
-                                navigation.navigate('Start')
-                            }}
-                        >
-                            <TextLogin>Enable Notifications Later</TextLogin>
-                        </LoginButton>
-                    </ButtonContainer>
-                </Center>
+
             </SafeArea>
         </Container>
     }
 
     return (
-        <View>
-            {main}
-        </View>
+        <Container>
+            <SafeArea
+                contentContainerStyle={{ flexGrow: 1 }}
+                keyboardShouldPersistTaps='handled'
+                scrollEnabled={false}
+            >
+                {
+                    notificationStatus ?
+                        notificationStatus == 'denied' ?
+                            <Center>
+                                <FullPage>
+                                    <Title>Enable Notifications </Title>
+                                    <Body>You have previously denied greenclick to send you notification. Please enable it in your app settings by tapping below.</Body>
+                                </FullPage>
+                                <ButtonContainer>
+                                    <CustomButton
+                                        title={"Enable Notifications in App Settings"}
+                                        color={'#ffffff'}
+                                        onPress={() => {
+                                            Linking.openSettings()
+                                        }}
+                                    >
+                                    </CustomButton>
+                                    <LoginButton
+                                        onPress={() => {
+                                            navigation.navigate('Start')
+                                        }}
+                                    >
+                                        <TextLogin>Enable Notifications Later</TextLogin>
+                                    </LoginButton>
+                                </ButtonContainer>
+                            </Center>
+                            : notificationStatus == 'granted' ?
+                                <Center>
+                                    <FullPage>
+                                        <Title>Notifications Enabled</Title>
+                                        <Body>Notifications are enabled! You can adjust your notification settings in the greenclick app anytime.</Body>
+                                    </FullPage>
+                                    <ButtonContainer>
+                                        <CustomButton
+                                            title={"Continue"}
+                                            color={'#ffffff'}
+                                            onPress={() => {
+                                                navigation.navigate("Start")
+                                            }}
+                                        >
+                                        </CustomButton>
+                                    </ButtonContainer>
+                                </Center>
+                                :
+                                <Center>
+                                <FullPage>
+                                    <Title>Enable Notifications </Title>
+                                    <Body>You have previously denied greenclick to send you notification. Please enable it in your app settings by tapping below.</Body>
+                                </FullPage>
+                                <ButtonContainer>
+                                    <CustomButton
+                                        title={"Enable Notifications in App Settings"}
+                                        color={'#ffffff'}
+                                        onPress={() => {
+                                            Linking.openSettings()
+                                        }}
+                                    >
+                                    </CustomButton>
+                                    <LoginButton
+                                        onPress={() => {
+                                            navigation.navigate('Start')
+                                        }}
+                                    >
+                                        <TextLogin>Enable Notifications Later</TextLogin>
+                                    </LoginButton>
+                                </ButtonContainer>
+                            </Center>
+
+                    :
+                        <Center>
+                            <FullPage>
+                                <Title>Enable Notifications </Title>
+                                <Body>Notifications are important in your Greenclick Car Rental experience. Please enable them below.</Body>
+                                <ImageNotification style={{
+                                }} source={require("../../../../assets/notifications.png")}></ImageNotification>
+                            </FullPage>
+                            <ButtonContainer>
+                                <CustomButton
+                                    title={"Enable Notifications"}
+                                    color={'#ffffff'}
+                                    onPress={() => {
+                                        enableNotifications()
+                                    }}
+                                >
+                                </CustomButton>
+                                <LoginButton
+                                    onPress={() => {
+                                        navigation.navigate('Start')
+                                    }}
+                                >
+                                    <TextLogin>Enable Notifications Later</TextLogin>
+                                </LoginButton>
+                            </ButtonContainer>
+                        </Center>
+
+                }
+            </SafeArea>
+        </Container>
     )
 };
 
