@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import { Linking } from 'react-native'
+import { Linking, View } from 'react-native'
 import styled from 'styled-components';
 import LogoFullWhite from '../../../../assets/logo-full-white'
 import CustomButton from '../../../../components/custom-button';
