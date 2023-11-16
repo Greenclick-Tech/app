@@ -19,7 +19,7 @@ const ContextProvider = ({ children }) => {
     const [location, setLocation] = useState();
     const [locationStatus, setLocationStatus] = useState();
     const expiryRef = useRef(null);
-    const [pushToken, setPushToken] = useState();
+    const [pushToken, setPushToken] = useState(null);
     const [notificationStatus, setNotificationStatus] = useState();
     const [currentPhone, setCurrentPhone] = useState("");
 

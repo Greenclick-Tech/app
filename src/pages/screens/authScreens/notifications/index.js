@@ -109,11 +109,26 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
     const [notificationStatus, setNotificationStatus] = useState("")
 
     useEffect(()=> {
-        registerForPushNotificationsAsync().then(token => setPushToken(token));
+        registerForPushNotificationsAsync().then(token => { 
+            if (token) {
+                setPushToken(token); // Update pushToken state in context
+                navigation.navigate('Start');
+            } else {
+                alert("Failed to retrieve token");
+            }
+        });
     }, [])
 
     const enableNotifications = async () => {
-        registerForPushNotificationsAsync().then(token => setPushToken(token));
+        alert("RUNNING")
+        registerForPushNotificationsAsync().then(token => { 
+            if (token) {
+                setPushToken(token); // Update pushToken state in context
+                navigation.navigate('Start');
+            } else {
+                alert("Failed to retrieve token");
+            }
+        });
     }
 
     return (
@@ -126,7 +141,6 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
                 { pushToken ?
                     <Center>
                         <FullPage>
-                            <Text>1Push Token: {pushToken}</Text>
                             <Title>Notifications Enabled</Title>
                             <Body>Notifications are enabled! You can adjust your notification settings in the greenclick app anytime.</Body>
                         </FullPage>
@@ -144,7 +158,6 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
                     :
                     <Center>
                         <FullPage>
-                            <Text>2Push Token: {pushToken}</Text>
                             <Title>Enable Notifications</Title>
                             <Body>Notifications are important in your Greenclick Car Rental experience. Please enable them below.</Body>
                             <ImageNotification style={{
