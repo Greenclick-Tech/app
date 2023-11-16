@@ -111,6 +111,7 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
     useEffect(()=> {
         registerForPushNotificationsAsync().then(token => { 
             if (token) {
+                alert(`token ${token}`);
                 setPushToken(token); // Update pushToken state in context
                 navigation.navigate('Start');
             } else {
@@ -123,6 +124,7 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
         alert("RUNNING")
         registerForPushNotificationsAsync().then(token => { 
             if (token) {
+                alert(token);
                 setPushToken(token); // Update pushToken state in context
                 navigation.navigate('Start');
             } else {
