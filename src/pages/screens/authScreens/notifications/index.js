@@ -86,9 +86,9 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
             if (finalStatus !== 'granted') {
                 return;
             }
+            setNotificationStatus(finalStatus);
             token = (await Notifications.getExpoPushTokenAsync()).data;
         } else {
-            console.log('hello world')
             return;
         }
 
@@ -105,7 +105,7 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
 
     useEffect(() => {
         setNotificationStatus(existingNotificationPermissions)
-    })
+    }, [])
 
     const enableNotifications = () => {
         registerForPushNotificationsAsync().then(token => {
