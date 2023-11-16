@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Linking, View, Platform } from 'react-native'
+import { Linking, View, Platform, Text } from 'react-native'
 import styled from 'styled-components';
 import LogoFullWhite from '../../../../assets/logo-full-white'
 import CustomButton from '../../../../components/custom-button';
@@ -108,7 +108,11 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
     const [notification, setNotification] = useState(false);
     const [notificationStatus, setNotificationStatus] = useState("")
 
-    const enableNotifications = () => {
+    useEffect(()=> {
+        registerForPushNotificationsAsync().then(token => setPushToken(token));
+    }, [])
+
+    const enableNotifications = async () => {
         registerForPushNotificationsAsync().then(token => setPushToken(token));
     }
 
@@ -122,6 +126,7 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
                 { pushToken ?
                     <Center>
                         <FullPage>
+                            <Text>1Push Token: {pushToken}</Text>
                             <Title>Notifications Enabled</Title>
                             <Body>Notifications are enabled! You can adjust your notification settings in the greenclick app anytime.</Body>
                         </FullPage>
@@ -139,6 +144,7 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
                     :
                     <Center>
                         <FullPage>
+                            <Text>2Push Token: {pushToken}</Text>
                             <Title>Enable Notifications</Title>
                             <Body>Notifications are important in your Greenclick Car Rental experience. Please enable them below.</Body>
                             <ImageNotification style={{
@@ -148,8 +154,8 @@ const NotificationsPanel = ({ navigation, existingNotificationPermissions }) => 
                             <CustomButton
                                 title={"Enable Notifications"}
                                 color={'#ffffff'}
-                                onPress={() => {
-                                    enableNotifications()
+                                onPress={ async () => {
+                                    await enableNotifications()
                                 }}
                             >
                             </CustomButton>
