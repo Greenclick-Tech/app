@@ -60,7 +60,6 @@ const PhonePage = ({ navigation, route }) => {
                 phone: value,
             })
         } else {
-            setCurrentPhone(value)
             let res = await RequestHandler(
                 "post",
                 endpoints.VERIFY(),
@@ -70,6 +69,8 @@ const PhonePage = ({ navigation, route }) => {
             if (res.error) {
                 Alert.alert("An error has occured", res.error.message);
             } else {
+                setCurrentPhone(value)
+                console.log("Success!: ", res)
                 navigation.navigate('PhoneVerifyPage', {
                     phone: value,
                     expires_in: res.expires_in
