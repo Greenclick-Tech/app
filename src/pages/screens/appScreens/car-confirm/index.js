@@ -519,14 +519,6 @@ const CarConfirm = ({ route, navigation }) => {
         queryFn: () => fetchVehicle(route.params.hotelId, route.params.vehicleId),
       },
       {
-        // useMutation
-        queryKey: ["paymentIntent", route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate],
-        queryFn: () => fetchPaymentIntent(route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate),
-        enabled: !!pubKey && userEmail,
-        cacheTime: 0,
-        refetchOnWindowFocus: true
-      },
-      {
         queryKey: ["paymentProperties", route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate, insurance, promotion],
         queryFn: () => fetchPaymentProperties(route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate, insurance, promotion),
         onSuccess: (data) => {
@@ -540,6 +532,7 @@ const CarConfirm = ({ route, navigation }) => {
         queryKey: ["pubKey"],
         queryFn: () => getStripePub(),
         onSuccess: (data) => {
+          console.log(data)
           "error" in data ? setPubKey() : setPubKey(data.pub_key)
         }
       },
@@ -662,7 +655,7 @@ const CarConfirm = ({ route, navigation }) => {
     if (promotion) {
       requestBodyPaymentProperties.promotion = promotion;
     }
-    results[3].refetch()
+    results[2].refetch()
   }, [insurance, promotion])
 
   let main = null;
@@ -817,9 +810,9 @@ const CarConfirm = ({ route, navigation }) => {
                                     </DateWrapper>
                                   </GrayWrapper>
                               }
-                              {results[6].data.insurances?.length > 0 ?
+                              {results[5].data.insurances?.length > 0 ?
 
-                                results[6].data.insurances.map((data) => {
+                                results[5].data.insurances.map((data) => {
                                   return (
                                     <InsuranceWrapper>
                                       <DateWrapper>
@@ -870,14 +863,14 @@ const CarConfirm = ({ route, navigation }) => {
 
                               {
 
-                                "error" in results[3].data ?
-                                  <Text>{results[3].data.error.message}</Text>
+                                "error" in results[2].data ?
+                                  <Text>{results[2].data.error.message}</Text>
                                   :
                                   <TitleButtonWrapperTwo>
 
                                     <AdditionText>Subtotal</AdditionText>
                                     <AdditionText>
-                                      ${parseInt(results[3].data.subtotal).toFixed(2)}
+                                      ${parseInt(results[2].data.subtotal).toFixed(2)}
                                     </AdditionText>
                                   </TitleButtonWrapperTwo>
 
@@ -885,10 +878,10 @@ const CarConfirm = ({ route, navigation }) => {
 
                               {
 
-                                "error" in results[3].data ?
-                                  <Text>{results[3].data.error.message}</Text>
+                                "error" in results[2].data ?
+                                  <Text>{results[2].data.error.message}</Text>
                                   :
-                                  results[3].data.receipt.map((e) => {
+                                  results[2].data.receipt.map((e) => {
                                     return (
                                       <TitleButtonWrapperTwo>
 
@@ -903,14 +896,14 @@ const CarConfirm = ({ route, navigation }) => {
                               }
 
                               {
-                                "error" in results[3].data ?
+                                "error" in results[2].data ?
                                   <></>
                                   :
                                   <WhiteWrapperTotal>
                                     <TitleButtonWrapper>
                                       <TotalText>Total</TotalText>
                                       <TotalText color>
-                                        ${parseInt(results[3].data.total).toFixed(2)}
+                                        ${parseInt(results[2].data.total).toFixed(2)}
                                       </TotalText>
                                     </TitleButtonWrapper>
                                   </WhiteWrapperTotal>
@@ -968,7 +961,7 @@ const CarConfirm = ({ route, navigation }) => {
               }
             </View>
             :
-            <Text>{results[4].data.error.message || ""}</Text>
+            <Text>{results[3].data.error && results[3].data.error.message || ""}</Text>
 
         }
       </StripeProvider>
