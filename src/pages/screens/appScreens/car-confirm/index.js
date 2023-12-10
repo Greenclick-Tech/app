@@ -19,7 +19,7 @@ import {
 } from "@stripe/stripe-react-native";
 import RequestHandler from "../../../../helpers/api/rest_handler";
 import endpoints from "../../../../constants/endpoints";
-import { useQuery, useQueries } from "@tanstack/react-query";
+import { useQuery, useQueries, useMutation } from "@tanstack/react-query";
 import { StripeProvider } from "@stripe/stripe-react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
@@ -203,7 +203,7 @@ const TotalText = styled.Text`
 const AdditionText = styled.Text`
   font-size: 14px;
   font-weight: 500;
-  color: #3b414b;
+  color: ${(props) => (props.red ? "#FF0000" : "#3b414b")}
 `;
 const ImageCars = styled.Image`
   width: 100%;
@@ -312,7 +312,7 @@ const PromoCodeInput = styled.TextInput`
 
 const AddButton = styled.TouchableOpacity`
   padding: 10px 10px;
-  background-color: ${props => props.active ? "#4aaf6e50": "#4aaf6e"}
+  background-color: ${props => props.active ? "#4aaf6e50" : "#4aaf6e"}
   font-size: 16px;
   border-radius: 7px;
 `;
@@ -344,17 +344,34 @@ const CarConfirm = ({ route, navigation }) => {
     end_date: moment(route.params.endDate).utc().toISOString(),
   }
 
-  const initializePaymentSheet = async () => {
+  const paymentIntentMutation = useMutation({
+    // useMutation
+    mutationKey: ["paymentIntent", route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate],
+    mutationFn: () => fetchPaymentIntent(route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate),
+    cacheTime: 0,
+    refetchOnWindowFocus: true,
+    onSuccess: async (res) => {
+      if("client_secret" in res) {
+        initializePaymentSheet(res.client_secret);
+      }
+    },
+    onError: (res) => {
+      console.log("Error")
+    }
+  })
+
+  const initializePaymentSheet = async (client_secret) => {
 
     const { error } = await initPaymentSheet({
       merchantDisplayName: "Greenclick Technologies",
-      paymentIntentClientSecret: results[2].data.client_secret,
+      paymentIntentClientSecret: client_secret,
       // Set `allowsDelayedPaymentMethods` to true if your business can handle payment
       //methods that complete payment after a delay, like SEPA Debit and Sofort.
       allowsDelayedPaymentMethods: true,
 
     });
     if (!error) {
+      openPaymentSheet();
     }
   };
 
@@ -453,8 +470,8 @@ const CarConfirm = ({ route, navigation }) => {
       // SAHIL, HANDLE THIS
       // probably a 404, hotel prob doesnt exist or somthing
       //
-      console.log(res)
-      if(res.error.message == "Promotion does not exist.") {
+      console.log("properties: ", res)
+      if (res.error.message == "Promotion does not exist.") {
         Alert.alert("Promo Code Not Found", "This promo code could not be found, please try again.")
         setPromotionText('')
         setPromotion('')
@@ -490,7 +507,6 @@ const CarConfirm = ({ route, navigation }) => {
 
 
   const [pubKey, setPubKey] = useState("");
-
 
   const results = useQueries({
     queries: [
@@ -537,6 +553,7 @@ const CarConfirm = ({ route, navigation }) => {
       }
     ],
   });
+
 
   const fetchInsurances = async (hotelId, vehicleId) => {
     let res = await RequestHandler(
@@ -638,19 +655,15 @@ const CarConfirm = ({ route, navigation }) => {
     setPaymentVisibility(false);
   };
 
-  useEffect(()=> {
-    if(insurance) {
+  useEffect(() => {
+    if (insurance) {
       requestBodyPaymentProperties.insurance = insurance;
     }
-    if(promotion) {
+    if (promotion) {
       requestBodyPaymentProperties.promotion = promotion;
     }
     results[3].refetch()
   }, [insurance, promotion])
-
-  useEffect(() => {
-    initializePaymentSheet();
-  }, [results[2].data]);
 
   let main = null;
 
@@ -675,19 +688,21 @@ const CarConfirm = ({ route, navigation }) => {
 
             <View style={{ flex: 1 }}>
               {
-                "error" in results[2].data ?
-                  results[2].data.error.code == 'VERIFY_EMAIL' || results[2].data.error.code == 'VERIFY_IDENTITY' ?
-                    <View style={{ padding: 20 }}>
-                      {/* <VerifyContainer>
-                        <VerifyDescription>In order to continue, you must verify your email address.</VerifyDescription>
-                        <CustomButton title={"Verify"} bgcolor={"#4aaf6e"} fcolor={"#fff"}></CustomButton>
-                      </VerifyContainer> */}
-                      <ActivityIndicator size={'small'}></ActivityIndicator>
+                //  "error" in results[2].data ?
+                //   results[2].data.error.code == 'VERIFY_EMAIL' || results[2].data.error.code == 'VERIFY_IDENTITY' ?
+                //     // <View style={{ padding: 20 }}>
+                //     //   {/* <VerifyContainer>
+                //     //     <VerifyDescription>In order to continue, you must verify your email address.</VerifyDescription>
+                //     //     <CustomButton title={"Verify"} bgcolor={"#4aaf6e"} fcolor={"#fff"}></CustomButton>
+                //     //   </VerifyContainer> */}
+                //     //   <ActivityIndicator size={'small'}></ActivityIndicator>
 
-                    </View>
-                    :
-                    <Text>{results[2].data.error.message}</Text>
-                  :
+                //     // </View>
+                //     <></>
+                //     :
+                //     // <Text>{results[2].data.error.message}</Text>
+                //     <></>
+                //   :
                   <View style={{ flex: 1 }}>
                     {"error" in results[1].data ? (
                       <Text>{results[1].data.error.message}</Text>
@@ -802,34 +817,34 @@ const CarConfirm = ({ route, navigation }) => {
                                     </DateWrapper>
                                   </GrayWrapper>
                               }
-                              { results[6].data.insurances?.length > 0 ?
+                              {results[6].data.insurances?.length > 0 ?
 
-                              results[6].data.insurances.map((data)=> {
-                                return (
-                                  <InsuranceWrapper>
-                                <DateWrapper>
-                                  <MiniSubtitle>Select Insurance</MiniSubtitle>
-                                </DateWrapper>
-                                <InsuranceBox>
-                                  <InsuranceSelector onPress={() => {
-                                    setInsurance(insurance == data.id ? '' : data.id)
-                                  }} active={insurance == data.id}></InsuranceSelector>
-                                  <View style={{ flex: 5 }}>
-                                    <InformationTitle>{data.name}</InformationTitle>
-                                    <InformationText>
-                                      {data.description}
-                                    </InformationText>
-                                  </View>
+                                results[6].data.insurances.map((data) => {
+                                  return (
+                                    <InsuranceWrapper>
+                                      <DateWrapper>
+                                        <MiniSubtitle>Select Insurance</MiniSubtitle>
+                                      </DateWrapper>
+                                      <InsuranceBox>
+                                        <InsuranceSelector onPress={() => {
+                                          setInsurance(insurance == data.id ? '' : data.id)
+                                        }} active={insurance == data.id}></InsuranceSelector>
+                                        <View style={{ flex: 5 }}>
+                                          <InformationTitle>{data.name}</InformationTitle>
+                                          <InformationText>
+                                            {data.description}
+                                          </InformationText>
+                                        </View>
 
-                                </InsuranceBox>
-                              </InsuranceWrapper>
-                                )
-                              })
+                                      </InsuranceBox>
+                                    </InsuranceWrapper>
+                                  )
+                                })
                                 :
                                 <></>
-                                }
+                              }
 
-                            <InsuranceWrapper>
+                              <InsuranceWrapper>
                                 <DateWrapper>
                                   <MiniSubtitle>Add a Promo Code</MiniSubtitle>
                                 </DateWrapper>
@@ -838,20 +853,35 @@ const CarConfirm = ({ route, navigation }) => {
                                     setPromotionText(text)
                                   }}>
                                   </PromoCodeInput>
-                                  <AddButton onPress={()=> {
+                                  <AddButton onPress={() => {
                                     setPromotion(promotionText)
-                                  }}><Text style={{color: "#ffffff", fontSize: 16}}>Add</Text></AddButton>
+                                  }}><Text style={{ color: "#ffffff", fontSize: 16 }}>Add</Text></AddButton>
                                 </InsuranceBox>
                                 {
-                                promotion && 
-                                <ResetButton onPress={()=> {
-                                  setPromotion("")
-                                  setPromotionText("")
-                                }}>
-                                  <ResetText>Reset</ResetText>
-                                </ResetButton>
+                                  promotion &&
+                                  <ResetButton onPress={() => {
+                                    setPromotion("")
+                                    setPromotionText("")
+                                  }}>
+                                    <ResetText>Reset</ResetText>
+                                  </ResetButton>
                                 }
                               </InsuranceWrapper>
+
+                              {
+
+                                "error" in results[3].data ?
+                                  <Text>{results[3].data.error.message}</Text>
+                                  :
+                                  <TitleButtonWrapperTwo>
+
+                                    <AdditionText>Subtotal</AdditionText>
+                                    <AdditionText>
+                                      ${parseInt(results[3].data.subtotal).toFixed(2)}
+                                    </AdditionText>
+                                  </TitleButtonWrapperTwo>
+
+                              }
 
                               {
 
@@ -861,8 +891,9 @@ const CarConfirm = ({ route, navigation }) => {
                                   results[3].data.receipt.map((e) => {
                                     return (
                                       <TitleButtonWrapperTwo>
-                                        <AdditionText>{e[0]}</AdditionText>
-                                        <AdditionText>
+
+                                        <AdditionText red={parseInt(e[1]).toFixed(2) < 0}>{e[0]}</AdditionText>
+                                        <AdditionText red={parseInt(e[1]).toFixed(2) < 0}>
                                           ${parseInt(e[1]).toFixed(2)}
                                         </AdditionText>
                                       </TitleButtonWrapperTwo>
@@ -879,7 +910,7 @@ const CarConfirm = ({ route, navigation }) => {
                                     <TitleButtonWrapper>
                                       <TotalText>Total</TotalText>
                                       <TotalText color>
-                                        ${parseInt(results[3].data.subtotal).toFixed(2)}
+                                        ${parseInt(results[3].data.total).toFixed(2)}
                                       </TotalText>
                                     </TitleButtonWrapper>
                                   </WhiteWrapperTotal>
@@ -888,8 +919,8 @@ const CarConfirm = ({ route, navigation }) => {
 
                             </GeneralWrapper>
                             {
-                            moment(route.params.startDate).subtract(1, "days").isAfter(moment()) &&
-                              
+                              moment(route.params.startDate).subtract(1, "days").isAfter(moment()) &&
+
                               <InformationBox>
                                 <Ionicons
                                   color="#00000090"
@@ -923,7 +954,7 @@ const CarConfirm = ({ route, navigation }) => {
                         <Footer>
                           <ContainerPrice>
                             <CustomButton
-                              onPress={openPaymentSheet}
+                              onPress={()=> paymentIntentMutation.mutate()}
                               title={"Checkout"}
                               bgcolor={"#4aaf6e"}
                               fcolor={"#fff"}
@@ -937,7 +968,7 @@ const CarConfirm = ({ route, navigation }) => {
               }
             </View>
             :
-            <Text>{results[4].data.error.message}</Text>
+            <Text>{results[4].data.error.message || ""}</Text>
 
         }
       </StripeProvider>
