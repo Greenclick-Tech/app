@@ -338,19 +338,21 @@ const CarConfirm = ({ route, navigation }) => {
   const [insurance, setInsurance] = useState('')
   const [promotion, setPromotion] = useState('')
   const [promotionText, setPromotionText] = useState('')
-
-  const requestBodyPaymentProperties = {
+  const [requestBodyPaymentProperties, setRequestBodyPaymentProperties] = useState({
     start_date: moment(route.params.startDate).utc().toISOString(),
     end_date: moment(route.params.endDate).utc().toISOString(),
-  }
+    insurance: insurance,
+    promotion: promotion
+  });
 
   const paymentIntentMutation = useMutation({
     // useMutation
-    mutationKey: ["paymentIntent", route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate],
-    mutationFn: () => fetchPaymentIntent(route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate),
+    mutationKey: ["paymentIntent"],
+    mutationFn: () => fetchPaymentIntent(route.params.hotelId, route.params.vehicleId, requestBodyPaymentProperties),
     cacheTime: 0,
     refetchOnWindowFocus: true,
     onSuccess: async (res) => {
+      console.log(res)
       if("client_secret" in res) {
         initializePaymentSheet(res.client_secret);
       }
@@ -429,10 +431,7 @@ const CarConfirm = ({ route, navigation }) => {
     let res = await RequestHandler(
       "POST",
       endpoints.CREATE_PAYMENT_INTENT(hotelId, vehicleId),
-      {
-        start_date: moment(route.params.startDate).utc().toISOString(),
-        end_date: moment(route.params.endDate).utc().toISOString(),
-      },
+      requestBodyPaymentProperties,
       undefined,
       true
     );
@@ -519,8 +518,8 @@ const CarConfirm = ({ route, navigation }) => {
         queryFn: () => fetchVehicle(route.params.hotelId, route.params.vehicleId),
       },
       {
-        queryKey: ["paymentProperties", route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate, insurance, promotion],
-        queryFn: () => fetchPaymentProperties(route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate, insurance, promotion),
+        queryKey: ["paymentProperties", route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate,requestBodyPaymentProperties],
+        queryFn: () => fetchPaymentProperties(route.params.hotelId, route.params.vehicleId, route.params.startDate, route.params.endDate, requestBodyPaymentProperties),
         onSuccess: (data) => {
           console.log(data)
         },
@@ -648,15 +647,41 @@ const CarConfirm = ({ route, navigation }) => {
     setPaymentVisibility(false);
   };
 
+  // useEffect(() => {
+
+  //   const updatedProperties = {
+  //     start_date: moment(route.params.startDate).utc().toISOString(),
+  //     end_date: moment(route.params.endDate).utc().toISOString(),
+  //   };
+
+  //   if (insurance) {
+  //     updatedProperties.insurance = insurance;
+  //   }
+  //   if (promotion) {
+  //     updatedProperties.promotion = promotion;
+  //   }
+  //   setRequestBodyPaymentProperties(updatedProperties);
+
+  // }, [insurance, promotion, route.params.startDate, route.params.endDate]);
+
+  // useEffect(() => {
+  //   console.log("RAN");
+  //   results[2].refetch();
+  // }, [requestBodyPaymentProperties])
+
   useEffect(() => {
-    if (insurance) {
-      requestBodyPaymentProperties.insurance = insurance;
-    }
-    if (promotion) {
-      requestBodyPaymentProperties.promotion = promotion;
-    }
-    results[2].refetch()
-  }, [insurance, promotion])
+    setRequestBodyPaymentProperties(prevProperties => ({
+      ...prevProperties,
+      insurance: insurance,
+    }));
+  }, [insurance]);
+  
+  useEffect(() => {
+    setRequestBodyPaymentProperties(prevProperties => ({
+      ...prevProperties,
+      promotion: promotion,
+    }));
+  }, [promotion]);
 
   let main = null;
 
@@ -842,7 +867,7 @@ const CarConfirm = ({ route, navigation }) => {
                                   <MiniSubtitle>Add a Promo Code</MiniSubtitle>
                                 </DateWrapper>
                                 <InsuranceBox>
-                                  <PromoCodeInput value={promotionText} onChangeText={(text) => {
+                                  <PromoCodeInput editable={!promotion.length > 0} value={promotionText} onChangeText={(text) => {
                                     setPromotionText(text)
                                   }}>
                                   </PromoCodeInput>
