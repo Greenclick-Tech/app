@@ -178,6 +178,8 @@ const PhoneVerifyPage = ({ navigation, route }) => {
             "application/x-www-form-urlencoded"
         );
 
+        console.log(res)
+
         if ("error" in res) {
             setError(res.error.message)
             if (res.error.status == 404) {
