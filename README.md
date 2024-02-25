@@ -11,3 +11,5 @@ Greenclick mobile application repository. Rent your vehicle directly at your hot
 - Written in Javascript
 - Maintenance is currently managed by Sahil Sian
 
+Note: This respository consists of the Greenclick app in its MVP version. Current version is currently unavailable for public viewing.
+
