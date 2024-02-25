@@ -334,15 +334,7 @@ const ExtraInfo = ({ navigation, route }) => {
             
             }}
             debounce={200}
-            requestUrl={{
-              useOnPlatform: 'all',
-              url: 'https://maps.googleapis.com/maps/api',
-              headers: {
-                'X-Ios-Bundle-Identifier': "org.name.greenclick",
-                "X-Android-Package": "org.name.greenclick",
-                "X-Android-Cert": "1D:AE:C8:79:1F:A9:EA:E0:B0:45:CB:1D:AC:A6:2D:D1:6B:FE:58:DD"
-              }
-            }}
+            //Hidden Request URL
           />
         </ButtonContainer>
         <ButtonContainer>

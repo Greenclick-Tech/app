@@ -1117,16 +1117,7 @@ const MapPage = ({ route, navigation, props }) => {
         setIsSearching(true);
         const delaySearch = setTimeout(() => {
             axios
-                .get(
-                    `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchPlaces}&&location=${location.coords.latitude}%2C${location.coords.longitude}&&radius=1000&key=${key}`, {
-                    headers: {
-                        'X-Ios-Bundle-Identifier': "org.name.greenclick",
-                        "X-Android-Package": "org.name.greenclick",
-                        "X-Android-Cert": "1D:AE:C8:79:1F:A9:EA:E0:B0:45:CB:1D:AC:A6:2D:D1:6B:FE:58:DD"
-
-                    }
-                }
-                )
+                // .get(hidden request url)
                 .then((res) => {
                     setPlaces(res.data.predictions);
                 });
@@ -1944,15 +1935,7 @@ const MapPage = ({ route, navigation, props }) => {
                                                                 onPress={async () => {
                                                                     Keyboard.dismiss();
                                                                     await axios
-                                                                        .get(
-                                                                            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=${key}`, {
-                                                                            headers: {
-                                                                                'X-Ios-Bundle-Identifier': "org.name.greenclick",
-                                                                                "X-Android-Package": "org.name.greenclick",
-                                                                                "X-Android-Cert": "1D:AE:C8:79:1F:A9:EA:E0:B0:45:CB:1D:AC:A6:2D:D1:6B:FE:58:DD"
-                                                                            }
-                                                                        }
-                                                                        )
+                                                                        // .get(hidden request url)
                                                                         .then((res) => {
                                                                             handleSheetChanges(0);
                                                                             setmapRegion({
